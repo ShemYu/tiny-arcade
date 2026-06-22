@@ -1,43 +1,65 @@
-# Single-Page Games
+<p align="center">
+  <a href="https://shemyu.github.io/single-page-games/">
+    <img src="./assets/previews/mochi-sky.png" alt="Mochi Sky gameplay preview" width="760">
+  </a>
+</p>
 
-一個用來收納可直接在瀏覽器執行的迷你遊戲 repo。
+<h1 align="center">Single-Page Games</h1>
 
-## Live Site
+<p align="center">
+  <strong>Tiny playable worlds, shipped as plain HTML.</strong>
+</p>
 
-- 首頁 / 遊戲目錄：<https://shemyu.github.io/single-page-games/>
-- 麻糬星野：<https://shemyu.github.io/single-page-games/games/mochi-sky/>
+<p align="center">
+  <a href="https://shemyu.github.io/single-page-games/">Play the Arcade</a>
+  &nbsp;|&nbsp;
+  <a href="https://shemyu.github.io/single-page-games/games/mochi-sky/">Launch Mochi Sky</a>
+  &nbsp;|&nbsp;
+  <a href="./games/mochi-sky/">Browse the Game Source</a>
+</p>
 
-首頁是 repo 根目錄的 `index.html`，會列出目前收錄的遊戲入口。
+---
 
-## Games
+Single-Page Games is a small arcade shelf for browser games that open fast, feel handmade, and keep their whole world inside static files. No install flow. No backend. No heavy framework. Just a link, a tab, and a little pocket of play.
 
-- **麻糬星野** — 像素風橫向卷軸 POC
-  - 路徑：`games/mochi-sky/`
-  - 操作：`← → / A D` 移動、`Space / W` 跳躍、長按 `X` 吸入、`C` 發射、`R` 重來、`P` 暫停
+## Now Playing
 
-## Structure
+### Mochi Sky
+
+A pastel pixel side-scroller starring a round pink mochi hero. Jump across floating platforms, inhale enemies, fire star shots, and reach the end of the stage.
+
+| Detail | Notes |
+| --- | --- |
+| Play | <https://shemyu.github.io/single-page-games/games/mochi-sky/> |
+| Style | Pixel art, pastel skies, side-scrolling platformer |
+| Status | Playable proof of concept |
+| Controls | `Left` / `Right` or `A` / `D` to move, `Space` / `W` to jump, hold `X` to inhale, `C` to shoot, `R` to restart, `P` to pause |
+
+## Brand Notes
+
+- Fast to open: every game should be playable from a direct URL.
+- Easy to share: each game lives in its own folder with relative links.
+- Small by design: static HTML first, build tools only when they earn their keep.
+- Playful on the surface, tidy underneath: the repo should stay easy to scan and remix.
+
+## Arcade Map
 
 ```text
 single-page-games/
-├── index.html
-├── assets/
-│   └── previews/
-│       └── mochi-sky.png
-├── games/
-│   └── mochi-sky/
-│       └── index.html
-├── .nojekyll
-└── publish-to-github.sh
+|-- index.html
+|-- assets/
+|   `-- previews/
+|       `-- mochi-sky.png
+|-- games/
+|   `-- mochi-sky/
+|       `-- index.html
+|-- .nojekyll
+`-- publish-to-github.sh
 ```
 
-所有站內連結與資源都使用相對路徑，因此可部署在 GitHub Pages 的 project subpath：
+## Publishing
 
-- 目錄頁：`https://shemyu.github.io/single-page-games/`
-- 遊戲頁：`https://shemyu.github.io/single-page-games/games/mochi-sky/`
-
-## Publish
-
-需要安裝並登入 [GitHub CLI](https://cli.github.com/)：
+The site is published with GitHub Pages from `main` at the repository root.
 
 ```bash
 gh auth login
@@ -45,4 +67,4 @@ chmod +x publish-to-github.sh
 ./publish-to-github.sh
 ```
 
-腳本會建立公開 repo `ShemYu/single-page-games`、push `main`，並將 GitHub Pages 設為從 repo 根目錄發布。
+Live arcade: <https://shemyu.github.io/single-page-games/>
