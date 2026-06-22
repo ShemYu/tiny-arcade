@@ -1,0 +1,179 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="600" viewBox="0 0 1600 600" role="img" aria-labelledby="title desc">
+<title id="title">Shem's Tiny Arcade</title>
+<desc id="desc">A pixel-art AI game workshop floating in deep space, with neon cyan light and purple accents.</desc>
+<defs>
+  <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+    <stop offset="0" stop-color="#070B25"/>
+    <stop offset="0.45" stop-color="#101346"/>
+    <stop offset="1" stop-color="#25104B"/>
+  </linearGradient>
+  <radialGradient id="nebula" cx="72%" cy="50%" r="60%">
+    <stop offset="0" stop-color="#613DC4" stop-opacity="0.42"/>
+    <stop offset="0.43" stop-color="#2249A3" stop-opacity="0.16"/>
+    <stop offset="1" stop-color="#070B25" stop-opacity="0"/>
+  </radialGradient>
+  <linearGradient id="platform" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0" stop-color="#34459A"/>
+    <stop offset="1" stop-color="#151B54"/>
+  </linearGradient>
+  <linearGradient id="glass" x1="0" y1="0" x2="1" y2="1">
+    <stop offset="0" stop-color="#7BF7FF" stop-opacity="0.24"/>
+    <stop offset="0.6" stop-color="#7566FF" stop-opacity="0.10"/>
+    <stop offset="1" stop-color="#1A1F62" stop-opacity="0.08"/>
+  </linearGradient>
+  <linearGradient id="cyan" x1="0" y1="0" x2="1" y2="0">
+    <stop offset="0" stop-color="#7FFFFF"/>
+    <stop offset="1" stop-color="#37CFFF"/>
+  </linearGradient>
+  <filter id="glow" x="-100%" y="-100%" width="300%" height="300%">
+    <feGaussianBlur stdDeviation="8" result="blur"/>
+    <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+  </filter>
+  <filter id="softGlow" x="-100%" y="-100%" width="300%" height="300%">
+    <feGaussianBlur stdDeviation="18"/>
+  </filter>
+  <clipPath id="domeClip"><path d="M947 372 V294 C947 207 1018 151 1119 151 H1350 C1450 151 1519 210 1519 294 V372 Z"/></clipPath>
+</defs>
+
+<rect width="1600" height="600" fill="url(#bg)"/>
+<rect width="1600" height="600" fill="url(#nebula)"/>
+<g shape-rendering="crispEdges"><rect x="0" y="32" width="32" height="16" fill="#1D3E82" opacity="0.08"/><rect x="640" y="224" width="32" height="8" fill="#1D3E82" opacity="0.08"/><rect x="352" y="96" width="32" height="24" fill="#47278B" opacity="0.08"/><rect x="1440" y="32" width="48" height="16" fill="#47278B" opacity="0.08"/><rect x="976" y="464" width="48" height="24" fill="#1D3E82" opacity="0.08"/><rect x="304" y="144" width="16" height="24" fill="#60308F" opacity="0.08"/><rect x="832" y="560" width="64" height="8" fill="#1D3E82" opacity="0.08"/><rect x="1200" y="208" width="32" height="24" fill="#60308F" opacity="0.08"/><rect x="1312" y="224" width="16" height="24" fill="#273B92" opacity="0.08"/><rect x="1264" y="208" width="48" height="16" fill="#47278B" opacity="0.08"/><rect x="1472" y="208" width="64" height="8" fill="#60308F" opacity="0.08"/><rect x="1072" y="432" width="48" height="8" fill="#60308F" opacity="0.08"/><rect x="1168" y="512" width="64" height="8" fill="#60308F" opacity="0.08"/><rect x="1168" y="192" width="32" height="8" fill="#273B92" opacity="0.08"/><rect x="512" y="240" width="48" height="16" fill="#1D3E82" opacity="0.08"/><rect x="112" y="352" width="32" height="24" fill="#273B92" opacity="0.08"/><rect x="1392" y="416" width="16" height="16" fill="#47278B" opacity="0.08"/><rect x="288" y="448" width="48" height="16" fill="#60308F" opacity="0.08"/><rect x="848" y="0" width="16" height="24" fill="#273B92" opacity="0.08"/><rect x="704" y="112" width="32" height="8" fill="#273B92" opacity="0.08"/><rect x="272" y="288" width="16" height="24" fill="#60308F" opacity="0.08"/><rect x="1552" y="480" width="64" height="8" fill="#47278B" opacity="0.08"/><rect x="320" y="416" width="32" height="24" fill="#60308F" opacity="0.08"/><rect x="432" y="64" width="32" height="24" fill="#47278B" opacity="0.08"/><rect x="80" y="16" width="32" height="16" fill="#1D3E82" opacity="0.08"/><rect x="1072" y="256" width="16" height="8" fill="#47278B" opacity="0.08"/><rect x="864" y="0" width="16" height="24" fill="#273B92" opacity="0.08"/><rect x="464" y="256" width="64" height="24" fill="#1D3E82" opacity="0.08"/><rect x="1008" y="144" width="32" height="8" fill="#60308F" opacity="0.08"/><rect x="160" y="352" width="64" height="24" fill="#47278B" opacity="0.08"/><rect x="672" y="544" width="16" height="24" fill="#1D3E82" opacity="0.08"/><rect x="768" y="208" width="48" height="24" fill="#273B92" opacity="0.08"/><rect x="112" y="160" width="48" height="8" fill="#1D3E82" opacity="0.08"/><rect x="624" y="80" width="32" height="24" fill="#47278B" opacity="0.08"/><rect x="1520" y="64" width="16" height="8" fill="#1D3E82" opacity="0.08"/><rect x="656" y="0" width="32" height="8" fill="#273B92" opacity="0.08"/><rect x="608" y="496" width="32" height="24" fill="#1D3E82" opacity="0.08"/><rect x="1568" y="112" width="16" height="24" fill="#60308F" opacity="0.08"/><rect x="640" y="576" width="64" height="24" fill="#47278B" opacity="0.08"/><rect x="464" y="80" width="48" height="16" fill="#1D3E82" opacity="0.08"/><rect x="288" y="32" width="16" height="16" fill="#1D3E82" opacity="0.08"/><rect x="1536" y="64" width="16" height="24" fill="#47278B" opacity="0.08"/><rect x="1352" y="511" width="4" height="4" fill="#FFFFFF" opacity="0.55"/><rect x="1348" y="513" width="12" height="1" fill="#FFFFFF" opacity="0.275"/><rect x="1354" y="507" width="1" height="12" fill="#FFFFFF" opacity="0.275"/><rect x="157" y="280" width="2" height="2" fill="#FFFFFF" opacity="0.55"/><rect x="849" y="207" width="2" height="2" fill="#6A7BFF" opacity="0.45"/><rect x="170" y="100" width="3" height="3" fill="#6A7BFF" opacity="0.7"/><rect x="1539" y="73" width="4" height="4" fill="#FFFFFF" opacity="0.7"/><rect x="1535" y="75" width="12" height="1" fill="#FFFFFF" opacity="0.35"/><rect x="1541" y="69" width="1" height="12" fill="#FFFFFF" opacity="0.35"/><rect x="1340" y="509" width="2" height="2" fill="#FFFFFF" opacity="0.45"/><rect x="1273" y="252" width="4" height="4" fill="#B69CFF" opacity="0.85"/><rect x="1269" y="254" width="12" height="1" fill="#B69CFF" opacity="0.425"/><rect x="1275" y="248" width="1" height="12" fill="#B69CFF" opacity="0.425"/><rect x="826" y="329" width="5" height="5" fill="#62F6FF" opacity="0.35"/><rect x="821" y="331" width="15" height="1" fill="#62F6FF" opacity="0.175"/><rect x="828" y="324" width="1" height="15" fill="#62F6FF" opacity="0.175"/><rect x="1473" y="175" width="2" height="2" fill="#62F6FF" opacity="0.85"/><rect x="378" y="35" width="3" height="3" fill="#FFFFFF" opacity="0.45"/><rect x="1199" y="445" width="2" height="2" fill="#6A7BFF" opacity="0.55"/><rect x="981" y="381" width="2" height="2" fill="#B69CFF" opacity="0.55"/><rect x="1081" y="82" width="3" height="3" fill="#B69CFF" opacity="0.45"/><rect x="449" y="520" width="3" height="3" fill="#FFFFFF" opacity="0.35"/><rect x="716" y="78" width="3" height="3" fill="#62F6FF" opacity="0.55"/><rect x="1448" y="104" width="2" height="2" fill="#6A7BFF" opacity="0.7"/><rect x="607" y="545" width="2" height="2" fill="#62F6FF" opacity="0.85"/><rect x="607" y="241" width="3" height="3" fill="#62F6FF" opacity="0.85"/><rect x="31" y="78" width="2" height="2" fill="#FFFFFF" opacity="0.45"/><rect x="1456" y="119" width="2" height="2" fill="#6A7BFF" opacity="0.85"/><rect x="864" y="491" width="4" height="4" fill="#B69CFF" opacity="0.35"/><rect x="744" y="34" width="3" height="3" fill="#B69CFF" opacity="0.45"/><rect x="804" y="216" width="4" height="4" fill="#6A7BFF" opacity="0.55"/><rect x="152" y="373" width="2" height="2" fill="#62F6FF" opacity="0.45"/><rect x="970" y="508" width="2" height="2" fill="#FFFFFF" opacity="0.45"/><rect x="598" y="51" width="4" height="4" fill="#B69CFF" opacity="0.7"/><rect x="594" y="53" width="12" height="1" fill="#B69CFF" opacity="0.35"/><rect x="600" y="47" width="1" height="12" fill="#B69CFF" opacity="0.35"/><rect x="981" y="238" width="5" height="5" fill="#FFFFFF" opacity="0.7"/><rect x="1067" y="173" width="4" height="4" fill="#62F6FF" opacity="0.55"/><rect x="279" y="500" width="3" height="3" fill="#62F6FF" opacity="0.85"/><rect x="523" y="464" width="2" height="2" fill="#62F6FF" opacity="0.55"/><rect x="282" y="125" width="3" height="3" fill="#FFFFFF" opacity="0.35"/><rect x="1532" y="40" width="2" height="2" fill="#62F6FF" opacity="0.7"/><rect x="1212" y="553" width="5" height="5" fill="#62F6FF" opacity="0.7"/><rect x="1207" y="555" width="15" height="1" fill="#62F6FF" opacity="0.35"/><rect x="1214" y="548" width="1" height="15" fill="#62F6FF" opacity="0.35"/><rect x="1130" y="227" width="2" height="2" fill="#6A7BFF" opacity="0.85"/><rect x="355" y="28" width="2" height="2" fill="#B69CFF" opacity="0.45"/><rect x="1511" y="349" width="3" height="3" fill="#FFFFFF" opacity="0.7"/><rect x="1216" y="69" width="4" height="4" fill="#62F6FF" opacity="0.45"/><rect x="1027" y="115" width="3" height="3" fill="#B69CFF" opacity="0.35"/><rect x="653" y="517" width="4" height="4" fill="#6A7BFF" opacity="0.55"/><rect x="1298" y="84" width="3" height="3" fill="#FFFFFF" opacity="0.55"/><rect x="1546" y="513" width="2" height="2" fill="#B69CFF" opacity="0.7"/><rect x="1283" y="246" width="3" height="3" fill="#B69CFF" opacity="0.85"/><rect x="1440" y="322" width="4" height="4" fill="#6A7BFF" opacity="0.45"/><rect x="884" y="288" width="2" height="2" fill="#62F6FF" opacity="0.45"/><rect x="1102" y="492" width="3" height="3" fill="#62F6FF" opacity="0.35"/><rect x="938" y="267" width="5" height="5" fill="#62F6FF" opacity="0.55"/><rect x="933" y="269" width="15" height="1" fill="#62F6FF" opacity="0.275"/><rect x="940" y="262" width="1" height="15" fill="#62F6FF" opacity="0.275"/><rect x="1475" y="463" width="3" height="3" fill="#FFFFFF" opacity="0.55"/><rect x="1119" y="61" width="5" height="5" fill="#62F6FF" opacity="0.45"/><rect x="1519" y="146" width="2" height="2" fill="#FFFFFF" opacity="0.45"/><rect x="1427" y="173" width="2" height="2" fill="#B69CFF" opacity="0.35"/><rect x="74" y="565" width="2" height="2" fill="#FFFFFF" opacity="0.7"/><rect x="1522" y="22" width="3" height="3" fill="#62F6FF" opacity="0.35"/><rect x="278" y="202" width="5" height="5" fill="#B69CFF" opacity="0.45"/><rect x="273" y="204" width="15" height="1" fill="#B69CFF" opacity="0.225"/><rect x="280" y="197" width="1" height="15" fill="#B69CFF" opacity="0.225"/><rect x="608" y="518" width="5" height="5" fill="#FFFFFF" opacity="0.35"/><rect x="276" y="524" width="4" height="4" fill="#FFFFFF" opacity="0.45"/><rect x="1052" y="491" width="3" height="3" fill="#62F6FF" opacity="0.45"/><rect x="906" y="465" width="3" height="3" fill="#6A7BFF" opacity="0.85"/><rect x="722" y="465" width="3" height="3" fill="#62F6FF" opacity="0.45"/><rect x="276" y="163" width="4" height="4" fill="#B69CFF" opacity="0.7"/><rect x="1066" y="418" width="2" height="2" fill="#FFFFFF" opacity="0.45"/><rect x="708" y="115" width="2" height="2" fill="#6A7BFF" opacity="0.35"/><rect x="362" y="448" width="2" height="2" fill="#62F6FF" opacity="0.85"/><rect x="1486" y="519" width="2" height="2" fill="#6A7BFF" opacity="0.55"/><rect x="275" y="527" width="3" height="3" fill="#6A7BFF" opacity="0.7"/><rect x="1179" y="418" width="2" height="2" fill="#B69CFF" opacity="0.55"/><rect x="1246" y="478" width="2" height="2" fill="#B69CFF" opacity="0.7"/><rect x="1412" y="534" width="3" height="3" fill="#B69CFF" opacity="0.35"/><rect x="1501" y="568" width="3" height="3" fill="#62F6FF" opacity="0.85"/><rect x="1049" y="301" width="2" height="2" fill="#B69CFF" opacity="0.85"/><rect x="289" y="533" width="4" height="4" fill="#B69CFF" opacity="0.7"/><rect x="285" y="535" width="12" height="1" fill="#B69CFF" opacity="0.35"/><rect x="291" y="529" width="1" height="12" fill="#B69CFF" opacity="0.35"/><rect x="1044" y="468" width="3" height="3" fill="#62F6FF" opacity="0.45"/><rect x="1296" y="412" width="2" height="2" fill="#6A7BFF" opacity="0.45"/><rect x="1497" y="295" width="2" height="2" fill="#6A7BFF" opacity="0.55"/><rect x="1302" y="550" width="3" height="3" fill="#6A7BFF" opacity="0.35"/><rect x="802" y="472" width="3" height="3" fill="#62F6FF" opacity="0.45"/><rect x="1301" y="168" width="4" height="4" fill="#62F6FF" opacity="0.35"/><rect x="774" y="489" width="3" height="3" fill="#6A7BFF" opacity="0.85"/><rect x="846" y="245" width="3" height="3" fill="#FFFFFF" opacity="0.45"/><rect x="163" y="493" width="4" height="4" fill="#6A7BFF" opacity="0.55"/><rect x="1479" y="56" width="5" height="5" fill="#62F6FF" opacity="0.85"/><rect x="1447" y="525" width="4" height="4" fill="#6A7BFF" opacity="0.35"/><rect x="1443" y="527" width="12" height="1" fill="#6A7BFF" opacity="0.175"/><rect x="1449" y="521" width="1" height="12" fill="#6A7BFF" opacity="0.175"/><rect x="1399" y="278" width="2" height="2" fill="#FFFFFF" opacity="0.45"/><rect x="1231" y="528" width="3" height="3" fill="#6A7BFF" opacity="0.85"/><rect x="1406" y="525" width="4" height="4" fill="#6A7BFF" opacity="0.7"/><rect x="1411" y="573" width="4" height="4" fill="#6A7BFF" opacity="0.35"/><rect x="992" y="38" width="5" height="5" fill="#B69CFF" opacity="0.7"/><rect x="1221" y="405" width="3" height="3" fill="#62F6FF" opacity="0.55"/><rect x="1069" y="288" width="3" height="3" fill="#6A7BFF" opacity="0.55"/><rect x="773" y="268" width="4" height="4" fill="#FFFFFF" opacity="0.35"/><rect x="769" y="270" width="12" height="1" fill="#FFFFFF" opacity="0.175"/><rect x="775" y="264" width="1" height="12" fill="#FFFFFF" opacity="0.175"/><rect x="1010" y="72" width="2" height="2" fill="#FFFFFF" opacity="0.35"/><rect x="1028" y="81" width="2" height="2" fill="#B69CFF" opacity="0.7"/><rect x="267" y="522" width="3" height="3" fill="#62F6FF" opacity="0.35"/><rect x="524" y="454" width="2" height="2" fill="#6A7BFF" opacity="0.7"/><rect x="934" y="23" width="5" height="5" fill="#6A7BFF" opacity="0.85"/><rect x="1030" y="127" width="2" height="2" fill="#62F6FF" opacity="0.35"/><rect x="885" y="494" width="3" height="3" fill="#B69CFF" opacity="0.45"/><rect x="302" y="87" width="4" height="4" fill="#B69CFF" opacity="0.85"/><rect x="298" y="89" width="12" height="1" fill="#B69CFF" opacity="0.425"/><rect x="304" y="83" width="1" height="12" fill="#B69CFF" opacity="0.425"/><rect x="1252" y="247" width="5" height="5" fill="#B69CFF" opacity="0.55"/><rect x="1247" y="249" width="15" height="1" fill="#B69CFF" opacity="0.275"/><rect x="1254" y="242" width="1" height="15" fill="#B69CFF" opacity="0.275"/><rect x="193" y="119" width="2" height="2" fill="#B69CFF" opacity="0.55"/><rect x="180" y="116" width="2" height="2" fill="#B69CFF" opacity="0.45"/><rect x="633" y="72" width="2" height="2" fill="#B69CFF" opacity="0.35"/><rect x="1512" y="126" width="2" height="2" fill="#B69CFF" opacity="0.85"/><rect x="488" y="58" width="2" height="2" fill="#62F6FF" opacity="0.35"/><rect x="771" y="449" width="3" height="3" fill="#6A7BFF" opacity="0.55"/><rect x="1306" y="416" width="2" height="2" fill="#62F6FF" opacity="0.7"/><rect x="43" y="471" width="2" height="2" fill="#B69CFF" opacity="0.45"/><rect x="400" y="138" width="3" height="3" fill="#62F6FF" opacity="0.45"/><rect x="755" y="357" width="5" height="5" fill="#FFFFFF" opacity="0.7"/><rect x="1107" y="481" width="2" height="2" fill="#6A7BFF" opacity="0.85"/><rect x="515" y="553" width="4" height="4" fill="#B69CFF" opacity="0.55"/><rect x="533" y="268" width="3" height="3" fill="#B69CFF" opacity="0.85"/><rect x="1506" y="252" width="5" height="5" fill="#B69CFF" opacity="0.7"/><rect x="1191" y="142" width="3" height="3" fill="#B69CFF" opacity="0.85"/><rect x="904" y="182" width="2" height="2" fill="#B69CFF" opacity="0.7"/><rect x="47" y="32" width="2" height="2" fill="#FFFFFF" opacity="0.85"/><rect x="1500" y="216" width="2" height="2" fill="#B69CFF" opacity="0.85"/><rect x="830" y="343" width="3" height="3" fill="#B69CFF" opacity="0.85"/><rect x="1295" y="492" width="4" height="4" fill="#62F6FF" opacity="0.7"/><rect x="1466" y="491" width="2" height="2" fill="#62F6FF" opacity="0.85"/><rect x="360" y="513" width="5" height="5" fill="#6A7BFF" opacity="0.7"/></g>
+
+<!-- Distant AI constellation -->
+<g><path d="M920 94 L1030 63" stroke="#63EDFF" stroke-width="2" opacity="0.16"/><path d="M1030 63 L1140 112" stroke="#63EDFF" stroke-width="2" opacity="0.16"/><path d="M1140 112 L1266 65" stroke="#63EDFF" stroke-width="2" opacity="0.16"/><path d="M1266 65 L1394 104" stroke="#63EDFF" stroke-width="2" opacity="0.16"/><path d="M1394 104 L1500 68" stroke="#63EDFF" stroke-width="2" opacity="0.16"/><path d="M1030 63 L1092 178" stroke="#63EDFF" stroke-width="2" opacity="0.16"/><path d="M1140 112 L1092 178" stroke="#63EDFF" stroke-width="2" opacity="0.16"/><path d="M1140 112 L1235 164" stroke="#63EDFF" stroke-width="2" opacity="0.16"/><path d="M1266 65 L1235 164" stroke="#63EDFF" stroke-width="2" opacity="0.16"/><path d="M1394 104 L1370 184" stroke="#63EDFF" stroke-width="2" opacity="0.16"/><path d="M1500 68 L1498 150" stroke="#63EDFF" stroke-width="2" opacity="0.16"/><path d="M1092 178 L1235 164" stroke="#63EDFF" stroke-width="2" opacity="0.16"/><path d="M1235 164 L1370 184" stroke="#63EDFF" stroke-width="2" opacity="0.16"/><path d="M1370 184 L1498 150" stroke="#63EDFF" stroke-width="2" opacity="0.16"/><rect x="914" y="88" width="12" height="12" fill="#0A143C" stroke="#63EDFF" stroke-width="2" opacity="0.65"/><rect x="1026" y="59" width="8" height="8" fill="#0A143C" stroke="#63EDFF" stroke-width="2" opacity="0.65"/><rect x="1136" y="108" width="8" height="8" fill="#0A143C" stroke="#63EDFF" stroke-width="2" opacity="0.65"/><rect x="1260" y="59" width="12" height="12" fill="#0A143C" stroke="#63EDFF" stroke-width="2" opacity="0.65"/><rect x="1390" y="100" width="8" height="8" fill="#0A143C" stroke="#63EDFF" stroke-width="2" opacity="0.65"/><rect x="1496" y="64" width="8" height="8" fill="#0A143C" stroke="#63EDFF" stroke-width="2" opacity="0.65"/><rect x="1086" y="172" width="12" height="12" fill="#0A143C" stroke="#63EDFF" stroke-width="2" opacity="0.65"/><rect x="1231" y="160" width="8" height="8" fill="#0A143C" stroke="#63EDFF" stroke-width="2" opacity="0.65"/><rect x="1366" y="180" width="8" height="8" fill="#0A143C" stroke="#63EDFF" stroke-width="2" opacity="0.65"/><rect x="1492" y="144" width="12" height="12" fill="#0A143C" stroke="#63EDFF" stroke-width="2" opacity="0.65"/></g>
+
+<!-- Left-side brand panel -->
+<g>
+  <rect x="75" y="91" width="188" height="34" rx="4" fill="#10194A" stroke="#4EEAFF" stroke-width="2" opacity="0.95"/>
+  <rect x="88" y="102" width="8" height="8" fill="#68F8FF"/>
+  <text x="108" y="114" fill="#9AFBFF" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="16" font-weight="700" letter-spacing="2">SHEM.EXE / LAB 01</text>
+
+  <text x="72" y="234" fill="#F4F7FF" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="86" font-weight="850" letter-spacing="-3">Shem's</text>
+  <text x="70" y="330" fill="url(#cyan)" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="96" font-weight="900" letter-spacing="-4" filter="url(#glow)">Tiny Arcade</text>
+  <text x="78" y="383" fill="#C1C8F8" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="24" font-weight="700" letter-spacing="3">AI × GAMES × PLAYABLE EXPERIMENTS</text>
+
+  <g transform="translate(78 425)" shape-rendering="crispEdges">
+    <rect width="462" height="2" fill="#4EEAFF" opacity=".32"/>
+    <rect y="18" width="9" height="9" fill="#6AF4FF"/>
+    <text x="25" y="28" fill="#98A6E7" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="18" letter-spacing="1.6">BUILD</text>
+    <rect x="123" y="18" width="9" height="9" fill="#A68DFF"/>
+    <text x="148" y="28" fill="#98A6E7" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="18" letter-spacing="1.6">PLAY</text>
+    <rect x="236" y="18" width="9" height="9" fill="#6AF4FF"/>
+    <text x="261" y="28" fill="#98A6E7" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="18" letter-spacing="1.6">ITERATE</text>
+  </g>
+
+  <!-- Tiny controller cursor motif -->
+  <g transform="translate(615 415)" shape-rendering="crispEdges">
+    <rect x="0" y="12" width="92" height="52" rx="12" fill="#151B51" stroke="#5BEFFF" stroke-width="3"/>
+    <rect x="20" y="28" width="25" height="8" fill="#8BF9FF"/>
+    <rect x="28" y="20" width="8" height="25" fill="#8BF9FF"/>
+    <rect x="63" y="27" width="8" height="8" fill="#B69CFF"/>
+    <rect x="74" y="38" width="8" height="8" fill="#72F1FF"/>
+    <path d="M88 55 L106 74 L102 55 L88 55Z" fill="#F8FAFF" stroke="#10133F" stroke-width="3"/>
+  </g>
+</g>
+
+<!-- Atmospheric glow behind workshop -->
+<ellipse cx="1240" cy="357" rx="343" ry="235" fill="#5B43E5" opacity="0.15" filter="url(#softGlow)"/>
+<ellipse cx="1260" cy="383" rx="240" ry="114" fill="#4CEFFF" opacity="0.13" filter="url(#softGlow)"/>
+
+<!-- Floating workshop base -->
+<g shape-rendering="crispEdges">
+  <!-- underslung floating rocks and energy -->
+  <path d="M1024 440 H1490 L1452 478 H1061 Z" fill="#151948" stroke="#5C6DD8" stroke-width="4"/>
+  <path d="M1082 478 H1434 L1379 534 H1130 Z" fill="#11143A" stroke="#30377C" stroke-width="3"/>
+  <path d="M1144 534 H1371 L1308 574 H1200 Z" fill="#0A0E2E" stroke="#2B2D68" stroke-width="3"/>
+  <rect x="1119" y="477" width="26" height="17" fill="#4FEBFF" opacity=".7"/>
+  <rect x="1396" y="477" width="26" height="17" fill="#4FEBFF" opacity=".7"/>
+  <path d="M1122 494 L1132 548 L1142 494 Z" fill="#4FEAFF" opacity=".78" filter="url(#glow)"/>
+  <path d="M1399 494 L1409 548 L1419 494 Z" fill="#4FEAFF" opacity=".78" filter="url(#glow)"/>
+
+  <!-- platform rim -->
+  <rect x="956" y="370" width="575" height="72" rx="10" fill="url(#platform)" stroke="#7185F0" stroke-width="4"/>
+  <rect x="978" y="390" width="531" height="28" fill="#101744" stroke="#42DFF4" stroke-width="2"/>
+  <rect x="1001" y="398" width="92" height="11" fill="#4DEBFF" opacity=".82"/>
+  <rect x="1113" y="398" width="35" height="11" fill="#9E8CFF" opacity=".72"/>
+  <rect x="1165" y="398" width="140" height="11" fill="#293479"/>
+  <rect x="1321" y="398" width="64" height="11" fill="#4DEBFF" opacity=".6"/>
+  <rect x="1405" y="398" width="78" height="11" fill="#293479"/>
+</g>
+
+<!-- Glass dome -->
+<path d="M947 372 V294 C947 207 1018 151 1119 151 H1350 C1450 151 1519 210 1519 294 V372 Z" fill="url(#glass)" stroke="#69EFFF" stroke-width="5" opacity=".92"/>
+<path d="M978 370 V300 C978 231 1036 184 1120 184 H1343 C1428 184 1487 230 1487 301 V370" fill="none" stroke="#8998FF" stroke-width="2" opacity=".5"/>
+<path d="M1032 197 L1400 197" stroke="#66EFFF" stroke-width="3" opacity=".23"/>
+<path d="M1132 153 V371 M1343 153 V371" stroke="#6DEFFF" stroke-width="2" opacity=".18"/>
+
+<!-- Workshop interior -->
+<g clip-path="url(#domeClip)" shape-rendering="crispEdges">
+  <!-- back wall floor grid -->
+  <rect x="946" y="310" width="575" height="66" fill="#111744" opacity=".88"/>
+  <path d="M946 355 H1520 M1010 310 V372 M1090 310 V372 M1170 310 V372 M1250 310 V372 M1330 310 V372 M1410 310 V372 M1490 310 V372" stroke="#4B5DB1" stroke-width="2" opacity=".4"/>
+
+  <!-- left monitor stack -->
+  <rect x="1000" y="226" width="150" height="88" rx="5" fill="#090F32" stroke="#5DEEFF" stroke-width="3"/>
+  <rect x="1015" y="241" width="119" height="56" fill="#10194A"/>
+  <path d="M1024 256 h34 M1024 269 h73 M1024 282 h51" stroke="#63F2FF" stroke-width="5"/>
+  <rect x="1068" y="315" width="14" height="25" fill="#5368C6"/>
+  <rect x="1039" y="338" width="72" height="7" fill="#6275D7"/>
+
+  <!-- holographic neural display -->
+  <rect x="1180" y="210" width="134" height="98" fill="#0C133D" stroke="#9A83FF" stroke-width="3" opacity=".92"/>
+  <path d="M1203 257 L1231 231 L1261 271 L1291 238" stroke="#5EF2FF" stroke-width="3" fill="none"/>
+  <rect x="1197" y="251" width="12" height="12" fill="#7FF7FF"/>
+  <rect x="1225" y="225" width="12" height="12" fill="#BA9CFF"/>
+  <rect x="1255" y="265" width="12" height="12" fill="#7FF7FF"/>
+  <rect x="1285" y="232" width="12" height="12" fill="#BA9CFF"/>
+  <path d="M1198 291 H1299" stroke="#3F4E9D" stroke-width="4"/>
+
+  <!-- right arcade cabinet -->
+  <path d="M1392 221 H1470 L1480 347 H1381 Z" fill="#161A53" stroke="#687DF0" stroke-width="4"/>
+  <rect x="1400" y="239" width="61" height="52" fill="#07102F" stroke="#59F0FF" stroke-width="3"/>
+  <rect x="1412" y="251" width="8" height="8" fill="#79F7FF"/>
+  <rect x="1420" y="259" width="8" height="8" fill="#79F7FF"/>
+  <rect x="1428" y="267" width="8" height="8" fill="#B69DFF"/>
+  <rect x="1436" y="259" width="8" height="8" fill="#B69DFF"/>
+  <rect x="1401" y="309" width="58" height="11" fill="#293477"/>
+  <rect x="1413" y="333" width="9" height="9" fill="#66F1FF"/>
+  <rect x="1437" y="333" width="9" height="9" fill="#B69DFF"/>
+
+  <!-- desk -->
+  <rect x="1081" y="320" width="274" height="18" fill="#5064C5"/>
+  <rect x="1096" y="338" width="14" height="35" fill="#303E91"/>
+  <rect x="1328" y="338" width="14" height="35" fill="#303E91"/>
+  <rect x="1164" y="330" width="105" height="6" fill="#5EEDFF" opacity=".8"/>
+
+  <!-- original round lab mascot -->
+  <ellipse cx="1260" cy="320" rx="48" ry="42" fill="#7DEEFF" opacity=".18" filter="url(#glow)"/>
+  <rect x="1222" y="286" width="76" height="66" rx="28" fill="#9BA5FF" stroke="#E4E8FF" stroke-width="3"/>
+  <rect x="1238" y="309" width="8" height="13" rx="3" fill="#11163C"/>
+  <rect x="1273" y="309" width="8" height="13" rx="3" fill="#11163C"/>
+  <path d="M1248 331 h24" stroke="#182051" stroke-width="4"/>
+  <rect x="1211" y="321" width="17" height="11" rx="4" fill="#75ECFF"/>
+  <rect x="1292" y="321" width="17" height="11" rx="4" fill="#75ECFF"/>
+  <rect x="1234" y="350" width="19" height="9" rx="4" fill="#725ED6"/>
+  <rect x="1267" y="350" width="19" height="9" rx="4" fill="#725ED6"/>
+
+  <!-- floating bot -->
+  <rect x="1044" y="182" width="54" height="43" rx="14" fill="#181F61" stroke="#5DF1FF" stroke-width="3"/>
+  <rect x="1057" y="196" width="8" height="8" fill="#77F6FF"/>
+  <rect x="1077" y="196" width="8" height="8" fill="#77F6FF"/>
+  <rect x="1067" y="173" width="8" height="11" fill="#A58DFF"/>
+  <path d="M1042 215 h-15 M1100 215 h15" stroke="#72F4FF" stroke-width="4"/>
+  <rect x="1057" y="228" width="28" height="4" fill="#5DEEFF" opacity=".65"/>
+</g>
+
+<!-- Dome shine -->
+<path d="M1003 279 C1017 218 1070 185 1144 173" fill="none" stroke="#E9FFFF" stroke-width="8" opacity=".16"/>
+<path d="M1008 302 C1011 290 1014 280 1019 270" fill="none" stroke="#FFFFFF" stroke-width="5" opacity=".22"/>
+
+<!-- Foreground pixel sparkles -->
+<g shape-rendering="crispEdges" filter="url(#glow)">
+  <rect x="891" y="265" width="7" height="25" fill="#67F3FF" opacity=".85"/><rect x="882" y="274" width="25" height="7" fill="#67F3FF" opacity=".85"/>
+  <rect x="1534" y="330" width="6" height="22" fill="#B79DFF" opacity=".75"/><rect x="1526" y="338" width="22" height="6" fill="#B79DFF" opacity=".75"/>
+</g>
+
+<!-- border -->
+<rect x="4" y="4" width="1592" height="592" rx="24" fill="none" stroke="#5364C8" stroke-width="3" opacity=".45"/>
+<rect x="15" y="15" width="1570" height="570" rx="18" fill="none" stroke="#42EAFB" stroke-width="1" opacity=".18"/>
+</svg>

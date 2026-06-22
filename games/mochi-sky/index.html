@@ -1,9 +1,9 @@
 <!doctype html>
-<html lang="zh-Hant">
+<html lang="en">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <title>麻糬星野｜像素橫向卷軸 POC</title>
+  <title>Mochi Sky · Shem's Tiny Arcade</title>
   <style>
     :root {
       color-scheme: dark;
@@ -63,6 +63,42 @@
       align-items: center;
       font-size: 11px;
       opacity: .9;
+    }
+
+    .home-link {
+      color: #fff8dccc;
+      text-decoration: none;
+      border: 1px solid #ffffff55;
+      border-radius: 999px;
+      padding: 5px 8px;
+      background: #38284e99;
+    }
+
+    .home-link:hover { color: #fff; border-color: #fff8dcaa; }
+
+    .lang-switch {
+      display: inline-flex;
+      gap: 3px;
+      padding: 3px;
+      border: 1px solid #ffffff55;
+      border-radius: 999px;
+      background: #38284e99;
+    }
+
+    .lang-switch button {
+      min-height: 26px;
+      padding: 0 8px;
+      border: 0;
+      border-radius: 999px;
+      color: #fff8dccc;
+      background: transparent;
+      box-shadow: none;
+      font-size: 10px;
+    }
+
+    .lang-switch button[aria-pressed="true"] {
+      color: #30213d;
+      background: var(--yellow);
     }
 
     button {
@@ -138,6 +174,7 @@
     .card h1 { margin: 0 0 8px; color: var(--yellow); font-size: clamp(22px, 5vw, 38px); }
     .card p { margin: 7px 0; font-size: clamp(11px, 2vw, 14px); line-height: 1.6; }
     .card .blink { color: #fff; animation: blink 1s steps(1) infinite; }
+    .card .lang-switch { margin-top: 14px; }
     @keyframes blink { 50% { opacity: .35; } }
 
     .help {
@@ -200,47 +237,56 @@
   <main class="shell">
     <header class="topbar">
       <div class="brand">
-        <strong>麻糬星野</strong>
+        <strong data-i18n="gameTitle">Mochi Sky</strong>
         <small>MOCHI SKY MEADOW · ORIGINAL PIXEL POC</small>
       </div>
       <div class="utility">
-        <span>到達彩虹星門！</span>
-        <button id="soundBtn" type="button" aria-label="切換音效">音效 ON</button>
+        <a class="home-link" href="../../">← Tiny Arcade</a>
+        <span data-i18n="goal">Reach the rainbow gate!</span>
+        <div class="lang-switch" aria-label="Language">
+          <button type="button" data-lang-option="en" aria-pressed="true">EN</button>
+          <button type="button" data-lang-option="zh" aria-pressed="false">中文</button>
+        </div>
+        <button id="soundBtn" type="button" aria-label="Toggle sound">Sound ON</button>
       </div>
     </header>
 
-    <section id="gameWrap" aria-label="像素風橫向卷軸遊戲">
+    <section id="gameWrap" aria-label="Pixel-art side-scroller game" data-i18n-aria="gameWrapAria">
       <canvas id="game" width="384" height="216" tabindex="0"></canvas>
       <div class="crt"></div>
       <div id="startCard" class="start-card">
         <div class="card">
-          <h1>麻糬星野</h1>
-          <p>操控圓滾滾的「麻糬」，穿過雲丘並抵達彩虹星門。</p>
-          <p>長按 <kbd>X</kbd> 吸入泡泡怪；吞下後按 <kbd>C</kbd> 發射星彈。</p>
-          <p class="blink">按任意方向鍵、空白鍵或點擊畫面開始</p>
+          <h1 data-i18n="startTitle">Mochi Sky</h1>
+          <p data-i18n="startCopyOne">Guide round Mochi through cloud hills and reach the rainbow gate.</p>
+          <p data-i18n-html="startCopyTwo">Hold <kbd>X</kbd> to inhale bubble enemies; after swallowing one, press <kbd>C</kbd> to fire a star shot.</p>
+          <p class="blink" data-i18n="startPrompt">Press any arrow key, Space, or tap the screen to start.</p>
+          <div class="lang-switch" aria-label="Language">
+            <button type="button" data-lang-option="en" aria-pressed="true">EN</button>
+            <button type="button" data-lang-option="zh" aria-pressed="false">中文</button>
+          </div>
         </div>
       </div>
 
-      <div class="touch" aria-label="觸控操作">
+      <div class="touch" aria-label="Touch controls" data-i18n-aria="touchAria">
         <div class="touch-group">
-          <button data-key="ArrowLeft" aria-label="向左">◀</button>
-          <button data-key="ArrowRight" aria-label="向右">▶</button>
+          <button data-key="ArrowLeft" aria-label="Left" data-i18n-aria="leftAria">◀</button>
+          <button data-key="ArrowRight" aria-label="Right" data-i18n-aria="rightAria">▶</button>
         </div>
         <div class="touch-group">
-          <button class="action spit" data-tap="shoot" aria-label="發射">星彈</button>
-          <button class="action inhale" data-key="KeyX" aria-label="吸入">吸入</button>
-          <button class="action jump" data-tap="jump" aria-label="跳躍">跳</button>
+          <button class="action spit" data-tap="shoot" aria-label="Shoot" data-i18n="shootTouch" data-i18n-aria="shootAria">Star</button>
+          <button class="action inhale" data-key="KeyX" aria-label="Inhale" data-i18n="inhaleTouch" data-i18n-aria="inhaleAria">Inhale</button>
+          <button class="action jump" data-tap="jump" aria-label="Jump" data-i18n="jumpTouch" data-i18n-aria="jumpAria">Jump</button>
         </div>
       </div>
     </section>
 
     <footer class="help">
-      <span><kbd>←</kbd><kbd>→</kbd> / <kbd>A</kbd><kbd>D</kbd> 移動</span>
-      <span><kbd>Space</kbd> / <kbd>W</kbd> 跳躍</span>
-      <span><kbd>X</kbd> 吸入</span>
-      <span><kbd>C</kbd> 星彈</span>
-      <span><kbd>R</kbd> 重來</span>
-      <span><kbd>P</kbd> 暫停</span>
+      <span data-i18n-html="helpMove"><kbd>←</kbd><kbd>→</kbd> / <kbd>A</kbd><kbd>D</kbd> Move</span>
+      <span data-i18n-html="helpJump"><kbd>Space</kbd> / <kbd>W</kbd> Jump</span>
+      <span data-i18n-html="helpInhale"><kbd>X</kbd> Inhale</span>
+      <span data-i18n-html="helpShoot"><kbd>C</kbd> Star shot</span>
+      <span data-i18n-html="helpRestart"><kbd>R</kbd> Restart</span>
+      <span data-i18n-html="helpPause"><kbd>P</kbd> Pause</span>
     </footer>
   </main>
 
@@ -253,6 +299,106 @@
     const startCard = document.querySelector('#startCard');
     const soundBtn = document.querySelector('#soundBtn');
     ctx.imageSmoothingEnabled = false;
+
+    const LANG_KEY = 'shemTinyArcadeLang';
+    const uiCopy = {
+      en: {
+        title: "Mochi Sky · Shem's Tiny Arcade",
+        gameTitle: 'Mochi Sky',
+        goal: 'Reach the rainbow gate!',
+        sound: 'Sound',
+        soundAria: 'Toggle sound',
+        on: 'ON',
+        off: 'OFF',
+        gameWrapAria: 'Pixel-art side-scroller game',
+        startTitle: 'Mochi Sky',
+        startCopyOne: 'Guide round Mochi through cloud hills and reach the rainbow gate.',
+        startCopyTwo: 'Hold <kbd>X</kbd> to inhale bubble enemies; after swallowing one, press <kbd>C</kbd> to fire a star shot.',
+        startPrompt: 'Press any arrow key, Space, or tap the screen to start.',
+        touchAria: 'Touch controls',
+        leftAria: 'Left',
+        rightAria: 'Right',
+        shootTouch: 'Star',
+        shootAria: 'Shoot',
+        inhaleTouch: 'Inhale',
+        inhaleAria: 'Inhale',
+        jumpTouch: 'Jump',
+        jumpAria: 'Jump',
+        helpMove: '<kbd>←</kbd><kbd>→</kbd> / <kbd>A</kbd><kbd>D</kbd> Move',
+        helpJump: '<kbd>Space</kbd> / <kbd>W</kbd> Jump',
+        helpInhale: '<kbd>X</kbd> Inhale',
+        helpShoot: '<kbd>C</kbd> Star shot',
+        helpRestart: '<kbd>R</kbd> Restart',
+        helpPause: '<kbd>P</kbd> Pause'
+      },
+      zh: {
+        title: "Mochi Sky / 麻糬星野 · Shem's Tiny Arcade",
+        gameTitle: '麻糬星野',
+        goal: '到達彩虹星門！',
+        sound: '音效',
+        soundAria: '切換音效',
+        on: 'ON',
+        off: 'OFF',
+        gameWrapAria: '像素風橫向卷軸遊戲',
+        startTitle: '麻糬星野',
+        startCopyOne: '操控圓滾滾的「麻糬」，穿過雲丘並抵達彩虹星門。',
+        startCopyTwo: '長按 <kbd>X</kbd> 吸入泡泡怪；吞下後按 <kbd>C</kbd> 發射星彈。',
+        startPrompt: '按任意方向鍵、空白鍵或點擊畫面開始',
+        touchAria: '觸控操作',
+        leftAria: '向左',
+        rightAria: '向右',
+        shootTouch: '星彈',
+        shootAria: '發射',
+        inhaleTouch: '吸入',
+        inhaleAria: '吸入',
+        jumpTouch: '跳',
+        jumpAria: '跳躍',
+        helpMove: '<kbd>←</kbd><kbd>→</kbd> / <kbd>A</kbd><kbd>D</kbd> 移動',
+        helpJump: '<kbd>Space</kbd> / <kbd>W</kbd> 跳躍',
+        helpInhale: '<kbd>X</kbd> 吸入',
+        helpShoot: '<kbd>C</kbd> 星彈',
+        helpRestart: '<kbd>R</kbd> 重來',
+        helpPause: '<kbd>P</kbd> 暫停'
+      }
+    };
+
+    let currentLang = localStorage.getItem(LANG_KEY) === 'zh' ? 'zh' : 'en';
+
+    function updateSoundButton() {
+      const strings = uiCopy[currentLang] || uiCopy.en;
+      soundBtn.textContent = `${strings.sound} ${soundOn ? strings.on : strings.off}`;
+      soundBtn.setAttribute('aria-label', strings.soundAria);
+    }
+
+    function applyLang(lang) {
+      currentLang = lang === 'zh' ? 'zh' : 'en';
+      const strings = uiCopy[currentLang] || uiCopy.en;
+      document.documentElement.lang = currentLang === 'zh' ? 'zh-Hant' : 'en';
+      document.title = strings.title;
+      document.body.dataset.lang = currentLang;
+      document.querySelectorAll('[data-i18n]').forEach((node) => {
+        node.textContent = strings[node.dataset.i18n] || '';
+      });
+      document.querySelectorAll('[data-i18n-html]').forEach((node) => {
+        node.innerHTML = strings[node.dataset.i18nHtml] || '';
+      });
+      document.querySelectorAll('[data-i18n-aria]').forEach((node) => {
+        node.setAttribute('aria-label', strings[node.dataset.i18nAria] || '');
+      });
+      document.querySelectorAll('[data-lang-option]').forEach((button) => {
+        button.setAttribute('aria-pressed', String(button.dataset.langOption === currentLang));
+      });
+      updateSoundButton();
+      localStorage.setItem(LANG_KEY, currentLang);
+    }
+
+    document.querySelectorAll('[data-lang-option]').forEach((button) => {
+      button.addEventListener('pointerdown', (e) => e.stopPropagation());
+      button.addEventListener('click', (e) => {
+        e.stopPropagation();
+        applyLang(button.dataset.langOption);
+      });
+    });
 
     const W = canvas.width;
     const H = canvas.height;
@@ -495,9 +641,11 @@
 
     soundBtn.addEventListener('click', () => {
       soundOn = !soundOn;
-      soundBtn.textContent = `音效 ${soundOn ? 'ON' : 'OFF'}`;
+      updateSoundButton();
       if (soundOn) sfx('start');
     });
+
+    applyLang(currentLang);
 
     document.querySelectorAll('[data-key]').forEach((button) => {
       const code = button.dataset.key;

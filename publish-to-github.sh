@@ -3,7 +3,7 @@ set -euo pipefail
 
 OWNER="${GITHUB_OWNER:-ShemYu}"
 REPO="${1:-single-page-games}"
-DESCRIPTION="A collection of tiny single-page browser games"
+DESCRIPTION="Shem's Tiny Arcade: tiny browser games and single-page playable experiments"
 OWNER_LOWER="$(printf '%s' "$OWNER" | tr '[:upper:]' '[:lower:]')"
 PAGES_URL="https://${OWNER_LOWER}.github.io/${REPO}/"
 
@@ -30,7 +30,7 @@ git checkout -B main >/dev/null 2>&1
 
 git add .
 if ! git diff --cached --quiet; then
-  git commit -m "Add single-page game collection"
+  git commit -m "Add Shem's Tiny Arcade"
 fi
 
 if gh repo view "$OWNER/$REPO" >/dev/null 2>&1; then
@@ -50,8 +50,6 @@ fi
 
 pages_payload='{"build_type":"legacy","source":{"branch":"main","path":"/"}}'
 
-# Create or refresh the Pages configuration. A just-created repo can briefly
-# return a conflict, so retry a few times before giving up.
 for attempt in 1 2 3 4 5; do
   if gh api "repos/$OWNER/$REPO/pages" >/dev/null 2>&1; then
     if printf '%s' "$pages_payload" | gh api \
@@ -77,7 +75,9 @@ for attempt in 1 2 3 4 5; do
   sleep 2
 done
 
-gh repo edit "$OWNER/$REPO" --homepage "$PAGES_URL" >/dev/null 2>&1 || true
+gh repo edit "$OWNER/$REPO" \
+  --description "$DESCRIPTION" \
+  --homepage "$PAGES_URL" >/dev/null 2>&1 || true
 
 echo
 echo "Published successfully."
