@@ -1,0 +1,8 @@
+blank_issues_enabled: true
+contact_links:
+  - name: "▶ Play Tiny Arcade / 進入遊戲櫃"
+    url: "https://shemyu.github.io/single-page-games/"
+    about: "Try the games before opening an issue / 建議先實際玩玩看，再告訴我們你的想法"
+  - name: "🛠 Contribution guide / 貢獻指南"
+    url: "https://github.com/ShemYu/single-page-games/blob/main/CONTRIBUTING.md"
+    about: "Learn how to test, improve, or add a game / 查看如何測試、改善或新增遊戲"
