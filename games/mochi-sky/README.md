@@ -68,3 +68,17 @@ python3 tools/normalize_generated_art.py --all-generated-sheets
 ```
 
 This opt-in behavior prevents routine scene or inhale edits from accidentally changing the character style and walking animation.
+
+## Asset extension
+
+Mochi Sky also has a production asset contract:
+
+- `asset-manifest.json` lists runtime PNG dimensions, sprite sheet grids, transparency expectations, and the terrain seam check.
+- `ASSET_PROMPTS.zh-TW.md` keeps the Mochi-specific style lock and source-art prompt templates.
+- `../../tools/game-assets/validate_game_assets.py` is the shared validator used by any game in the repo.
+
+Validate the current runtime assets from the repository root:
+
+```bash
+python3 tools/game-assets/validate_game_assets.py games/mochi-sky/asset-manifest.json
+```

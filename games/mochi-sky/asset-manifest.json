@@ -1,0 +1,87 @@
+{
+  "assets": [
+    {
+      "path": "assets/mochi-sky-mochi-action-game-sheet.png",
+      "type": "sprite_sheet",
+      "size": [512, 64],
+      "mode": "RGBA",
+      "transparent": true,
+      "cell": [64, 64],
+      "grid": [8, 1],
+      "edge_padding_px": 3
+    },
+    {
+      "path": "assets/mochi-sky-inhale-sheet-source.png",
+      "type": "image",
+      "size": [2172, 724],
+      "mode": "RGB"
+    },
+    {
+      "path": "assets/mochi-sky-inhale-sheet.png",
+      "type": "image",
+      "size": [2172, 724],
+      "mode": "RGBA",
+      "transparent": true
+    },
+    {
+      "path": "assets/mochi-sky-inhale-game-sheet.png",
+      "type": "sprite_sheet",
+      "size": [768, 64],
+      "mode": "RGBA",
+      "transparent": true,
+      "cell": [96, 64],
+      "grid": [8, 1],
+      "edge_padding_px": 2,
+      "bottom_padding_px": 2,
+      "grounded_frames": [0, 1, 2, 3, 4, 5, 6, 7],
+      "anchor_bottom_tolerance_px": 2
+    },
+    {
+      "path": "assets/mochi-sky-enemy-game-sheet.png",
+      "type": "sprite_sheet",
+      "size": [384, 48],
+      "mode": "RGBA",
+      "transparent": true,
+      "cell": [48, 48],
+      "grid": [8, 1],
+      "edge_padding_px": 0
+    },
+    {
+      "path": "assets/mochi-sky-star-game-sheet.png",
+      "type": "sprite_sheet",
+      "size": [256, 32],
+      "mode": "RGBA",
+      "transparent": true,
+      "cell": [32, 32],
+      "grid": [8, 1],
+      "edge_padding_px": 0
+    },
+    {
+      "path": "assets/mochi-sky-backdrop.png",
+      "type": "background",
+      "size": [384, 216],
+      "mode": "RGBA"
+    },
+    {
+      "path": "assets/mochi-sky-tiles.png",
+      "type": "tile",
+      "size": [128, 64],
+      "mode": "RGBA",
+      "seam_x": true,
+      "seam_tolerance": 0
+    },
+    {
+      "path": "assets/mochi-sky-atlas.png",
+      "type": "image",
+      "size": [320, 128],
+      "mode": "RGBA",
+      "transparent": true
+    },
+    {
+      "path": "../../assets/previews/mochi-sky.png",
+      "type": "image",
+      "size": [960, 540],
+      "mode": "RGB"
+    }
+  ]
+}

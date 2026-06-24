@@ -471,7 +471,8 @@
       playerIdle: [0, 1],
       playerWalk: [2, 3, 4, 5, 4, 3],
       inhaleStartup: [0, 1, 2, 3, 4],
-      inhaleHold: [5, 6, 7, 6]
+      inhaleHold: [5, 6, 7, 6],
+      inhaleAnchorNudge: [0, 0, 0, 0, 4, 7, 6, 0]
     };
 
     function sequenceFrame(sequence, tick) {
@@ -1312,8 +1313,9 @@
               inhaleStep - animationFrames.inhaleStartup.length
             );
         const flip = player.dir < 0;
-        const dx = flip ? x - 33 : x - 15;
-        drawSprite(pixelAssets.inhale, [inhaleFrame * 96, 0, 96, 64], dx, y - 7 + bob, 48, 32, flip);
+        const anchorNudge = animationFrames.inhaleAnchorNudge[inhaleFrame] || 0;
+        const dx = x - 27 + (flip ? -anchorNudge : anchorNudge);
+        drawSprite(pixelAssets.inhale, [inhaleFrame * 96, 0, 96, 64], dx, y - 13 + bob, 54, 36, flip);
         return;
       }
 

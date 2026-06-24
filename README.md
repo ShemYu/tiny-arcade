@@ -56,11 +56,27 @@ single-page-games/
 │   │   └── README.md
 │   └── mochi-sky/
 │       ├── index.html                 # Playable game
+│       ├── asset-manifest.json        # Mochi runtime asset contract
+│       ├── ASSET_PROMPTS.zh-TW.md     # Mochi-specific source-art prompts
 │       └── README.md
+├── tools/
+│   └── game-assets/
+│       ├── README.md                  # Shared asset-extension docs
+│       └── validate_game_assets.py    # Shared PNG manifest validator
 └── .nojekyll
 ```
 
 The hub has no framework, package manager, bundler, backend, or runtime dependency.
+
+## Asset extension
+
+Image asset checks are available as a shared repo tool while each game owns its own contract:
+
+```bash
+python3 tools/game-assets/validate_game_assets.py games/mochi-sky/asset-manifest.json
+```
+
+Use `tools/game-assets/` for generic validation behavior and keep game-specific style locks, prompt templates, source references, and runtime manifests inside the game folder.
 
 ## Add a game
 

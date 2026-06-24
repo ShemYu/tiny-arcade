@@ -6,6 +6,8 @@ on:
     paths:
       - games/mochi-sky/tools/generate_runtime_art.py
       - games/mochi-sky/tools/update_runtime_animation.py
+      - games/mochi-sky/asset-manifest.json
+      - tools/game-assets/validate_game_assets.py
       - .github/workflows/apply-mochi-feedback.yml
   workflow_dispatch:
 
@@ -29,6 +31,7 @@ jobs:
         run: |
           python -m pip install --disable-pip-version-check pillow
           python games/mochi-sky/tools/generate_runtime_art.py
+          python tools/game-assets/validate_game_assets.py games/mochi-sky/asset-manifest.json
           python games/mochi-sky/tools/update_runtime_animation.py
 
       - name: Validate JavaScript syntax

@@ -3,7 +3,7 @@
 
 The high-detail generated sources remain the style authority. This script only
 normalizes them for runtime use:
-- the inhale sheet keeps the ImageGen poses, with stable framing and baseline;
+- the inhale sheet uses the reference-locked ImageGen strip, with stable framing and baseline;
 - the backdrop contains distant scenery only;
 - the terrain tile keeps the original grass/dirt rendering and tiles cleanly.
 """
@@ -145,49 +145,65 @@ def repair_eye_region(
     return image
 
 
+def chroma_to_alpha(image: Image.Image) -> Image.Image:
+    """Remove the flat green imagegen background while preserving soft edges."""
+    source = image.convert("RGBA")
+    key = source.getpixel((0, 0))[:3]
+    result = Image.new("RGBA", source.size, (0, 0, 0, 0))
+    source_pixels = source.load()
+    result_pixels = result.load()
+
+    for y in range(source.height):
+        for x in range(source.width):
+            red, green, blue, alpha = source_pixels[x, y]
+            distance = abs(red - key[0]) + abs(green - key[1]) + abs(blue - key[2])
+            if distance < 70:
+                output_alpha = 0
+            elif distance < 205:
+                output_alpha = round((distance - 70) / 135 * alpha)
+            else:
+                output_alpha = alpha
+
+            if output_alpha:
+                if green > red + 35 and green > blue + 35:
+                    green = max(red, blue)
+                result_pixels[x, y] = red, green, blue, output_alpha
+
+    return result
+
+
 def make_inhale_sheet() -> Path:
-    """Normalize the ImageGen inhale poses without redrawing their silhouettes."""
-    source = Image.open(ASSETS / "mochi-sky-inhale-sheet.png").convert("RGBA")
-    walking_sheet = Image.open(
-        ASSETS / "mochi-sky-mochi-action-game-sheet.png"
-    ).convert("RGBA")
+    """Normalize the imagegen inhale strip into fixed runtime cells."""
+    transparent = chroma_to_alpha(Image.open(ASSETS / "mochi-sky-inhale-sheet-source.png"))
+    transparent_path = ASSETS / "mochi-sky-inhale-sheet.png"
+    transparent.save(transparent_path, optimize=True)
 
-    cuts = frame_cuts(source, frames=8)
-    frames = [
-        source.crop((cuts[index], 0, cuts[index + 1], source.height))
-        for index in range(8)
-    ]
-    body_boxes = [body_bbox(frame) for frame in frames]
+    cuts = frame_cuts(transparent, frames=8)
+    crops: list[Image.Image] = []
+    for index in range(8):
+        segment = transparent.crop((cuts[index], 0, cuts[index + 1], transparent.height))
+        box = segment.getchannel("A").getbbox()
+        if box is None:
+            raise ValueError(f"inhale source frame {index} is empty")
+        crops.append(segment.crop(box))
 
-    # One scale and one contact line prevent the generated poses from pulsing.
-    scale = 54 / max(box[3] - box[1] for box in body_boxes[:5])
+    scale = min(
+        86 / max(crop.width for crop in crops),
+        56 / max(crop.height for crop in crops),
+    )
     sheet = Image.new("RGBA", (8 * 96, 64), (0, 0, 0, 0))
 
-    for index, (frame, box) in enumerate(zip(frames, body_boxes)):
-        resized = frame.resize(
-            (round(frame.width * scale), round(frame.height * scale)),
+    for index, crop in enumerate(crops):
+        resized = crop.resize(
+            (
+                max(1, round(crop.width * scale)),
+                max(1, round(crop.height * scale)),
+            ),
             Image.Resampling.LANCZOS,
         )
-        scaled_box = tuple(round(value * scale) for value in box)
-        x = index * 96 + 42 - (scaled_box[0] + scaled_box[2]) // 2
-        y = 61 - scaled_box[3]
+        x = index * 96 + (96 - resized.width) // 2
+        y = 62 - resized.height
         sheet.alpha_composite(resized, (x, y))
-
-    # The two anticipation frames retain the approved idle/walk eye treatment.
-    left_eye = extract_eye_sprite(walking_sheet, (27, 27, 36, 40))
-    right_eye = extract_eye_sprite(walking_sheet, (45, 27, 55, 40))
-    anticipation_specs = [
-        ((41, 23, 61, 39), (45, 25), (52, 25)),
-        ((42, 27, 62, 44), (45, 30), (52, 30)),
-    ]
-
-    for index, (roi, left_position, right_position) in enumerate(anticipation_specs):
-        frame = sheet.crop((index * 96, 0, (index + 1) * 96, 64))
-        frame = repair_eye_region(frame, roi)
-        frame.alpha_composite(left_eye, left_position)
-        frame.alpha_composite(right_eye, right_position)
-        sheet.paste((0, 0, 0, 0), (index * 96, 0, (index + 1) * 96, 64))
-        sheet.alpha_composite(frame, (index * 96, 0))
 
     path = ASSETS / "mochi-sky-inhale-game-sheet.png"
     sheet.save(path, optimize=True)
@@ -353,8 +369,62 @@ def make_tiles() -> Path:
     return path
 
 
-def validate_assets(paths: tuple[Path, Path, Path]) -> None:
-    inhale, backdrop, tiles = [Image.open(path).convert("RGBA") for path in paths]
+def draw_heart(draw: ImageDraw.ImageDraw, ox: int, oy: int, fill, highlight) -> None:
+    """Draw a compact UI heart for the fallback atlas."""
+    draw.rectangle((ox + 2, oy + 2, ox + 5, oy + 5), fill=fill)
+    draw.rectangle((ox + 10, oy + 2, ox + 13, oy + 5), fill=fill)
+    draw.rectangle((ox + 1, oy + 5, ox + 14, oy + 9), fill=fill)
+    draw.rectangle((ox + 3, oy + 10, ox + 12, oy + 12), fill=fill)
+    draw.rectangle((ox + 6, oy + 13, ox + 9, oy + 14), fill=fill)
+    draw.rectangle((ox + 4, oy + 4, ox + 5, oy + 5), fill=highlight)
+
+
+def make_atlas() -> Path:
+    """Refresh the legacy fallback atlas from current runtime sheets."""
+    atlas = Image.new("RGBA", (320, 128), (0, 0, 0, 0))
+    mochi = Image.open(ASSETS / "mochi-sky-mochi-action-game-sheet.png").convert("RGBA")
+    inhale = Image.open(ASSETS / "mochi-sky-inhale-game-sheet.png").convert("RGBA")
+    enemy = Image.open(ASSETS / "mochi-sky-enemy-game-sheet.png").convert("RGBA")
+    star = Image.open(ASSETS / "mochi-sky-star-game-sheet.png").convert("RGBA")
+
+    for dst_x, frame in zip((0, 32, 64, 96, 128, 160), (0, 2, 3, 4, 5, 6)):
+        cell = mochi.crop((frame * 64, 0, frame * 64 + 64, 64)).resize(
+            (32, 32),
+            Image.Resampling.LANCZOS,
+        )
+        atlas.alpha_composite(cell, (dst_x, 0))
+
+    atlas.alpha_composite(
+        inhale.crop((5 * 96, 0, 6 * 96, 64)).resize((48, 32), Image.Resampling.LANCZOS),
+        (192, 0),
+    )
+    atlas.alpha_composite(enemy.crop((0, 0, 48, 48)).resize((24, 24), Image.Resampling.LANCZOS), (0, 36))
+    star_cell = star.crop((0, 0, 32, 32)).resize((16, 16), Image.Resampling.LANCZOS)
+    atlas.alpha_composite(star_cell, (32, 40))
+    atlas.alpha_composite(star_cell, (92, 40))
+
+    draw = ImageDraw.Draw(atlas)
+    draw_heart(draw, 52, 40, (231, 86, 100, 255), (255, 188, 197, 255))
+    draw_heart(draw, 72, 40, (107, 88, 116, 255), (152, 132, 163, 255))
+
+    draw.rectangle((112, 40, 113, 67), fill=(255, 248, 232, 255))
+    draw.rectangle((114, 41, 127, 49), fill=(255, 226, 109, 255))
+    draw.rectangle((124, 50, 127, 54), fill=(229, 169, 71, 255))
+
+    draw.rectangle((149, 44, 186, 95), fill=(255, 255, 255, 80))
+    draw.rectangle((152, 46, 183, 93), fill=(116, 87, 165, 255))
+    draw.rectangle((156, 50, 179, 89), fill=(179, 131, 231, 255))
+    draw.rectangle((160, 54, 175, 85), fill=(138, 234, 255, 255))
+    draw.rectangle((164, 60, 171, 79), fill=(255, 247, 207, 255))
+    atlas.alpha_composite(star_cell, (160, 34))
+
+    path = ASSETS / "mochi-sky-atlas.png"
+    atlas.save(path, optimize=True)
+    return path
+
+
+def validate_assets(paths: tuple[Path, Path, Path, Path]) -> None:
+    inhale, backdrop, tiles, atlas = [Image.open(path).convert("RGBA") for path in paths]
 
     if inhale.size != (768, 64):
         raise ValueError(f"unexpected inhale-sheet size: {inhale.size}")
@@ -362,6 +432,8 @@ def validate_assets(paths: tuple[Path, Path, Path]) -> None:
         raise ValueError(f"unexpected backdrop size: {backdrop.size}")
     if tiles.size != (128, 64):
         raise ValueError(f"unexpected tile size: {tiles.size}")
+    if atlas.size != (320, 128):
+        raise ValueError(f"unexpected atlas size: {atlas.size}")
 
     for frame in range(8):
         cell = inhale.crop((frame * 96, 0, (frame + 1) * 96, 64))
@@ -375,7 +447,7 @@ def validate_assets(paths: tuple[Path, Path, Path]) -> None:
 
 
 def main() -> None:
-    paths = make_inhale_sheet(), make_backdrop(), make_tiles()
+    paths = make_inhale_sheet(), make_backdrop(), make_tiles(), make_atlas()
     validate_assets(paths)
 
 
