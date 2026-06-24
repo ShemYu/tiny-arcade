@@ -467,6 +467,18 @@
       goal: [144, 36, 48, 64]
     };
 
+    const animationFrames = {
+      playerIdle: [0, 1],
+      playerWalk: [2, 3, 4, 5, 4, 3],
+      inhaleStartup: [0, 1, 2, 3, 4],
+      inhaleHold: [5, 6, 7, 6]
+    };
+
+    function sequenceFrame(sequence, tick) {
+      const index = Math.floor(Math.max(0, tick)) % sequence.length;
+      return sequence[index];
+    }
+
     const platforms = [
       { x: 0,    y: 180, w: 420, h: 40 },
       { x: 468,  y: 180, w: 380, h: 40 },
@@ -1292,9 +1304,13 @@
       const bob = walking ? Math.floor(player.anim) % 2 : 0;
 
       if (player.inhale && imageReady(pixelAssets.inhale)) {
-        const inhaleFrame = player.inhaleTick < 28
-          ? Math.min(7, Math.floor(player.inhaleTick / 4))
-          : 5 + Math.floor(player.inhaleTick / 4) % 3;
+        const inhaleStep = Math.floor(player.inhaleTick / 4);
+        const inhaleFrame = inhaleStep < animationFrames.inhaleStartup.length
+          ? animationFrames.inhaleStartup[inhaleStep]
+          : sequenceFrame(
+              animationFrames.inhaleHold,
+              inhaleStep - animationFrames.inhaleStartup.length
+            );
         const flip = player.dir < 0;
         const dx = flip ? x - 33 : x - 15;
         drawSprite(pixelAssets.inhale, [inhaleFrame * 96, 0, 96, 64], dx, y - 7 + bob, 48, 32, flip);
@@ -1305,8 +1321,8 @@
         const frame = !player.onGround
           ? (player.vy < 0 ? 6 : 7)
           : walking
-            ? 2 + (Math.floor(player.anim) % 4)
-            : Math.floor(gameTime * 3) % 2;
+            ? sequenceFrame(animationFrames.playerWalk, player.anim)
+            : sequenceFrame(animationFrames.playerIdle, gameTime * 3);
         drawSprite(pixelAssets.mochi, [frame * 64, 0, 64, 64], x - 18, y - 12 + bob, 36, 36, player.dir < 0);
         return;
       }
