@@ -1,0 +1,40 @@
+name: Export Mochi Sky asset references
+
+on:
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  export-assets:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Collect base and branch art
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p artifact/base artifact/head
+          for name in \
+            mochi-sky-inhale-sheet.png \
+            mochi-sky-inhale-game-sheet.png \
+            mochi-sky-mochi-action-sheet-source.png \
+            mochi-sky-mochi-action-game-sheet.png \
+            mochi-sky-atlas.png \
+            mochi-sky-backdrop.png \
+            mochi-sky-tiles.png; do
+            git show "origin/main:games/mochi-sky/assets/${name}" > "artifact/base/${name}"
+            cp "games/mochi-sky/assets/${name}" "artifact/head/${name}"
+          done
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: mochi-sky-asset-references
+          path: artifact
+          if-no-files-found: error
+          retention-days: 1
