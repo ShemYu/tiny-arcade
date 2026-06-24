@@ -4,7 +4,7 @@
 
 ## 風格鎖定
 
-- Rendering family: painted pixel / soft raster hybrid, high-detail source art normalized into pixel-friendly runtime PNGs.
+- Rendering family: painted pixel / soft raster hybrid, high-detail source art normalized into pixel-friendly runtime PNGs, with high-resolution scenery/terrain textures downsampled by the runtime for a cleaner final image.
 - Camera: orthographic side-view platformer camera.
 - Palette: candy sky cyan, cream highlights, pink mochi body, mint enemies, yellow stars, lavender shadows.
 - Lighting: soft top-left with warm highlights.

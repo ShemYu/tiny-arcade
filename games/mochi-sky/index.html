@@ -131,15 +131,14 @@
       display: block;
       width: 100%;
       height: 100%;
-      image-rendering: pixelated;
-      image-rendering: crisp-edges;
+      image-rendering: auto;
     }
 
     .crt {
       pointer-events: none;
       position: absolute;
       inset: 0;
-      opacity: .12;
+      opacity: .07;
       background: repeating-linear-gradient(
         to bottom,
         transparent 0,
@@ -298,7 +297,8 @@
     const ctx = canvas.getContext('2d');
     const startCard = document.querySelector('#startCard');
     const soundBtn = document.querySelector('#soundBtn');
-    ctx.imageSmoothingEnabled = false;
+    ctx.imageSmoothingEnabled = true;
+    ctx.imageSmoothingQuality = 'high';
 
     const LANG_KEY = 'shemTinyArcadeLang';
     const uiCopy = {
@@ -400,11 +400,31 @@
       });
     });
 
-    const W = canvas.width;
-    const H = canvas.height;
+    const W = 384;
+    const H = 216;
     const WORLD_W = 2700;
     const FLOOR_Y = 180;
     const STEP = 1 / 60;
+    let renderScaleX = 1;
+    let renderScaleY = 1;
+
+    function resizeCanvasForDisplay() {
+      const rect = canvas.getBoundingClientRect();
+      const dpr = Math.min(window.devicePixelRatio || 1, 3);
+      const nextWidth = Math.max(W, Math.round(rect.width * dpr));
+      const nextHeight = Math.max(H, Math.round(rect.height * dpr));
+      if (canvas.width !== nextWidth || canvas.height !== nextHeight) {
+        canvas.width = nextWidth;
+        canvas.height = nextHeight;
+      }
+      renderScaleX = canvas.width / W;
+      renderScaleY = canvas.height / H;
+      ctx.imageSmoothingEnabled = true;
+      ctx.imageSmoothingQuality = 'high';
+    }
+
+    resizeCanvasForDisplay();
+    window.addEventListener('resize', resizeCanvasForDisplay);
 
     const keys = new Set();
     const pressed = new Set();
@@ -1003,7 +1023,9 @@
     }
 
     function draw() {
+      resizeCanvasForDisplay();
       ctx.save();
+      ctx.setTransform(renderScaleX, 0, 0, renderScaleY, 0, 0);
       ctx.clearRect(0, 0, W, H);
       drawBackground();
 
@@ -1050,18 +1072,32 @@
     }
 
     function drawTiledAsset(img, sx, sy, sw, sh, dx, dy, dw, dh) {
-      for (let y = 0; y < dh; y += sh) {
-        for (let x = 0; x < dw; x += sw) {
-          const tileW = Math.min(sw, dw - x);
-          const tileH = Math.min(sh, dh - y);
-          ctx.drawImage(img, sx, sy, tileW, tileH, Math.round(dx + x), Math.round(dy + y), tileW, tileH);
+      const sourceScale = Math.max(1, Math.round((img.naturalWidth || sw) / 128));
+      const logicalW = sw / sourceScale;
+      const logicalH = sh / sourceScale;
+      for (let y = 0; y < dh; y += logicalH) {
+        for (let x = 0; x < dw; x += logicalW) {
+          const tileW = Math.min(logicalW, dw - x);
+          const tileH = Math.min(logicalH, dh - y);
+          const overdraw = 0.5;
+          ctx.drawImage(
+            img,
+            sx,
+            sy,
+            tileW * sourceScale,
+            tileH * sourceScale,
+            Math.round(dx + x),
+            Math.round(dy + y),
+            tileW + overdraw,
+            tileH + overdraw
+          );
         }
       }
     }
 
     function drawBackground() {
       if (imageReady(pixelAssets.backdrop)) {
-        ctx.drawImage(pixelAssets.backdrop, 0, 0);
+        ctx.drawImage(pixelAssets.backdrop, 0, 0, W, H);
         ctx.fillStyle = '#fff9cb';
         for (let i = 0; i < 18; i++) {
           const x = mod(i * 73 - cameraX * .08, W + 20) - 10;
@@ -1141,8 +1177,9 @@
       for (const p of platforms) {
         if (p.x + p.w < cameraX - 20 || p.x > cameraX + W + 20) continue;
         if (imageReady(pixelAssets.tiles)) {
-          drawTiledAsset(pixelAssets.tiles, 0, 10, 128, 54, p.x, p.y + 8, p.w, Math.max(0, p.h - 8));
-          drawTiledAsset(pixelAssets.tiles, 0, 0, 128, 10, p.x, p.y, p.w, Math.min(10, p.h));
+          const tileScale = Math.max(1, Math.round((pixelAssets.tiles.naturalWidth || 128) / 128));
+          drawTiledAsset(pixelAssets.tiles, 0, 10 * tileScale, 128 * tileScale, 54 * tileScale, p.x, p.y + 8, p.w, Math.max(0, p.h - 8));
+          drawTiledAsset(pixelAssets.tiles, 0, 0, 128 * tileScale, 10 * tileScale, p.x, p.y, p.w, Math.min(10, p.h));
           ctx.fillStyle = '#fff9cf66';
           ctx.fillRect(p.x, p.y, p.w, 1);
           continue;

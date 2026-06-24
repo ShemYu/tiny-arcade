@@ -43,11 +43,11 @@ This is intentionally compact: one HTML page with embedded CSS, JavaScript, canv
 
 Runtime scene art is deliberately split by responsibility:
 
-- `mochi-sky-backdrop.png` contains only distant sky, clouds, layered hills, and valley mist.
-- `mochi-sky-tiles.png` contains the foreground grass/dirt tile and is horizontally seamless.
+- `mochi-sky-backdrop.png` contains only distant sky, clouds, layered hills, and valley mist, exported at 4x runtime resolution for cleaner browser display.
+- `mochi-sky-tiles.png` contains the foreground grass/dirt tile, is horizontally seamless, and is exported at 4x texture resolution.
 - `mochi-sky-inhale-game-sheet.png` keeps the original high-detail ImageGen poses in eight fixed `96×64` cells with one shared body scale and contact baseline.
 
-The source art remains the visual authority. The runtime generator selects clean regions from `mochi-sky-map-source.png` instead of redrawing the scene in a flatter style, and it separates the inhale frames on their real transparent gutters instead of slicing the source into equal arithmetic columns.
+The source art remains the visual authority. The runtime generator selects clean high-resolution regions from `mochi-sky-map-source.png` instead of redrawing the scene in a flatter style, and it separates the inhale frames on their real transparent gutters instead of slicing the source into equal arithmetic columns.
 
 Regenerate the backdrop, terrain, and inhale sheet with:
 

@@ -239,7 +239,8 @@ def cloud_sprite(
 def make_backdrop() -> Path:
     """Build a distant-only scene from clean regions of the original map art."""
     source = Image.open(ASSETS / "mochi-sky-map-source.png").convert("RGBA")
-    width, height = 384, 216
+    scale = 4
+    width, height = 384 * scale, 216 * scale
     sky_top = (87, 223, 252)
     sky_middle = (164, 245, 253)
     sky_bottom = (190, 244, 245)
@@ -247,14 +248,14 @@ def make_backdrop() -> Path:
     image = Image.new("RGBA", (width, height), (0, 0, 0, 255))
     draw = ImageDraw.Draw(image)
     for y in range(height):
-        if y < 112:
-            amount = y / 112
+        if y < 112 * scale:
+            amount = y / (112 * scale)
             color = tuple(
                 round(sky_top[channel] * (1 - amount) + sky_middle[channel] * amount)
                 for channel in range(3)
             )
         else:
-            amount = (y - 112) / (height - 112)
+            amount = (y - 112 * scale) / (height - 112 * scale)
             color = tuple(
                 round(sky_middle[channel] * (1 - amount) + sky_bottom[channel] * amount)
                 for channel in range(3)
@@ -286,7 +287,7 @@ def make_backdrop() -> Path:
 
     # This crop contains only cloud banks and layered hills—no platforms/gate.
     hills = source.crop((440, 470, 1036, 650)).resize(
-        (width, 116),
+        (width, 116 * scale),
         Image.Resampling.LANCZOS,
     ).convert("RGBA")
     hill_pixels = hills.load()
@@ -301,15 +302,15 @@ def make_backdrop() -> Path:
         for x in range(hills.width):
             red, green, blue, alpha = hill_pixels[x, y]
             hill_pixels[x, y] = red, green, blue, round(alpha * opacity)
-    image.alpha_composite(hills, (0, 100))
+    image.alpha_composite(hills, (0, 100 * scale))
 
-    mist = Image.new("RGBA", (width, 32), (105, 190, 178, 0))
+    mist = Image.new("RGBA", (width, 32 * scale), (105, 190, 178, 0))
     mist_pixels = mist.load()
     for y in range(mist.height):
         alpha = round(15 + 55 * y / (mist.height - 1))
         for x in range(mist.width):
             mist_pixels[x, y] = 105, 190, 178, alpha
-    image.alpha_composite(mist, (0, 184))
+    image.alpha_composite(mist, (0, 184 * scale))
 
     draw = ImageDraw.Draw(image)
     for x, y, color in [
@@ -320,13 +321,15 @@ def make_backdrop() -> Path:
         (242, 82, "#ffffff"),
         (73, 91, "#fff6bd"),
     ]:
-        draw.point((x, y), fill=color)
+        x *= scale
+        y *= scale
+        draw.rectangle((x, y, x + scale - 1, y + scale - 1), fill=color)
         if (x + y) % 2 == 0:
             for sparkle_x, sparkle_y in (
-                (x - 1, y),
-                (x + 1, y),
-                (x, y - 1),
-                (x, y + 1),
+                (x - scale, y),
+                (x + scale, y),
+                (x, y - scale),
+                (x, y + scale),
             ):
                 draw.point((sparkle_x, sparkle_y), fill=color)
 
@@ -338,27 +341,28 @@ def make_backdrop() -> Path:
 def make_tiles() -> Path:
     """Build one exact horizontal repeat from clean source-art terrain crops."""
     source = Image.open(ASSETS / "mochi-sky-map-source.png").convert("RGBA")
+    scale = 4
     grass = source.crop((200, 202, 456, 238)).resize(
-        (64, 12),
+        (64 * scale, 12 * scale),
         Image.Resampling.LANCZOS,
     )
     dirt_top = source.crop((900, 755, 1156, 835)).resize(
-        (64, 26),
+        (64 * scale, 26 * scale),
         Image.Resampling.LANCZOS,
     )
     dirt_bottom = source.crop((1040, 755, 1296, 835)).resize(
-        (64, 26),
+        (64 * scale, 26 * scale),
         Image.Resampling.LANCZOS,
     )
 
-    half = Image.new("RGBA", (64, 64), (0, 0, 0, 0))
+    half = Image.new("RGBA", (64 * scale, 64 * scale), (0, 0, 0, 0))
     half.alpha_composite(grass, (0, 0))
-    half.alpha_composite(dirt_top, (0, 12))
-    half.alpha_composite(dirt_bottom, (0, 38))
+    half.alpha_composite(dirt_top, (0, 12 * scale))
+    half.alpha_composite(dirt_bottom, (0, 38 * scale))
 
-    tile = Image.new("RGBA", (128, 64), (0, 0, 0, 0))
+    tile = Image.new("RGBA", (128 * scale, 64 * scale), (0, 0, 0, 0))
     tile.alpha_composite(half, (0, 0))
-    tile.alpha_composite(ImageOps.mirror(half), (64, 0))
+    tile.alpha_composite(ImageOps.mirror(half), (64 * scale, 0))
 
     pixels = tile.load()
     for y in range(tile.height):
@@ -428,9 +432,9 @@ def validate_assets(paths: tuple[Path, Path, Path, Path]) -> None:
 
     if inhale.size != (768, 64):
         raise ValueError(f"unexpected inhale-sheet size: {inhale.size}")
-    if backdrop.size != (384, 216):
+    if backdrop.size != (1536, 864):
         raise ValueError(f"unexpected backdrop size: {backdrop.size}")
-    if tiles.size != (128, 64):
+    if tiles.size != (512, 256):
         raise ValueError(f"unexpected tile size: {tiles.size}")
     if atlas.size != (320, 128):
         raise ValueError(f"unexpected atlas size: {atlas.size}")

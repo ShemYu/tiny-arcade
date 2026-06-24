@@ -59,13 +59,13 @@
     {
       "path": "assets/mochi-sky-backdrop.png",
       "type": "background",
-      "size": [384, 216],
+      "size": [1536, 864],
       "mode": "RGBA"
     },
     {
       "path": "assets/mochi-sky-tiles.png",
       "type": "tile",
-      "size": [128, 64],
+      "size": [512, 256],
       "mode": "RGBA",
       "seam_x": true,
       "seam_tolerance": 0
