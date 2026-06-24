@@ -2,7 +2,9 @@ name: Apply Mochi Sky feedback assets
 
 on:
   push:
-    branches: [fix/mochi-sky-inhale-scene-layers]
+    branches:
+      - 'fix/mochi-sky-*'
+      - 'feat/mochi-sky-*'
     paths:
       - games/mochi-sky/tools/generate_runtime_art.py
       - games/mochi-sky/tools/update_runtime_animation.py
@@ -21,7 +23,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: fix/mochi-sky-inhale-scene-layers
+          ref: ${{ github.ref_name }}
 
       - uses: actions/setup-python@v5
         with:
@@ -53,4 +55,4 @@ jobs:
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git commit -m 'Polish Mochi Sky animation formatting'
-          git push origin HEAD:fix/mochi-sky-inhale-scene-layers
+          git push origin HEAD:${{ github.ref_name }}
