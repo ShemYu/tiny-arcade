@@ -1132,6 +1132,7 @@
 
       const shakeX = screenShake ? (Math.random() - .5) * screenShake : 0;
       const shakeY = screenShake ? (Math.random() - .5) * screenShake : 0;
+      ctx.save();
       ctx.translate(Math.round(-cameraX + shakeX), Math.round(shakeY));
 
       drawPlatforms();
@@ -1146,6 +1147,7 @@
 
       drawHUD();
       drawOverlay();
+      ctx.restore();
     }
 
     function loadPixelImage(src) {
