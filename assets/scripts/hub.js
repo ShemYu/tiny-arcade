@@ -459,9 +459,14 @@
     }
 
     els.featured.hidden = false;
-    const image = els.featured.querySelector("img");
-    image.src = game.preview;
-    image.alt = getLocalized(game.previewAlt);
+    const image = els.featured.querySelector("[data-featured-image]");
+    if (image) {
+      image.src = game.preview;
+      image.alt = getLocalized(game.previewAlt);
+    }
+    document.querySelectorAll("[data-featured-preview]").forEach((preview) => {
+      preview.src = game.preview;
+    });
     els.featured.querySelector("[data-featured-title]").textContent = getLocalized(game.title);
     els.featured.querySelector("[data-featured-description]").textContent = getLocalized(game.description);
     els.featured.querySelector("[data-featured-link]").href = game.path;

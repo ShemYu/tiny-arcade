@@ -16,6 +16,7 @@
   <link rel="stylesheet" href="./assets/styles/hub.css">
   <script src="./assets/scripts/catalog.js" defer></script>
   <script src="./assets/scripts/hub.js" defer></script>
+  <script type="module" src="./assets/scripts/home-3d.js"></script>
 </head>
 <body>
   <a class="skip-link" href="#library">Skip to game library</a>
@@ -57,21 +58,27 @@
         </div>
       </div>
 
-      <article class="featured-card" id="featured-game">
-        <div class="featured-screen">
-          <img src="./assets/previews/mochi-sky.png" alt="Mochi Sky gameplay preview">
-          <span class="featured-badge" data-i18n="featuredLabel">Featured now</span>
+      <div class="hero-showcase" aria-label="Featured game showcase">
+        <div class="hero-stage" id="home-3d-stage" aria-hidden="true">
+          <img class="hero-stage-fallback" src="./assets/previews/mochi-sky.png" alt="" data-featured-preview>
         </div>
-        <div class="featured-content">
-          <div>
-            <h2 data-featured-title>Mochi Sky</h2>
-            <p data-featured-description>A pastel pixel platformer.</p>
+
+        <article class="featured-card" id="featured-game">
+          <div class="featured-thumb" aria-hidden="true">
+            <img src="./assets/previews/mochi-sky.png" alt="" data-featured-image>
           </div>
-          <a class="featured-play" href="./games/mochi-sky/" data-featured-link>
-            <span data-featured-play>Play featured game</span>
-          </a>
-        </div>
-      </article>
+          <div class="featured-content">
+            <div>
+              <span class="featured-badge" data-i18n="featuredLabel">Featured now</span>
+              <h2 data-featured-title>Mochi Sky</h2>
+              <p data-featured-description>A pastel pixel platformer.</p>
+            </div>
+            <a class="featured-play" href="./games/mochi-sky/" data-featured-link>
+              <span data-featured-play>Play featured game</span>
+            </a>
+          </div>
+        </article>
+      </div>
     </section>
 
     <section class="library-section" id="library" aria-labelledby="library-title">
