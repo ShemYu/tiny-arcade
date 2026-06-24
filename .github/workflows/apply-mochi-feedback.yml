@@ -43,6 +43,7 @@ jobs:
         run: |
           python - <<'PY'
           from pathlib import Path
+          import re
 
           path = Path('games/mochi-sky/index.html')
           text = path.read_text(encoding='utf-8')
@@ -66,41 +67,64 @@ jobs:
                   raise SystemExit('platform marker not found')
               text = text.replace(marker, insertion + marker, 1)
 
-          old_inhale = '''      if (player.inhale && imageReady(pixelAssets.inhale)) {
-                const inhaleFrame = player.inhaleTick < 28
-                  ? Math.min(7, Math.floor(player.inhaleTick / 4))
-                  : 5 + Math.floor(player.inhaleTick / 4) % 3;
-                const flip = player.dir < 0;'''
-          new_inhale = '''      if (player.inhale && imageReady(pixelAssets.inhale)) {
-                const inhaleStep = Math.floor(player.inhaleTick / 4);
+          inhale_pattern = re.compile(
+              r'''const inhaleFrame\s*=\s*player\.inhaleTick\s*<\s*28\s*'''
+              r'''\?\s*Math\.min\(7,\s*Math\.floor\(player\.inhaleTick\s*/\s*4\)\)\s*'''
+              r''':\s*5\s*\+\s*Math\.floor\(player\.inhaleTick\s*/\s*4\)\s*%\s*3;'''
+          )
+          inhale_replacement = '''const inhaleStep = Math.floor(player.inhaleTick / 4);
                 const inhaleFrame = inhaleStep < animationFrames.inhaleStartup.length
                   ? animationFrames.inhaleStartup[inhaleStep]
                   : sequenceFrame(
                       animationFrames.inhaleHold,
                       inhaleStep - animationFrames.inhaleStartup.length
-                    );
-                const flip = player.dir < 0;'''
-          if old_inhale in text:
-              text = text.replace(old_inhale, new_inhale, 1)
-          elif new_inhale not in text:
+                    );'''
+          text, inhale_count = inhale_pattern.subn(inhale_replacement, text, count=1)
+          if inhale_count == 0 and 'const inhaleStep = Math.floor(player.inhaleTick / 4);' not in text:
               raise SystemExit('inhale animation block not found')
 
-          old_walk = '''        const frame = !player.onGround
-                  ? (player.vy < 0 ? 6 : 7)
-                  : walking
-                    ? 2 + (Math.floor(player.anim) % 4)
-                    : Math.floor(gameTime * 3) % 2;'''
-          new_walk = '''        const frame = !player.onGround
+          walk_pattern = re.compile(
+              r'''const frame\s*=\s*!player\.onGround\s*'''
+              r'''\?\s*\(player\.vy\s*<\s*0\s*\?\s*6\s*:\s*7\)\s*'''
+              r''':\s*walking\s*'''
+              r'''\?\s*2\s*\+\s*\(Math\.floor\(player\.anim\)\s*%\s*4\)\s*'''
+              r''':\s*Math\.floor\(gameTime\s*\*\s*3\)\s*%\s*2;'''
+          )
+          walk_replacement = '''const frame = !player.onGround
                   ? (player.vy < 0 ? 6 : 7)
                   : walking
                     ? sequenceFrame(animationFrames.playerWalk, player.anim)
                     : sequenceFrame(animationFrames.playerIdle, gameTime * 3);'''
-          if old_walk in text:
-              text = text.replace(old_walk, new_walk, 1)
-          elif new_walk not in text:
+          text, walk_count = walk_pattern.subn(walk_replacement, text, count=1)
+          if walk_count == 0 and 'sequenceFrame(animationFrames.playerWalk, player.anim)' not in text:
               raise SystemExit('walking animation block not found')
 
           path.write_text(text, encoding='utf-8')
+          PY
+
+      - name: Validate generated assets
+        shell: bash
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          from PIL import Image
+
+          assets = Path('games/mochi-sky/assets')
+          expected = {
+              'mochi-sky-inhale-game-sheet.png': (768, 64),
+              'mochi-sky-backdrop.png': (384, 216),
+              'mochi-sky-tiles.png': (128, 64),
+          }
+          for name, size in expected.items():
+              image = Image.open(assets / name).convert('RGBA')
+              if image.size != size:
+                  raise SystemExit(f'{name}: expected {size}, got {image.size}')
+
+          tiles = Image.open(assets / 'mochi-sky-tiles.png').convert('RGBA')
+          if [tiles.getpixel((0, y)) for y in range(tiles.height)] != [
+              tiles.getpixel((tiles.width - 1, y)) for y in range(tiles.height)
+          ]:
+              raise SystemExit('terrain tile is not horizontally seamless')
           PY
 
       - name: Validate JavaScript syntax
