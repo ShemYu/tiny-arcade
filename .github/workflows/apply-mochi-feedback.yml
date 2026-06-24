@@ -1,19 +1,11 @@
 name: Apply Mochi Sky feedback assets
 
 on:
-  pull_request:
-    branches:
-      - main
-    paths:
-      - games/mochi-sky/tools/generate_runtime_art.py
-      - games/mochi-sky/tools/normalize_generated_art.py
-      - .github/workflows/apply-mochi-feedback.yml
   push:
-    branches:
-      - fix/mochi-sky-inhale-scene-layers
+    branches: [fix/mochi-sky-inhale-scene-layers]
     paths:
       - games/mochi-sky/tools/generate_runtime_art.py
-      - games/mochi-sky/tools/normalize_generated_art.py
+      - games/mochi-sky/tools/update_runtime_animation.py
       - .github/workflows/apply-mochi-feedback.yml
   workflow_dispatch:
 
@@ -33,102 +25,13 @@ jobs:
         with:
           python-version: '3.12'
 
-      - name: Generate source-aligned assets
+      - name: Build and validate runtime art
         run: |
           python -m pip install --disable-pip-version-check pillow
           python games/mochi-sky/tools/generate_runtime_art.py
-
-      - name: Keep walk and inhale loops continuous
-        shell: bash
-        run: |
-          python - <<'PY'
-          from pathlib import Path
-          import re
-
-          path = Path('games/mochi-sky/index.html')
-          text = path.read_text(encoding='utf-8')
-
-          if 'const animationFrames = {' not in text:
-              marker = '    const platforms = ['
-              insertion = '''    const animationFrames = {
-                playerIdle: [0, 1],
-                playerWalk: [2, 3, 4, 5, 4, 3],
-                inhaleStartup: [0, 1, 2, 3, 4],
-                inhaleHold: [5, 6, 7, 6]
-              };
-
-              function sequenceFrame(sequence, tick) {
-                const index = Math.floor(Math.max(0, tick)) % sequence.length;
-                return sequence[index];
-              }
-
-          '''
-              if marker not in text:
-                  raise SystemExit('platform marker not found')
-              text = text.replace(marker, insertion + marker, 1)
-
-          inhale_pattern = re.compile(
-              r'''const inhaleFrame\s*=\s*player\.inhaleTick\s*<\s*28\s*'''
-              r'''\?\s*Math\.min\(7,\s*Math\.floor\(player\.inhaleTick\s*/\s*4\)\)\s*'''
-              r''':\s*5\s*\+\s*Math\.floor\(player\.inhaleTick\s*/\s*4\)\s*%\s*3;'''
-          )
-          inhale_replacement = '''const inhaleStep = Math.floor(player.inhaleTick / 4);
-                const inhaleFrame = inhaleStep < animationFrames.inhaleStartup.length
-                  ? animationFrames.inhaleStartup[inhaleStep]
-                  : sequenceFrame(
-                      animationFrames.inhaleHold,
-                      inhaleStep - animationFrames.inhaleStartup.length
-                    );'''
-          text, inhale_count = inhale_pattern.subn(inhale_replacement, text, count=1)
-          if inhale_count == 0 and 'const inhaleStep = Math.floor(player.inhaleTick / 4);' not in text:
-              raise SystemExit('inhale animation block not found')
-
-          walk_pattern = re.compile(
-              r'''const frame\s*=\s*!player\.onGround\s*'''
-              r'''\?\s*\(player\.vy\s*<\s*0\s*\?\s*6\s*:\s*7\)\s*'''
-              r''':\s*walking\s*'''
-              r'''\?\s*2\s*\+\s*\(Math\.floor\(player\.anim\)\s*%\s*4\)\s*'''
-              r''':\s*Math\.floor\(gameTime\s*\*\s*3\)\s*%\s*2;'''
-          )
-          walk_replacement = '''const frame = !player.onGround
-                  ? (player.vy < 0 ? 6 : 7)
-                  : walking
-                    ? sequenceFrame(animationFrames.playerWalk, player.anim)
-                    : sequenceFrame(animationFrames.playerIdle, gameTime * 3);'''
-          text, walk_count = walk_pattern.subn(walk_replacement, text, count=1)
-          if walk_count == 0 and 'sequenceFrame(animationFrames.playerWalk, player.anim)' not in text:
-              raise SystemExit('walking animation block not found')
-
-          path.write_text(text, encoding='utf-8')
-          PY
-
-      - name: Validate generated assets
-        shell: bash
-        run: |
-          python - <<'PY'
-          from pathlib import Path
-          from PIL import Image
-
-          assets = Path('games/mochi-sky/assets')
-          expected = {
-              'mochi-sky-inhale-game-sheet.png': (768, 64),
-              'mochi-sky-backdrop.png': (384, 216),
-              'mochi-sky-tiles.png': (128, 64),
-          }
-          for name, size in expected.items():
-              image = Image.open(assets / name).convert('RGBA')
-              if image.size != size:
-                  raise SystemExit(f'{name}: expected {size}, got {image.size}')
-
-          tiles = Image.open(assets / 'mochi-sky-tiles.png').convert('RGBA')
-          if [tiles.getpixel((0, y)) for y in range(tiles.height)] != [
-              tiles.getpixel((tiles.width - 1, y)) for y in range(tiles.height)
-          ]:
-              raise SystemExit('terrain tile is not horizontally seamless')
-          PY
+          python games/mochi-sky/tools/update_runtime_animation.py
 
       - name: Validate JavaScript syntax
-        shell: bash
         run: |
           python - <<'PY'
           from pathlib import Path
@@ -138,18 +41,13 @@ jobs:
           PY
           node --check /tmp/mochi-sky.js
 
-      - name: Commit generated assets and runtime timing
+      - name: Commit generated files
         run: |
-          git add \
-            games/mochi-sky/index.html \
-            games/mochi-sky/assets/mochi-sky-inhale-game-sheet.png \
-            games/mochi-sky/assets/mochi-sky-backdrop.png \
-            games/mochi-sky/assets/mochi-sky-tiles.png
+          git add games/mochi-sky/index.html games/mochi-sky/assets/mochi-sky-inhale-game-sheet.png games/mochi-sky/assets/mochi-sky-backdrop.png games/mochi-sky/assets/mochi-sky-tiles.png
           if git diff --cached --quiet; then
-            echo 'Mochi Sky feedback changes are already up to date.'
             exit 0
           fi
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git commit -m 'Refine Mochi Sky art style and animation loops'
+          git commit -m 'Polish Mochi Sky animation formatting'
           git push origin HEAD:fix/mochi-sky-inhale-scene-layers
