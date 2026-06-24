@@ -1,0 +1,76 @@
+name: "🎮 Game Wish / 遊戲許願"
+description: "Suggest a small game you would love to play / 許願一款你真的想玩的遊戲"
+title: "[Game Wish] "
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for adding an idea to the arcade's wish pool.
+
+        謝謝你把點子放進 Tiny Arcade 的願望池。它不需要是一份完整企劃；一句話的幻想、一個奇怪機制，或一段你很想體驗的情境都可以。
+
+        A wish starts a conversation. It may evolve, combine with another idea, or become something the community builds together.
+
+  - type: textarea
+    id: pitch
+    attributes:
+      label: "The game in one sentence / 用一句話形容這款遊戲"
+      description: "What should the player immediately understand or feel? / 玩家第一時間會理解或感受到什麼？"
+      placeholder: "Example: A tiny café game where every drink changes a customer's memory.\n例如：一款經營小咖啡店的遊戲，每杯飲料都會改變客人的記憶。"
+    validations:
+      required: true
+
+  - type: textarea
+    id: fun
+    attributes:
+      label: "What sounds fun about it? / 你覺得它好玩的地方是什麼？"
+      description: "Describe the core action, fantasy, mood, or surprising part. / 可以描述核心操作、幻想、氣氛，或最有趣的反差。"
+      placeholder: "The player repeatedly... / 玩家會反覆……"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: length
+    attributes:
+      label: "Ideal play session / 理想遊玩長度"
+      options:
+        - "1–3 minutes / 1–3 分鐘"
+        - "5–10 minutes / 5–10 分鐘"
+        - "10–20 minutes / 10–20 分鐘"
+        - "Endless or score-based / 無限或挑戰分數"
+        - "No preference / 沒有特別偏好"
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: controls
+    attributes:
+      label: "Preferred controls / 希望支援的操作"
+      options:
+        - label: "Keyboard / 鍵盤"
+        - label: "Mouse / 滑鼠"
+        - label: "Touch / 觸控"
+        - label: "No preference / 沒有特別偏好"
+
+  - type: textarea
+    id: references
+    attributes:
+      label: "References or inspiration / 參考與靈感（選填）"
+      description: "Links, genres, moods, or comparisons are welcome. Please do not upload copyrighted assets you cannot redistribute. / 歡迎提供連結、類型、氣氛或類似作品；請勿直接上傳沒有再散布權限的素材。"
+      placeholder: "It feels a little like..., but I wish it had... / 有點像……，但我希望它可以……"
+
+  - type: textarea
+    id: extras
+    attributes:
+      label: "Anything else? / 還有什麼想補充的？（選填）"
+      description: "Characters, art style, accessibility needs, a title, or even a rough sketch are all welcome. / 角色、美術風格、無障礙需求、遊戲名稱或草圖都可以。"
+
+  - type: checkboxes
+    id: acknowledgement
+    attributes:
+      label: "Before submitting / 送出前"
+      options:
+        - label: "I understand this is a wish and discussion starter, not a delivery commitment. / 我理解這是一張許願與討論卡，不代表一定會製作或有交付時程。"
+          required: true
+        - label: "I am comfortable with others discussing, adapting, or building on this idea in this open repository. / 我同意大家在這個公開 repo 中討論、調整或延伸這個點子。"
+          required: true
