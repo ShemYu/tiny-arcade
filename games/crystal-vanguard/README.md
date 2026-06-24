@@ -5,7 +5,7 @@ A single-page pixel tactics tower-defense POC inside **Shem's Tiny Arcade**.
 Play it from the arcade:
 
 ```text
-https://shemyu.github.io/single-page-games/games/crystal-vanguard/
+https://shemyu.github.io/tiny-arcade/games/crystal-vanguard/
 ```
 
 ## What is implemented

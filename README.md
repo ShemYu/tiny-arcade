@@ -10,9 +10,9 @@
 </p>
 
 <p align="center">
-  <a href="https://shemyu.github.io/single-page-games/"><strong>▶ Play the arcade</strong></a>
+  <a href="https://shemyu.github.io/tiny-arcade/"><strong>▶ Play the arcade</strong></a>
   ·
-  <a href="https://github.com/ShemYu/single-page-games/issues/new?template=game-wish.yml"><strong>💭 Wish for a game</strong></a>
+  <a href="https://github.com/ShemYu/tiny-arcade/issues/new?template=game-wish.yml"><strong>💭 Wish for a game</strong></a>
   ·
   <a href="./CONTRIBUTING.md"><strong>🛠 Contribute</strong></a>
   ·
@@ -36,28 +36,28 @@ This repository is also an open invitation. Play something, point out what feels
 <table>
   <tr>
     <td width="33%" valign="top">
-      <a href="https://shemyu.github.io/single-page-games/games/mochi-sky/">
+      <a href="https://shemyu.github.io/tiny-arcade/games/mochi-sky/">
         <img src="./assets/previews/mochi-sky.png" alt="Mochi Sky gameplay preview" width="100%">
       </a>
       <h3>Mochi Sky / 麻糬星野</h3>
       <p>A pastel action platformer about jumping, inhaling bubble enemies, and chasing a rainbow gate.</p>
-      <p><a href="https://shemyu.github.io/single-page-games/games/mochi-sky/"><strong>Play</strong></a> · <a href="./games/mochi-sky/">Source</a></p>
+      <p><a href="https://shemyu.github.io/tiny-arcade/games/mochi-sky/"><strong>Play</strong></a> · <a href="./games/mochi-sky/">Source</a></p>
     </td>
     <td width="33%" valign="top">
-      <a href="https://shemyu.github.io/single-page-games/games/crystal-vanguard/">
+      <a href="https://shemyu.github.io/tiny-arcade/games/crystal-vanguard/">
         <img src="./assets/previews/crystal-vanguard.png" alt="Crystal Vanguard gameplay preview" width="100%">
       </a>
       <h3>Crystal Vanguard / 琉璃城：八方守晶</h3>
       <p>A compact tactics and tower-defense game. Recruit, merge, deploy, and protect the crystal from every direction.</p>
-      <p><a href="https://shemyu.github.io/single-page-games/games/crystal-vanguard/"><strong>Play</strong></a> · <a href="./games/crystal-vanguard/">Source</a></p>
+      <p><a href="https://shemyu.github.io/tiny-arcade/games/crystal-vanguard/"><strong>Play</strong></a> · <a href="./games/crystal-vanguard/">Source</a></p>
     </td>
     <td width="33%" valign="top">
-      <a href="https://shemyu.github.io/single-page-games/games/wink-pop-seoul/">
+      <a href="https://shemyu.github.io/tiny-arcade/games/wink-pop-seoul/">
         <img src="./assets/previews/wink-pop-seoul.png" alt="K-Idol Eye Runway gameplay preview" width="100%">
       </a>
       <h3>K-Idol Eye Runway / 韓系偶像電眼伸展台</h3>
       <p>A playful side-scrolling charm game. Aim your gaze, race your rivals, and win the crowd before time runs out.</p>
-      <p><a href="https://shemyu.github.io/single-page-games/games/wink-pop-seoul/"><strong>Play</strong></a> · <a href="./games/wink-pop-seoul/">Source</a></p>
+      <p><a href="https://shemyu.github.io/tiny-arcade/games/wink-pop-seoul/"><strong>Play</strong></a> · <a href="./games/wink-pop-seoul/">Source</a></p>
     </td>
   </tr>
 </table>
@@ -76,11 +76,11 @@ All current games are playable prototypes. They may still be rough around the ed
 
 ### Playtest it
 
-Found a bug, confusing control, awkward difficulty spike, mobile issue, or detail that simply feels off? [Open an issue](https://github.com/ShemYu/single-page-games/issues/new). Screenshots, recordings, and honest reactions are extremely helpful.
+Found a bug, confusing control, awkward difficulty spike, mobile issue, or detail that simply feels off? [Open an issue](https://github.com/ShemYu/tiny-arcade/issues/new). Screenshots, recordings, and honest reactions are extremely helpful.
 
 ### Make a game wish
 
-Have a small game you would love to play, but cannot find anywhere? [Create a Game Wish card](https://github.com/ShemYu/single-page-games/issues/new?template=game-wish.yml).
+Have a small game you would love to play, but cannot find anywhere? [Create a Game Wish card](https://github.com/ShemYu/tiny-arcade/issues/new?template=game-wish.yml).
 
 The idea does not need a full design document. A one-sentence fantasy, a strange mechanic, or “this game, but with…” is enough to begin a useful conversation. A wish is an invitation to explore—not a delivery promise.
 

@@ -2,7 +2,7 @@
 set -euo pipefail
 
 OWNER="${GITHUB_OWNER:-ShemYu}"
-REPO="${1:-single-page-games}"
+REPO="${1:-tiny-arcade}"
 DESCRIPTION="Tiny Arcade: an instant-play hub for small browser games"
 OWNER_LOWER="$(printf '%s' "$OWNER" | tr '[:upper:]' '[:lower:]')"
 PAGES_URL="https://${OWNER_LOWER}.github.io/${REPO}/"

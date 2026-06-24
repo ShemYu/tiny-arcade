@@ -5,7 +5,7 @@ A tiny pastel pixel-art side-scroller POC inside **Shem's Tiny Arcade**.
 Play it from the arcade:
 
 ```text
-https://shemyu.github.io/single-page-games/games/mochi-sky/
+https://shemyu.github.io/tiny-arcade/games/mochi-sky/
 ```
 
 ## What is implemented

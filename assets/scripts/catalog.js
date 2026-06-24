@@ -16,7 +16,7 @@ window.TINY_ARCADE_GAMES = [
       zh: "粉彩像素風橫向卷軸遊戲。跳躍、吸入泡泡怪、發射星彈，最後抵達彩虹星門。"
     },
     path: "./games/mochi-sky/",
-    source: "https://github.com/ShemYu/single-page-games/tree/main/games/mochi-sky",
+    source: "https://github.com/ShemYu/tiny-arcade/tree/main/games/mochi-sky",
     preview: "./assets/previews/mochi-sky.png",
     previewAlt: {
       en: "Mochi Sky gameplay with a round pink hero in a pastel pixel world",
@@ -42,7 +42,7 @@ window.TINY_ARCADE_GAMES = [
       zh: "像素戰棋守塔遊戲。招募、合成、部署戰棋，抵禦八方來襲的敵軍並守住華麗水晶。"
     },
     path: "./games/crystal-vanguard/",
-    source: "https://github.com/ShemYu/single-page-games/tree/main/games/crystal-vanguard",
+    source: "https://github.com/ShemYu/tiny-arcade/tree/main/games/crystal-vanguard",
     preview: "./assets/previews/crystal-vanguard.png",
     previewAlt: {
       en: "Crystal Vanguard gameplay showing a pixel battlefield with crystal defense UI",
@@ -68,7 +68,7 @@ window.TINY_ARCADE_GAMES = [
     zh: "橫向捲軸偶像放電小遊戲。瞄準男粉絲、和競爭對手搶人氣，在時間結束前收服粉絲。"
   },
   path: "./games/wink-pop-seoul/",
-  source: "https://github.com/ShemYu/single-page-games/tree/main/games/wink-pop-seoul",
+  source: "https://github.com/ShemYu/tiny-arcade/tree/main/games/wink-pop-seoul",
   preview: "./assets/previews/wink-pop-seoul.png",
   previewAlt: {
     en: "K-Idol Eye Runway gameplay with an idol charming fans in a festival street",
