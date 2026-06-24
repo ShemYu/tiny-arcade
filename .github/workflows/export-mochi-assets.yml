@@ -25,6 +25,7 @@ jobs:
             mochi-sky-inhale-game-sheet.png \
             mochi-sky-mochi-action-sheet-source.png \
             mochi-sky-mochi-action-game-sheet.png \
+            mochi-sky-map-source.png \
             mochi-sky-atlas.png \
             mochi-sky-backdrop.png \
             mochi-sky-tiles.png; do
