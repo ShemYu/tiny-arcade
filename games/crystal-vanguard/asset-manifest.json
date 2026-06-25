@@ -1,0 +1,70 @@
+{
+  "sprite_contract": {
+    "cell": [96, 96],
+    "direction_rows": ["S", "SE", "E", "NE", "N", "NW", "W", "SW"],
+    "anchor_px": [48, 82],
+    "runtime_auto_registration": true
+  },
+  "assets": [
+    {
+      "path": "assets/units/blade-rank1-idle.png",
+      "type": "sprite_sheet",
+      "size": [576, 768],
+      "mode": "RGBA",
+      "transparent": true,
+      "cell": [96, 96],
+      "grid": [6, 8],
+      "edge_padding_px": 0
+    },
+    {
+      "path": "assets/units/blade-rank1-walk.png",
+      "type": "sprite_sheet",
+      "size": [768, 768],
+      "mode": "RGBA",
+      "transparent": true,
+      "cell": [96, 96],
+      "grid": [8, 8],
+      "edge_padding_px": 0
+    },
+    {
+      "path": "assets/units/blade-rank1-attack.png",
+      "type": "sprite_sheet",
+      "size": [768, 768],
+      "mode": "RGBA",
+      "transparent": true,
+      "cell": [96, 96],
+      "grid": [8, 8],
+      "edge_padding_px": 0
+    },
+    {
+      "path": "assets/units/blade-rank1-cast.png",
+      "type": "sprite_sheet",
+      "size": [768, 768],
+      "mode": "RGBA",
+      "transparent": true,
+      "cell": [96, 96],
+      "grid": [8, 8],
+      "edge_padding_px": 0
+    },
+    {
+      "path": "assets/units/blade-rank1-hurt.png",
+      "type": "sprite_sheet",
+      "size": [384, 768],
+      "mode": "RGBA",
+      "transparent": true,
+      "cell": [96, 96],
+      "grid": [4, 8],
+      "edge_padding_px": 0
+    },
+    {
+      "path": "assets/units/blade-rank1-death.png",
+      "type": "sprite_sheet",
+      "size": [768, 768],
+      "mode": "RGBA",
+      "transparent": true,
+      "cell": [96, 96],
+      "grid": [8, 8],
+      "edge_padding_px": 0
+    }
+  ]
+}

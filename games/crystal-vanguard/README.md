@@ -31,9 +31,25 @@ https://shemyu.github.io/tiny-arcade/games/crystal-vanguard/
 | `Q` | Rally deployed units to the crystal during battle |
 | Right click | Bench the selected deployed unit |
 
+## Phaser action proof
+
+The isolated eight-direction action and movement proof lives at:
+
+```text
+games/crystal-vanguard/proofs/phaser-actions/index.html
+```
+
+It includes keyboard and click-to-move control, one-shot action locking, animation-phase-preserving direction changes, separate physics and visual actors, runtime sprite registration, asset diagnostics, and a debug overlay (`0`).
+
+The reusable sprite contract and generation prompts are documented in [`assets/units/SPRITE_GENERATION_SPEC.md`](./assets/units/SPRITE_GENERATION_SPEC.md). Validate the current unit sheets with:
+
+```bash
+python3 tools/game-assets/validate_game_assets.py games/crystal-vanguard/asset-manifest.json
+```
+
 ## POC notes
 
-This is intentionally self-contained: one HTML file with embedded CSS, JavaScript, canvas rendering, and audio. The goal is to validate the tactical loop before extracting assets or introducing a framework.
+The main game POC is intentionally self-contained: one HTML file with embedded CSS, JavaScript, canvas rendering, and audio. The goal is to validate the tactical loop before extracting assets or introducing a framework.
 
 ## Future ideas
 
