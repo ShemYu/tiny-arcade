@@ -1,0 +1,161 @@
+{
+  "version": "0.2.0",
+  "updated": "2026-06-26",
+  "status_values": [
+    "integrated",
+    "placeholder_in_game",
+    "backlog"
+  ],
+  "items": [
+    {
+      "id": "ART-UNIT-001",
+      "category": "unit",
+      "content_id": "blade",
+      "name": "Blade Rank 1",
+      "status": "integrated",
+      "priority": "P0",
+      "runtime_asset_id": "unit.blade.rank1",
+      "deliverables": [
+        "idle",
+        "walk",
+        "attack",
+        "cast",
+        "hurt",
+        "death"
+      ],
+      "spec": {
+        "cell_px": [96, 96],
+        "direction_rows": ["S", "SE", "E", "NE", "N", "NW", "W", "SW"],
+        "anchor_px": [48, 82]
+      }
+    },
+    {
+      "id": "ART-MON-001",
+      "category": "monster",
+      "content_id": "sprout",
+      "name": "苔芽獸",
+      "status": "placeholder_in_game",
+      "priority": "P0",
+      "runtime_asset_id": "monster.sprout",
+      "required_actions": ["idle", "walk", "attack", "hurt", "death"]
+    },
+    {
+      "id": "ART-MON-002",
+      "category": "monster",
+      "content_id": "moth",
+      "name": "針翅蟲",
+      "status": "placeholder_in_game",
+      "priority": "P1",
+      "runtime_asset_id": "monster.moth",
+      "required_actions": ["idle", "walk", "attack", "hurt", "death"]
+    },
+    {
+      "id": "ART-MON-003",
+      "category": "monster",
+      "content_id": "golem",
+      "name": "頁岩巨像",
+      "status": "placeholder_in_game",
+      "priority": "P1",
+      "runtime_asset_id": "monster.golem",
+      "required_actions": ["idle", "walk", "attack", "hurt", "death"]
+    },
+    {
+      "id": "ART-BLD-001",
+      "category": "building",
+      "content_id": "barricade",
+      "name": "木製路障",
+      "status": "placeholder_in_game",
+      "priority": "P0",
+      "runtime_asset_id": "building.barricade",
+      "required_actions": ["idle", "damaged"]
+    },
+    {
+      "id": "ART-BLD-002",
+      "category": "building",
+      "content_id": "bolt-tower",
+      "name": "弩箭塔",
+      "status": "placeholder_in_game",
+      "priority": "P0",
+      "runtime_asset_id": "building.bolt-tower",
+      "required_actions": ["idle", "attack"]
+    },
+    {
+      "id": "ART-CORE-001",
+      "category": "core",
+      "content_id": "crystal",
+      "name": "中央水晶",
+      "status": "placeholder_in_game",
+      "priority": "P1",
+      "runtime_asset_id": "core.crystal",
+      "required_actions": ["idle", "damaged"]
+    },
+    {
+      "id": "ART-VFX-001",
+      "category": "vfx",
+      "content_id": "blade-cleave",
+      "name": "Blade cleave",
+      "status": "placeholder_in_game",
+      "priority": "P1",
+      "required_actions": ["slash", "impact"]
+    },
+    {
+      "id": "ART-VFX-002",
+      "category": "vfx",
+      "content_id": "bolt",
+      "name": "Bolt projectile and impact",
+      "status": "placeholder_in_game",
+      "priority": "P1",
+      "runtime_asset_id": "projectile.bolt",
+      "required_actions": ["projectile", "impact"]
+    },
+    {
+      "id": "ART-UI-001",
+      "category": "ui",
+      "content_id": "placement-tools",
+      "name": "Placement tool icons",
+      "status": "placeholder_in_game",
+      "priority": "P2",
+      "required_actions": ["blade", "barricade", "bolt-tower"]
+    },
+    {
+      "id": "ART-UNIT-002",
+      "category": "unit",
+      "content_id": "archer",
+      "name": "Archer Rank 1",
+      "status": "backlog",
+      "priority": "P2"
+    },
+    {
+      "id": "ART-UNIT-003",
+      "category": "unit",
+      "content_id": "mage",
+      "name": "Mage Rank 1",
+      "status": "backlog",
+      "priority": "P2"
+    },
+    {
+      "id": "ART-UNIT-004",
+      "category": "unit",
+      "content_id": "acolyte",
+      "name": "Acolyte Rank 1",
+      "status": "backlog",
+      "priority": "P2"
+    },
+    {
+      "id": "ART-UNIT-005",
+      "category": "unit",
+      "content_id": "thief",
+      "name": "Thief Rank 1",
+      "status": "backlog",
+      "priority": "P3"
+    },
+    {
+      "id": "ART-UNIT-006",
+      "category": "unit",
+      "content_id": "gel",
+      "name": "Gel companion",
+      "status": "backlog",
+      "priority": "P3"
+    }
+  ]
+}
