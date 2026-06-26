@@ -342,7 +342,7 @@
         <div class="bar"><span id="powerBar"></span></div>
       </div>
       <div class="tile">
-        <div class="tile-row"><span>Incense</span><span id="time">90</span></div>
+        <div class="tile-row"><span>Time</span><span id="time">90</span></div>
         <strong id="danger">0%</strong>
         <div class="bar danger"><span id="timeBar"></span></div>
       </div>
@@ -384,7 +384,7 @@
           <div class="chip"><span>Rank</span><strong id="bestRank">Rookie</strong></div>
           <div class="chip"><span>Last</span><strong id="last">0</strong></div>
         </div>
-        <p class="result-note" id="resultNote">Wink at fans before the incense burns out.</p>
+        <p class="result-note" id="resultNote">Wink at fans before the moment fades out.</p>
         <div class="dialog-actions">
           <button class="primary-button" id="startBtn" type="button">Start Wink</button>
           <button class="icon-button" id="resetBtn" type="button" aria-label="重置紀錄">
@@ -406,14 +406,13 @@
       const posterCtx = posterCanvas.getContext("2d");
       const TAU = Math.PI * 2;
       const assetManifest = {
-        festivalBg: "assets/backgrounds/festival-market.png",
+        seoulDayCityBg: "assets/backgrounds/seoul-day-city.png",
         heroine: "assets/sprites/heroine-glam.png",
         maleFan: "assets/sprites/male-fan.png",
         manFan: "assets/sprites/man-fan.png",
         rivalCute: "assets/sprites/rival-cute.png",
         rivalStreet: "assets/sprites/rival-street.png",
-        rivalLuxury: "assets/sprites/rival-luxury.png",
-        maskedManager: "assets/sprites/masked-manager.png"
+        rivalLuxury: "assets/sprites/rival-luxury.png"
       };
       const assets = {};
 
@@ -432,8 +431,7 @@
         manFan: { height: 168, head: 132 },
         rivalCute: { height: 148, head: 116 },
         rivalStreet: { height: 158, head: 122 },
-        rivalLuxury: { height: 160, head: 124 },
-        maskedManager: { height: 152, head: 118 }
+        rivalLuxury: { height: 160, head: 124 }
       };
 
       const ui = {
@@ -467,7 +465,7 @@
       const rand = (min, max) => min + Math.random() * (max - min);
       const clamp = (n, min, max) => Math.max(min, Math.min(max, n));
       const lerp = (a, b, t) => a + (b - a) * t;
-      const lanes = [0.64, 0.69, 0.74, 0.79, 0.84];
+      const lanes = [0.74, 0.78, 0.82, 0.86, 0.9];
       const queryDuration = Number(new URLSearchParams(window.location.search).get("duration"));
       const roundDuration = Number.isFinite(queryDuration) && queryDuration >= 5 && queryDuration <= 180 ? queryDuration : 90;
 
@@ -497,13 +495,11 @@
         worldX: 0,
         speed: 112,
         spawnAt: 420,
-        obstacleAt: 720,
         target: null,
         pointer: { x: 0, y: 0, down: false, clicks: 0, clickDecay: 0 },
         player: { x: 210, y: 0, targetY: 0, step: 0, stun: 0 },
         boys: [],
         rivals: [],
-        obstacles: [],
         followersLine: [],
         hearts: [],
         particles: [],
@@ -608,7 +604,6 @@
         game.worldX = 0;
         game.speed = 112;
         game.spawnAt = 280;
-        game.obstacleAt = 720;
         game.target = null;
         game.pointer.down = false;
         game.pointer.clicks = 0;
@@ -619,7 +614,6 @@
         game.player.stun = 0;
         game.boys = [];
         game.rivals = [];
-        game.obstacles = [];
         game.followersLine = [];
         game.hearts = [];
         game.particles = [];
@@ -627,7 +621,7 @@
         game.signs = [];
         for (let i = 0; i < 14; i++) game.signs.push({ x: i * 320 + rand(20, 150), kind: i % 3 });
         ui.overlayTitle.textContent = "Wink Pop Seoul";
-        ui.resultNote.textContent = "Wink at fans before the incense burns out.";
+        ui.resultNote.textContent = "Wink at fans before the moment fades out.";
         ui.overlay.classList.add("hidden");
         audio.init();
         audio.start();
@@ -647,7 +641,7 @@
         ui.best.textContent = game.best.toLocaleString("en-US");
         ui.bestRank.textContent = rankFor(Math.max(game.best, game.lastScore));
         ui.resultNote.textContent = reason === "time"
-          ? "TIME UP. The incense burned out, so this pop stage is over."
+          ? "TIME UP. The moment faded, so this pop stage is over."
           : "POP OVER. Check your score and start an encore.";
         ui.overlayTitle.textContent = reason === "time" ? "TIME UP" : "Pop Over";
         ui.startBtn.textContent = "Encore";
@@ -694,18 +688,6 @@
             color: Math.random() > 0.5 ? "#ff4d8d" : "#79a8ff"
           });
         }
-      }
-
-      function spawnObstacle() {
-        const lane = Math.floor(rand(0, lanes.length));
-        game.obstacles.push({
-          x: game.worldX + game.width + rand(180, 340),
-          y: laneY(lane),
-          lane,
-          kind: Math.random() > 0.45 ? "manager" : "camera",
-          hit: false,
-          sway: rand(0, TAU)
-        });
       }
 
       function setPointer(event) {
@@ -791,19 +773,6 @@
         audio.charm();
       }
 
-      function hitObstacle(obstacle) {
-        obstacle.hit = true;
-        game.time = Math.max(0, game.time - 5);
-        game.combo = 1;
-        game.shake = 12;
-        game.flash = 0.35;
-        game.player.stun = 0.7;
-        game.danger = clamp(game.danger + 25, 0, 100);
-        addFloat("-5s", obstacle.x - game.worldX, obstacle.y - 88, "#ff5050");
-        burst(game.player.x, game.player.y - 60, "#ff5050", 12);
-        audio.bump();
-      }
-
       function update(dt) {
         game.beat += dt;
         game.shake = Math.max(0, game.shake - dt * 24);
@@ -832,10 +801,6 @@
           spawnBoy();
           game.spawnAt += rand(230, 390);
         }
-        if (game.worldX > game.obstacleAt) {
-          spawnObstacle();
-          game.obstacleAt += rand(580, 850);
-        }
 
         if (!charmLocked) {
           target = chooseTarget();
@@ -861,15 +826,8 @@
           rival.sway += dt * 4;
           rival.life -= dt;
         }
-        for (const obstacle of game.obstacles) {
-          obstacle.sway += dt * 4;
-          const sx = obstacle.x - game.worldX;
-          if (!obstacle.hit && Math.abs(sx - game.player.x) < 34 && Math.abs(obstacle.y - game.player.y) < 44) hitObstacle(obstacle);
-        }
-
         game.boys = game.boys.filter(boy => !boy.captured && boy.x - game.worldX > -120);
         game.rivals = game.rivals.filter(rival => rival.x - game.worldX > -120 && rival.life > 0);
-        game.obstacles = game.obstacles.filter(obstacle => obstacle.x - game.worldX > -160);
         game.signs = game.signs.filter(sign => sign.x - game.worldX > -420);
         while (game.signs.length < 18) {
           const far = Math.max(game.worldX + game.width, ...game.signs.map(s => s.x));
@@ -966,6 +924,14 @@
         target.drawImage(image, sx, sy, sw, sh, x, y, w, h);
       }
 
+      function drawImageRepeatXByHeight(target, image, w, h, offset) {
+        const scaledWidth = image.naturalWidth / image.naturalHeight * h;
+        const scroll = ((offset % scaledWidth) + scaledWidth) % scaledWidth;
+        for (let x = -scroll; x < w; x += scaledWidth) {
+          target.drawImage(image, x, 0, scaledWidth, h);
+        }
+      }
+
       function drawSprite(target, sprite, x, footY, height, options = {}) {
         const image = assets[sprite];
         if (!imageReady(image)) return false;
@@ -984,19 +950,17 @@
       }
 
       function drawStreet(target, w, h, offset = game.worldX) {
-        if (imageReady(assets.festivalBg)) {
-          const scroll = (offset * 0.18) % w;
-          drawImageCover(target, assets.festivalBg, -scroll, 0, w, h);
-          drawImageCover(target, assets.festivalBg, w - scroll, 0, w, h);
+        if (imageReady(assets.seoulDayCityBg)) {
+          drawImageRepeatXByHeight(target, assets.seoulDayCityBg, w, h, offset * 0.18);
 
           const roadTop = h * 0.36;
           const roadShade = target.createLinearGradient(0, roadTop, 0, h);
-          roadShade.addColorStop(0, "rgba(255,221,154,0.04)");
-          roadShade.addColorStop(0.62, "rgba(97,49,27,0.14)");
-          roadShade.addColorStop(1, "rgba(16,11,10,0.28)");
+          roadShade.addColorStop(0, "rgba(255,255,255,0.02)");
+          roadShade.addColorStop(0.62, "rgba(59,94,132,0.05)");
+          roadShade.addColorStop(1, "rgba(18,28,42,0.14)");
           target.fillStyle = roadShade;
           target.fillRect(0, roadTop, w, h - roadTop);
-          target.strokeStyle = "rgba(255,245,210,0.2)";
+          target.strokeStyle = "rgba(255,255,255,0.18)";
           target.lineWidth = 1;
           for (let i = 0; i < lanes.length + 1; i++) {
             const y = h * (0.385 + i * 0.09);
@@ -1011,21 +975,21 @@
         }
 
         const sky = target.createLinearGradient(0, 0, 0, h);
-        sky.addColorStop(0, "#2a241d");
-        sky.addColorStop(0.42, "#403327");
-        sky.addColorStop(1, "#111018");
+        sky.addColorStop(0, "#071224");
+        sky.addColorStop(0.42, "#102136");
+        sky.addColorStop(1, "#070a12");
         target.fillStyle = sky;
         target.fillRect(0, 0, w, h);
 
         const horizon = h * 0.34;
-        target.fillStyle = "#241d1c";
+        target.fillStyle = "#111a2a";
         for (let i = -1; i < 8; i++) {
           const x = i * 220 - (offset * 0.25 % 220);
           const bw = 150 + (i % 3) * 32;
           const bh = 120 + ((i + 2) % 4) * 34;
           roundedRect(target, x, horizon - bh + 26, bw, bh, 5);
           target.fill();
-          target.fillStyle = i % 2 ? "rgba(255,205,107,0.24)" : "rgba(255,118,72,0.2)";
+          target.fillStyle = i % 2 ? "rgba(51,228,202,0.2)" : "rgba(255,77,141,0.18)";
           for (let wy = horizon - bh + 48; wy < horizon + 6; wy += 30) {
             for (let wx = x + 18; wx < x + bw - 20; wx += 34) target.fillRect(wx, wy, 14, 10);
           }
@@ -1056,36 +1020,39 @@
         for (let x = -80 - (offset * 0.9 % 155); x < w + 160; x += 155) {
           target.save();
           target.translate(x, horizon - 112);
-          target.strokeStyle = "rgba(80,45,24,0.85)";
+          target.strokeStyle = "rgba(145,184,210,0.55)";
           target.lineWidth = 3;
           target.beginPath();
           target.moveTo(0, -28);
           target.lineTo(0, 35);
           target.stroke();
-          const lantern = target.createRadialGradient(-6, -2, 3, 0, 2, 24);
-          lantern.addColorStop(0, "#fff5b5");
-          lantern.addColorStop(0.45, "#ffbf37");
-          lantern.addColorStop(1, "#cf4b16");
-          target.fillStyle = lantern;
+          const glow = target.createRadialGradient(0, -8, 5, 0, -8, 44);
+          glow.addColorStop(0, "rgba(51,228,202,0.46)");
+          glow.addColorStop(1, "rgba(51,228,202,0)");
+          target.fillStyle = glow;
           target.beginPath();
-          target.ellipse(0, 0, 18, 27, 0, 0, TAU);
+          target.arc(0, -8, 44, 0, TAU);
           target.fill();
-          target.strokeStyle = "#7c2c17";
-          target.lineWidth = 2;
-          target.beginPath();
-          target.moveTo(-16, -6);
-          target.lineTo(16, -6);
-          target.moveTo(-14, 10);
-          target.lineTo(14, 10);
+          target.fillStyle = "rgba(6,12,24,0.86)";
+          roundedRect(target, -34, -28, 68, 34, 6);
+          target.fill();
+          target.strokeStyle = x % 310 === 0 ? "#ff4d8d" : "#33e4ca";
+          target.lineWidth = 2.2;
+          roundedRect(target, -34, -28, 68, 34, 6);
           target.stroke();
+          target.fillStyle = x % 310 === 0 ? "#ff8fbd" : "#b3fff5";
+          target.font = "900 12px system-ui";
+          target.textAlign = "center";
+          target.textBaseline = "middle";
+          target.fillText(x % 310 === 0 ? "노래" : "카페", 0, -11);
           target.restore();
         }
 
         const roadTop = h * 0.36;
         const road = target.createLinearGradient(0, roadTop, 0, h);
-        road.addColorStop(0, "#d99758");
-        road.addColorStop(0.42, "#c77b42");
-        road.addColorStop(1, "#49372c");
+        road.addColorStop(0, "#2d405a");
+        road.addColorStop(0.42, "#22324b");
+        road.addColorStop(1, "#111827");
         target.fillStyle = road;
         target.beginPath();
         target.moveTo(0, roadTop);
@@ -1481,50 +1448,6 @@
         ctx.restore();
       }
 
-      function drawObstacle(obstacle) {
-        const sx = obstacle.x - game.worldX;
-        if (obstacle.kind === "manager") {
-          if (drawSprite(ctx, "maskedManager", sx, obstacle.y, spriteSpec.maskedManager.height, { bob: Math.sin(obstacle.sway) * 3 })) {
-            return;
-          }
-          drawPerson(ctx, sx, obstacle.y, { color: "#ff5050", body: "#323845", hair: "#1a1d24", sign: "M", sway: obstacle.sway, smile: false, scale: 1.04 });
-          ctx.save();
-          ctx.translate(sx, obstacle.y - 22 + Math.sin(obstacle.sway) * 4);
-          ctx.fillStyle = "rgba(255,255,255,0.9)";
-          roundedRect(ctx, -13, -6, 26, 10, 5);
-          ctx.fill();
-          ctx.fillStyle = "#111721";
-          ctx.beginPath();
-          ctx.arc(-5, -1, 2, 0, TAU);
-          ctx.arc(5, -1, 2, 0, TAU);
-          ctx.fill();
-          ctx.restore();
-        } else {
-          ctx.save();
-          ctx.translate(sx, obstacle.y);
-          ctx.fillStyle = "rgba(0,0,0,0.25)";
-          ctx.beginPath();
-          ctx.ellipse(0, 28, 24, 7, 0, 0, TAU);
-          ctx.fill();
-          ctx.fillStyle = "#202734";
-          roundedRect(ctx, -22, -28, 44, 42, 9);
-          ctx.fill();
-          ctx.fillStyle = "#ff5050";
-          ctx.beginPath();
-          ctx.arc(0, -8, 11, 0, TAU);
-          ctx.fill();
-          ctx.strokeStyle = "rgba(255,255,255,0.7)";
-          ctx.lineWidth = 3;
-          ctx.beginPath();
-          ctx.moveTo(-28, -42);
-          ctx.lineTo(28, -42);
-          ctx.moveTo(0, -28);
-          ctx.lineTo(0, 32);
-          ctx.stroke();
-          ctx.restore();
-        }
-      }
-
       function drawBeam() {
         if (!game.pointer.down || !game.running || game.paused || !game.target) return;
         const sx = game.player.x + 18;
@@ -1566,7 +1489,7 @@
         }
       }
 
-      function drawIncense() {
+      function drawCountdownTimer() {
         const cx = game.width * 0.5;
         const urgent = game.running && game.time <= 10;
         const cy = urgent ? 48 : 22;
@@ -1627,7 +1550,7 @@
         ctx.fillText("TIME UP", game.width / 2, game.height * 0.42);
         ctx.font = "800 18px system-ui";
         ctx.fillStyle = "#ffbf3d";
-        ctx.fillText("The incense burned out", game.width / 2, game.height * 0.42 + 48);
+        ctx.fillText("The moment faded out", game.width / 2, game.height * 0.42 + 48);
         ctx.restore();
       }
 
@@ -1641,14 +1564,12 @@
 
         const all = [
           ...game.rivals.map(item => ({ type: "rival", y: item.y, item })),
-          ...game.boys.map(item => ({ type: "boy", y: item.y, item })),
-          ...game.obstacles.map(item => ({ type: "obstacle", y: item.y, item }))
+          ...game.boys.map(item => ({ type: "boy", y: item.y, item }))
         ].sort((a, b) => a.y - b.y);
 
         for (const entry of all) {
           if (entry.type === "rival") drawRival(entry.item);
           if (entry.type === "boy") drawBoy(entry.item);
-          if (entry.type === "obstacle") drawObstacle(entry.item);
         }
 
         drawFollowers();
@@ -1679,7 +1600,7 @@
           ctx.restore();
         }
 
-        drawIncense();
+        drawCountdownTimer();
         drawEndCue();
 
         if (game.paused) {
@@ -1716,11 +1637,6 @@
         posterCtx.translate(w * 0.72, h * 0.62);
         posterCtx.scale(0.76, 0.76);
         drawIdol(posterCtx, 0, 0, 1.15, true);
-        posterCtx.restore();
-        posterCtx.save();
-        posterCtx.globalAlpha = 0.65;
-        drawPerson(posterCtx, w * 0.46, h * 0.62, { color: "#c7ff4f", sign: "♡", sway: 1 });
-        drawPerson(posterCtx, w * 0.56, h * 0.68, { color: "#33e4ca", sign: "★", sway: 2, scale: 0.86 });
         posterCtx.restore();
         for (let i = 0; i < 20; i++) {
           posterCtx.fillStyle = i % 2 ? "#33e4ca" : "#ff4d8d";
