@@ -6,6 +6,37 @@ const PHASE_LABELS = {
   [PHASES.DEFEAT]: '水晶碎裂'
 };
 
+const ICON_BY_FALLBACK_SHAPE = Object.freeze({
+  fighter: '⚔',
+  barricade: '▥',
+  tower: '⌁',
+  slime: '芽',
+  moth: '翅',
+  golem: '岩',
+  crystal: '晶',
+  bolt: '•'
+});
+
+function iconForAsset(asset) {
+  return ICON_BY_FALLBACK_SHAPE[asset.placeholder?.shape] ?? ICON_BY_FALLBACK_SHAPE[asset.fallback?.shape] ?? '◇';
+}
+
+function materialLabelForAsset(asset) {
+  return asset.status === 'ready' ? '真實角色素材' : '臨時素材';
+}
+
+export function createToolButtonModel(content, tool) {
+  const definition = content.get(tool.contentKind, tool.contentId);
+  const asset = content.get('asset', definition.visualAssetId);
+  return {
+    id: tool.id,
+    label: tool.label,
+    icon: iconForAsset(asset),
+    cost: definition.cost ?? 0,
+    meta: `${definition.cost ?? 0}G · ${materialLabelForAsset(asset)}`
+  };
+}
+
 export class HudController {
   constructor({ bus, session, content }) {
     this.bus = bus;
@@ -31,12 +62,42 @@ export class HudController {
       startWave: document.querySelector('#start-wave'),
       resetGame: document.querySelector('#reset-game'),
       cancelTool: document.querySelector('#cancel-tool'),
-      toolButtons: [...document.querySelectorAll('[data-tool]')]
+      toolGrid: document.querySelector('#tool-grid'),
+      toolButtons: []
     };
 
+    this.renderToolButtons();
     this.bindDomEvents();
     this.bindBusEvents();
     this.render(this.session.snapshot());
+  }
+
+  renderToolButtons() {
+    const fragment = document.createDocumentFragment();
+    for (const tool of this.content.all('tool')) {
+      const model = createToolButtonModel(this.content, tool);
+      const button = document.createElement('button');
+      button.className = 'tool-button';
+      button.dataset.tool = model.id;
+      button.type = 'button';
+
+      const icon = document.createElement('span');
+      icon.className = 'tool-icon';
+      icon.textContent = model.icon;
+
+      const copy = document.createElement('span');
+      const title = document.createElement('strong');
+      title.textContent = model.label;
+      const meta = document.createElement('small');
+      meta.textContent = model.meta;
+      copy.append(title, meta);
+
+      button.append(icon, copy);
+      fragment.append(button);
+    }
+
+    this.elements.toolGrid.replaceChildren(fragment);
+    this.elements.toolButtons = [...this.elements.toolGrid.querySelectorAll('[data-tool]')];
   }
 
   bindDomEvents() {
