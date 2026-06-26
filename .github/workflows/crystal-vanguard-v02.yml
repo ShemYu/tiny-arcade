@@ -1,0 +1,36 @@
+name: Crystal Vanguard v0.2
+
+on:
+  pull_request:
+    paths:
+      - "games/crystal-vanguard/v0.2/**"
+      - "games/crystal-vanguard/README.md"
+      - ".github/workflows/crystal-vanguard-v02.yml"
+  push:
+    branches:
+      - main
+    paths:
+      - "games/crystal-vanguard/v0.2/**"
+      - "games/crystal-vanguard/README.md"
+      - ".github/workflows/crystal-vanguard-v02.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  content-contracts:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Run Crystal Vanguard v0.2 tests
+        working-directory: games/crystal-vanguard/v0.2
+        run: npm test
