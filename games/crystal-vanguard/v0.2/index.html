@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#0b1116" />
+  <title>Crystal Vanguard v0.2｜Phaser Backbone</title>
+  <link rel="stylesheet" href="./styles.css" />
+</head>
+<body>
+  <div class="scanlines" aria-hidden="true"></div>
+
+  <div id="app-shell">
+    <header class="topbar panel">
+      <div class="brand">
+        <div class="brand-crystal" aria-hidden="true"></div>
+        <div>
+          <p class="eyebrow">CRYSTAL VANGUARD · v0.2</p>
+          <h1>琉璃城：八方守晶</h1>
+          <p class="subtitle">以內容註冊表驅動的 Phaser 戰棋守塔骨架</p>
+        </div>
+      </div>
+
+      <div class="stat-row" aria-live="polite">
+        <div class="stat"><span>回合</span><strong id="round-value">1</strong></div>
+        <div class="stat gold"><span>金幣</span><strong id="gold-value">12</strong></div>
+        <div class="stat"><span>敵人</span><strong id="enemy-value">0</strong></div>
+      </div>
+
+      <div class="crystal-status">
+        <div class="meter-label">
+          <span>水晶耐久</span>
+          <strong id="crystal-text">700 / 700</strong>
+        </div>
+        <div class="meter" role="progressbar" aria-label="水晶耐久">
+          <i id="crystal-fill"></i>
+        </div>
+      </div>
+    </header>
+
+    <main class="layout">
+      <section class="arena-panel panel">
+        <div id="game" aria-label="Crystal Vanguard 遊戲畫面"></div>
+        <div class="phase-badge" id="phase-badge">部署階段</div>
+        <div class="wave-progress" id="wave-progress">尚未開始</div>
+        <div class="toast" id="toast" role="status" aria-live="polite"></div>
+      </section>
+
+      <aside class="sidebar">
+        <section class="panel card">
+          <div class="card-title">
+            <div>
+              <p class="eyebrow">DEPLOY / BUILD</p>
+              <h2>部署工具</h2>
+            </div>
+            <button class="ghost-button" id="cancel-tool" type="button">取消</button>
+          </div>
+
+          <div class="tool-grid">
+            <button class="tool-button" data-tool="unit:blade" type="button">
+              <span class="tool-icon">⚔</span>
+              <span><strong>劍士</strong><small>4G · 真實角色素材</small></span>
+            </button>
+            <button class="tool-button" data-tool="building:barricade" type="button">
+              <span class="tool-icon">▥</span>
+              <span><strong>木製路障</strong><small>3G · 臨時素材</small></span>
+            </button>
+            <button class="tool-button" data-tool="building:bolt-tower" type="button">
+              <span class="tool-icon">⌁</span>
+              <span><strong>弩箭塔</strong><small>5G · 臨時素材</small></span>
+            </button>
+          </div>
+
+          <div class="selection" id="selection-detail">
+            選擇工具後，點擊有效格子部署。右鍵點擊既有單位可回收一半成本。
+          </div>
+        </section>
+
+        <section class="panel card">
+          <div class="card-title">
+            <div>
+              <p class="eyebrow">COMMAND</p>
+              <h2>戰鬥控制</h2>
+            </div>
+          </div>
+          <button class="primary-button" id="start-wave" type="button">
+            <strong>開始下一波</strong>
+            <span>部署完成後進入自動戰鬥</span>
+          </button>
+          <button class="danger-button" id="reset-game" type="button">重新開始 v0.2</button>
+        </section>
+
+        <section class="panel card">
+          <div class="card-title">
+            <div>
+              <p class="eyebrow">STATUS</p>
+              <h2>戰場狀態</h2>
+            </div>
+          </div>
+          <dl class="status-list">
+            <div><dt>角色</dt><dd id="unit-count">0</dd></div>
+            <div><dt>建築</dt><dd id="building-count">0</dd></div>
+            <div><dt>波次進度</dt><dd id="spawn-count">0 / 0</dd></div>
+          </dl>
+          <div class="log" id="event-log" aria-live="polite"></div>
+        </section>
+
+        <section class="panel card compact">
+          <p class="note">
+            v0.2 刻意只完成一條可玩的垂直切片：資料驅動內容、部署、兩種防禦建築、
+            近戰／投射物戰鬥、技能觸發與波次。商店、合成、存檔與導航網格留到後續版本。
+          </p>
+          <a class="doc-link" href="./docs/ASSET_BACKLOG.md">查看素材需求清單</a>
+        </section>
+      </aside>
+    </main>
+  </div>
+
+  <noscript>此版本需要 JavaScript 才能執行。</noscript>
+  <script src="https://cdn.jsdelivr.net/npm/phaser@3.90.0/dist/phaser.min.js"></script>
+  <script type="module" src="./src/main.js"></script>
+</body>
+</html>
