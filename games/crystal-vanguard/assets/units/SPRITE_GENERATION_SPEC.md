@@ -1,6 +1,21 @@
 # Crystal Vanguard unit sprite contract and generation prompts
 
-This document defines one reusable contract for every humanoid unit, class, rank, and action. The runtime may compensate for small registration errors, but generated art should still satisfy this contract; auto-correction is a safety net, not an art pipeline.
+This document defines one reusable contract for every humanoid unit, class,
+rank, and action. Production sprites must satisfy it before integration. The
+v2.1 runtime does not auto-scale or auto-register rejected art; preview
+correction exists only inside the asset lab as a diagnostic.
+
+The original Blade Rank 1 sheets are a manually rejected legacy revision. Do
+not use any of their frames as generation input, normalization anchors, or
+approved style references. The replacement begins from a new written identity
+brief and clean static concepts.
+
+The high-resolution Frontier Blade r1 reduction and its direction variants are
+also manually rejected: they passed structural checks but lost native pixel
+detail during downsampling. Production sprites must be authored directly on the
+logical 96×96 grid. The reusable implementation architecture and staged Blade
+r2 handoff live in
+[`../../v0.2/docs/SPRITE_PIPELINE_HANDOFF.md`](../../v0.2/docs/SPRITE_PIPELINE_HANDOFF.md).
 
 ## 1. Runtime contract
 
@@ -70,6 +85,8 @@ Generating an entire 8-direction sheet in one pass often causes identity, scale,
 4. Assemble the eight strips into the final sheet without resampling.
 5. Remove accidental shadows/background pixels and validate dimensions, alpha, frame count, crop safety, scale, and anchor drift.
 6. Generate weapon trails, impact flashes, projectiles, and spell circles as separate VFX assets or runtime effects.
+7. Export a same-grid label mask for reliable body/root QA: `0` background,
+   `1` body core, `2` other body, `3` equipment, `4` ground contact, `5` VFX.
 
 Never resize a generated row independently to “make it fit.” Correct the source generation or apply one uniform scale to the entire unit set.
 
@@ -236,7 +253,12 @@ Before committing a generated set:
 - validate with:
 
 ```bash
-python3 tools/game-assets/validate_game_assets.py games/crystal-vanguard/asset-manifest.json
+cd games/crystal-vanguard/v0.2
+npm run qa:assets:report
+npm run qa:assets:gate
 ```
 
-The Phaser proof also performs runtime alpha-bounds, foot-anchor, and scale diagnostics. Open the browser console and toggle `0 Debug` to inspect the current frame's physical body, root, facing vector, and visible alpha bounds.
+The first command rebuilds deterministic review evidence. The second is the
+strict release gate and must reach zero hard failures. Review the same assets at
+actual mobile battle scale under `asset-lab/`; its shared-scale candidates are
+diagnostic and never rewrite source sheets.

@@ -6,6 +6,12 @@ const PHASE_LABELS = {
   [PHASES.DEFEAT]: '水晶碎裂'
 };
 
+const MOBILE_PANEL_BY_PHASE = {
+  [PHASES.PLANNING]: 'deploy',
+  [PHASES.BATTLE]: 'status',
+  [PHASES.DEFEAT]: 'info'
+};
+
 const ICON_BY_FALLBACK_SHAPE = Object.freeze({
   fighter: '⚔',
   barricade: '▥',
@@ -63,8 +69,16 @@ export class HudController {
       resetGame: document.querySelector('#reset-game'),
       cancelTool: document.querySelector('#cancel-tool'),
       toolGrid: document.querySelector('#tool-grid'),
-      toolButtons: []
+      toolButtons: [],
+      mobileTabs: [...document.querySelectorAll('[data-mobile-panel-target]')],
+      mobileSheetToggle: document.querySelector('#mobile-sheet-toggle'),
+      mobileSheetClose: document.querySelector('#mobile-sheet-close'),
+      mobileResetGame: document.querySelector('#mobile-reset-game')
     };
+
+    this.mobilePanel = document.documentElement.dataset.mobilePanel || 'deploy';
+    this.mobileSheetOpen = document.documentElement.dataset.mobileSheet !== 'closed';
+    this.lastPhase = this.session.state.phase;
 
     this.renderToolButtons();
     this.bindDomEvents();
@@ -104,6 +118,7 @@ export class HudController {
     for (const button of this.elements.toolButtons) {
       button.addEventListener('click', () => {
         this.bus.emit('command:select-tool', { toolId: button.dataset.tool });
+        this.setMobileSheet(false);
       });
     }
 
@@ -112,11 +127,40 @@ export class HudController {
     });
 
     this.elements.startWave.addEventListener('click', () => {
-      this.bus.emit('command:start-wave');
+      if (this.session.state.phase === PHASES.PLANNING) {
+        this.bus.emit('command:start-wave');
+      } else if (this.session.state.phase === PHASES.DEFEAT) {
+        this.bus.emit('command:reset');
+      } else {
+        this.setMobilePanel('status');
+      }
     });
 
     this.elements.resetGame.addEventListener('click', () => {
       this.bus.emit('command:reset');
+    });
+
+    for (const tab of this.elements.mobileTabs) {
+      tab.addEventListener('click', () => {
+        this.setMobilePanel(tab.dataset.mobilePanelTarget);
+      });
+    }
+
+    this.elements.mobileSheetToggle.addEventListener('click', () => {
+      const nextOpen = !this.mobileSheetOpen;
+      if (nextOpen) {
+        this.setMobilePanel(MOBILE_PANEL_BY_PHASE[this.session.state.phase] ?? 'status');
+      }
+      this.setMobileSheet(nextOpen);
+    });
+
+    this.elements.mobileSheetClose.addEventListener('click', () => {
+      this.setMobileSheet(false);
+    });
+
+    this.elements.mobileResetGame.addEventListener('click', () => {
+      this.bus.emit('command:reset');
+      this.setMobileSheet(false);
     });
   }
 
@@ -137,6 +181,12 @@ export class HudController {
   }
 
   render(state) {
+    if (state.phase !== this.lastPhase) {
+      this.setMobilePanel(MOBILE_PANEL_BY_PHASE[state.phase] ?? 'status');
+      this.setMobileSheet(state.phase === PHASES.PLANNING);
+      this.lastPhase = state.phase;
+    }
+
     this.elements.round.textContent = String(state.round);
     this.elements.gold.textContent = String(state.gold);
     this.elements.enemy.textContent = String(state.counts.enemies);
@@ -148,11 +198,11 @@ export class HudController {
     const crystalRatio = state.crystal.maxHp > 0 ? state.crystal.hp / state.crystal.maxHp : 0;
     this.elements.crystalFill.style.width = `${Math.max(0, crystalRatio) * 100}%`;
 
-    this.elements.phase.textContent = PHASE_LABELS[state.phase] ?? state.phase;
+    this.elements.phase.textContent = `第 ${state.round} 回合 · ${PHASE_LABELS[state.phase] ?? state.phase}`;
     this.elements.phase.className = `phase-badge ${state.phase}`;
 
     if (state.phase === PHASES.BATTLE) {
-      this.elements.waveProgress.textContent = `已出現 ${state.wave.spawned} / ${state.wave.total}`;
+      this.elements.waveProgress.textContent = `敵 ${state.counts.enemies} · ${state.wave.spawned} / ${state.wave.total}`;
     } else if (state.phase === PHASES.DEFEAT) {
       this.elements.waveProgress.textContent = '請重新開始';
     } else {
@@ -160,7 +210,33 @@ export class HudController {
     }
 
     const planning = state.phase === PHASES.PLANNING;
-    this.elements.startWave.disabled = !planning;
+    this.elements.startWave.disabled = false;
+    const primaryTitle = this.elements.startWave.querySelector('strong');
+    const primaryDetail = this.elements.startWave.querySelector('span');
+    if (state.phase === PHASES.BATTLE) {
+      primaryTitle.textContent = '查看即時戰況';
+      primaryDetail.textContent = '召集指令將在後續遊戲性階段接回';
+    } else if (state.phase === PHASES.DEFEAT) {
+      primaryTitle.textContent = '重新開始';
+      primaryDetail.textContent = '返回第一回合重新部署';
+    } else {
+      primaryTitle.textContent = '開始下一波';
+      primaryDetail.textContent = '部署完成後進入自動戰鬥';
+    }
+
+    const mobileToggleLabel = this.elements.mobileSheetToggle.querySelector('strong');
+    const mobileToggleIcon = this.elements.mobileSheetToggle.querySelector('span');
+    if (planning && state.selectedTool) {
+      const tool = this.content.get('tool', state.selectedTool);
+      const selectedModel = createToolButtonModel(this.content, tool);
+      mobileToggleLabel.textContent = `${selectedModel.label} ${selectedModel.cost}G`;
+      mobileToggleIcon.textContent = selectedModel.icon;
+    } else {
+      mobileToggleLabel.textContent = state.phase === PHASES.PLANNING
+        ? '部署'
+        : state.phase === PHASES.DEFEAT ? '結果' : '戰況';
+      mobileToggleIcon.textContent = state.phase === PHASES.DEFEAT ? '!' : state.phase === PHASES.BATTLE ? '◎' : '✦';
+    }
 
     for (const button of this.elements.toolButtons) {
       const tool = this.content.get('tool', button.dataset.tool);
@@ -170,6 +246,27 @@ export class HudController {
     }
 
     this.renderSelection(state.selectedTool);
+  }
+
+  setMobilePanel(panelId) {
+    const validPanels = new Set(this.elements.mobileTabs.map((tab) => tab.dataset.mobilePanelTarget));
+    if (!validPanels.has(panelId)) return;
+
+    this.mobilePanel = panelId;
+    document.documentElement.dataset.mobilePanel = panelId;
+    this.setMobileSheet(true);
+
+    for (const tab of this.elements.mobileTabs) {
+      const active = tab.dataset.mobilePanelTarget === panelId;
+      tab.classList.toggle('active', active);
+      tab.setAttribute('aria-selected', String(active));
+    }
+  }
+
+  setMobileSheet(open) {
+    this.mobileSheetOpen = Boolean(open);
+    document.documentElement.dataset.mobileSheet = this.mobileSheetOpen ? 'open' : 'closed';
+    this.elements.mobileSheetToggle.setAttribute('aria-expanded', String(this.mobileSheetOpen));
   }
 
   renderSelection(toolId) {

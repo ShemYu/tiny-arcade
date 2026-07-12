@@ -9,6 +9,58 @@ export const PHASES = Object.freeze({
   DEFEAT: 'defeat'
 });
 
+export const WORLD_SIZE = Object.freeze({
+  width: 720,
+  height: 1280
+});
+
+export const BATTLEFIELD_LAYOUT = Object.freeze({
+  frontlineY: 650,
+  grid: Object.freeze({
+    x: 52,
+    y: 690,
+    cols: 7,
+    rows: 5,
+    cellWidth: 88,
+    cellHeight: 88
+  }),
+  sanctuary: Object.freeze({
+    crystalX: 360,
+    crystalY: 1150,
+    centerColumn: 3,
+    reserveRow: 4
+  }),
+  lanes: Object.freeze({
+    LEFT: Object.freeze({
+      spawn: Object.freeze({ x: 184, y: 96 }),
+      waypoints: Object.freeze([
+        Object.freeze({ x: 184, y: 520 }),
+        Object.freeze({ x: 184, y: 700 }),
+        Object.freeze({ x: 272, y: 970 }),
+        Object.freeze({ x: 330, y: 1100 })
+      ])
+    }),
+    CENTER: Object.freeze({
+      spawn: Object.freeze({ x: 360, y: 96 }),
+      waypoints: Object.freeze([
+        Object.freeze({ x: 360, y: 520 }),
+        Object.freeze({ x: 360, y: 704 }),
+        Object.freeze({ x: 360, y: 930 }),
+        Object.freeze({ x: 360, y: 1080 })
+      ])
+    }),
+    RIGHT: Object.freeze({
+      spawn: Object.freeze({ x: 536, y: 96 }),
+      waypoints: Object.freeze([
+        Object.freeze({ x: 536, y: 520 }),
+        Object.freeze({ x: 536, y: 700 }),
+        Object.freeze({ x: 448, y: 970 }),
+        Object.freeze({ x: 390, y: 1100 })
+      ])
+    })
+  })
+});
+
 export class EventBus {
   constructor() {
     this.listeners = new Map();

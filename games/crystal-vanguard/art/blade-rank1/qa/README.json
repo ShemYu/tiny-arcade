@@ -1,0 +1,25 @@
+{
+  "sprite_set_id": "blade-rank1",
+  "computed_qa_status": "needs_rework",
+  "manual_art_status": "rejected",
+  "release_eligible": false,
+  "replacement_strategy": "clean_room",
+  "generated_artifacts": [
+    "report.json",
+    "contact-sheet-1x.png",
+    "contact-sheet-4x.png",
+    "scale-lineup.png",
+    "action-loops.webp",
+    "transition-reel.webp",
+    "transition-strips-1x.png",
+    "headroom-failures-4x.png"
+  ],
+  "browser_review_artifacts": [
+    "mobile-390-current.png",
+    "mobile-390-scale-082.png",
+    "mobile-430-current.png",
+    "mobile-430-scale-082.png",
+    "mobile-390-hurt-se-f4.png",
+    "mobile-430-hurt-se-f4.png"
+  ]
+}

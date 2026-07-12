@@ -1,4 +1,4 @@
-import { PHASES } from './core.js';
+import { BATTLEFIELD_LAYOUT, PHASES, WORLD_SIZE } from './core.js';
 
 function actorDistance(a, b) {
   return Phaser.Math.Distance.Between(a.x, a.y, b.x, b.y);
@@ -75,14 +75,20 @@ export class CombatSystem {
       return;
     }
 
-    const targetInvalid = !actor.target?.alive || !actor.target.active || !monsters.includes(actor.target);
+    const home = actor.homePosition ?? { x: actor.x, y: actor.y };
+    const leashRadius = actor.stats.leashRadius ?? 250;
+    const candidates = monsters.filter((monster) => (
+      monster.y >= BATTLEFIELD_LAYOUT.frontlineY - 18
+      && Phaser.Math.Distance.Between(home.x, home.y, monster.x, monster.y) <= leashRadius
+    ));
+    const targetInvalid = !actor.target?.alive || !actor.target.active || !candidates.includes(actor.target);
     if (targetInvalid || actor.retargetTimer <= 0) {
-      actor.target = this.findNearest(actor, monsters, actor.stats.aggroRange);
+      actor.target = this.findNearest(actor, candidates, actor.stats.aggroRange);
       actor.retargetTimer = 0.32;
     }
 
     if (!actor.target) {
-      actor.stopMoving();
+      this.returnPlayerActorHome(actor, home);
       return;
     }
 
@@ -90,17 +96,77 @@ export class CombatSystem {
   }
 
   updateMonster(monster, players, core) {
-    if (!monster.target?.alive || !monster.target.active || monster.retargetTimer <= 0) {
-      monster.target = this.pickMonsterTarget(monster, players, core);
+    const targetInvalid = !monster.target?.alive
+      || !monster.target.active
+      || monster.target.actorKind === 'core'
+      || actorDistance(monster, monster.target) > (monster.target.stats.interceptRadius ?? 0) + 90;
+
+    if (targetInvalid || monster.retargetTimer <= 0) {
+      monster.target = this.pickMonsterInterceptor(monster, players);
       monster.retargetTimer = 0.28;
     }
 
-    if (!monster.target) {
-      monster.stopMoving();
+    if (monster.target) {
+      this.engage(monster, monster.target, true);
       return;
     }
 
-    this.engage(monster, monster.target, true);
+    if (this.followMonsterRoute(monster)) return;
+
+    monster.target = core ?? null;
+    if (monster.target) this.engage(monster, monster.target, true);
+    else monster.stopMoving();
+  }
+
+  returnPlayerActorHome(actor, home) {
+    if (actor.actorKind !== 'unit') {
+      actor.stopMoving();
+      return;
+    }
+
+    const dx = home.x - actor.x;
+    const dy = home.y - actor.y;
+    const distance = Math.hypot(dx, dy);
+    if (distance <= 6) {
+      actor.setPosition(home.x, home.y);
+      actor.stopMoving();
+      return;
+    }
+
+    actor.faceTowards(home.x, home.y);
+    actor.setVelocity(
+      (dx / distance) * actor.stats.moveSpeed,
+      (dy / distance) * actor.stats.moveSpeed
+    );
+    actor.setLocomotion(true);
+  }
+
+  followMonsterRoute(monster) {
+    const route = monster.routeWaypoints;
+    if (!Array.isArray(route)) return false;
+
+    while (monster.routeIndex < route.length) {
+      const waypoint = route[monster.routeIndex];
+      const dx = waypoint.x - monster.x;
+      const dy = waypoint.y - monster.y;
+      const distance = Math.hypot(dx, dy);
+
+      if (distance <= 18) {
+        monster.routeIndex += 1;
+        continue;
+      }
+
+      monster.target = null;
+      monster.faceTowards(waypoint.x, waypoint.y);
+      monster.setVelocity(
+        (dx / distance) * monster.stats.moveSpeed,
+        (dy / distance) * monster.stats.moveSpeed
+      );
+      monster.setLocomotion(true);
+      return true;
+    }
+
+    return false;
   }
 
   engage(actor, target, canMove) {
@@ -145,14 +211,14 @@ export class CombatSystem {
     return best;
   }
 
-  pickMonsterTarget(monster, players, core) {
+  pickMonsterInterceptor(monster, players) {
     const interceptors = players.filter((actor) => {
       if (actor.actorKind === 'core') return false;
       const radius = actor.stats.interceptRadius ?? 0;
       return radius > 0 && actorDistance(monster, actor) <= radius;
     });
 
-    return this.findNearest(monster, interceptors) ?? core ?? null;
+    return this.findNearest(monster, interceptors) ?? null;
   }
 
   performAttack(source, target) {
@@ -303,7 +369,7 @@ export class CombatSystem {
 
     if (target.actorKind === 'core') {
       this.session.setPhase(PHASES.DEFEAT);
-      this.session.notify('中央水晶已碎裂。部署骨架仍可重置後繼續測試。', 'bad');
+      this.session.notify('中央水晶已碎裂。可重新開始本次 v2.1 測試。', 'bad');
       return;
     }
 
@@ -329,67 +395,143 @@ export class PlacementSystem {
     this.bus = bus;
     this.actorFactory = actorFactory;
     this.combat = combat;
-    this.grid = {
-      x: 150,
-      y: 50,
-      cols: 11,
-      rows: 9,
-      cell: 60
+    this.grid = { ...BATTLEFIELD_LAYOUT.grid };
+    this.centerCell = {
+      gx: BATTLEFIELD_LAYOUT.sanctuary.centerColumn,
+      gy: BATTLEFIELD_LAYOUT.sanctuary.reserveRow
     };
-    this.centerCell = { gx: 5, gy: 4 };
     this.occupancy = new Map();
+    this.gridGraphics = null;
     this.hoverGraphics = null;
+    this.unsubscribeState = typeof this.bus?.on === 'function'
+      ? this.bus.on('session:changed', ({ state }) => this.updateGridState(state))
+      : null;
   }
 
   createGrid() {
     const graphics = this.scene.add.graphics().setDepth(-1000);
+    const { width, height } = WORLD_SIZE;
+    const { frontlineY, lanes } = BATTLEFIELD_LAYOUT;
 
-    graphics.fillStyle(0x18342f, 1);
-    graphics.fillRect(0, 0, 960, 640);
+    graphics.fillGradientStyle(0x213d39, 0x183330, 0x102521, 0x081715, 1);
+    graphics.fillRect(0, 0, width, height);
+
+    // The enemy side is cooler and narrower; the player's sanctuary grows
+    // wider toward the foreground to suggest a shallow RO-style 2.5D camera.
+    graphics.fillStyle(0xa7d4c4, 0.035);
+    graphics.fillTriangle(104, 90, width - 104, 90, width - 24, frontlineY);
+    graphics.fillTriangle(104, 90, width - 24, frontlineY, 24, frontlineY);
+
+    graphics.fillStyle(0x78b999, 0.045);
+    graphics.fillEllipse(width / 2, 940, 760, 620);
+
+    for (const lane of Object.values(lanes)) {
+      const route = [lane.spawn, ...lane.waypoints, {
+        x: BATTLEFIELD_LAYOUT.sanctuary.crystalX,
+        y: BATTLEFIELD_LAYOUT.sanctuary.crystalY - 34
+      }];
+      graphics.lineStyle(92, 0x7f8468, 0.07);
+      graphics.beginPath();
+      graphics.moveTo(route[0].x, route[0].y);
+      for (const point of route.slice(1)) graphics.lineTo(point.x, point.y);
+      graphics.strokePath();
+
+      graphics.lineStyle(2, 0xa6b493, 0.07);
+      graphics.beginPath();
+      graphics.moveTo(route[0].x, route[0].y);
+      for (const point of route.slice(1)) graphics.lineTo(point.x, point.y);
+      graphics.strokePath();
+    }
+
+    graphics.lineStyle(2, 0xa4c6b8, 0.045);
+    graphics.strokeEllipse(width / 2, 390, 620, 150);
+    graphics.strokeEllipse(width / 2, 660, 690, 190);
+    graphics.strokeEllipse(width / 2, 930, 760, 240);
+
+    for (const lane of Object.values(lanes)) {
+      graphics.fillStyle(0x081513, 0.72);
+      graphics.fillEllipse(lane.spawn.x, lane.spawn.y + 12, 118, 40);
+      graphics.fillStyle(0x8fe3d1, 0.1);
+      graphics.fillEllipse(lane.spawn.x, lane.spawn.y, 94, 30);
+      graphics.lineStyle(2, 0xb7eee1, 0.28);
+      graphics.strokeEllipse(lane.spawn.x, lane.spawn.y, 94, 30);
+    }
+
+    this.gridGraphics = this.scene.add.graphics().setDepth(-940);
 
     for (let gy = 0; gy < this.grid.rows; gy += 1) {
       for (let gx = 0; gx < this.grid.cols; gx += 1) {
         const { x, y } = this.cellTopLeft(gx, gy);
         const reserved = this.isReserved(gx, gy);
+        const alternate = (gx + gy) % 2 === 0;
+        const tileWidth = this.grid.cellWidth;
+        const tileHeight = this.grid.cellHeight;
 
-        graphics.fillStyle(reserved ? 0x273c3b : ((gx + gy) % 2 === 0 ? 0x1d3832 : 0x203b34), 1);
-        graphics.fillRect(x + 1, y + 1, this.grid.cell - 2, this.grid.cell - 2);
+        this.gridGraphics.fillStyle(reserved ? 0x10201f : 0x0a1716, 0.9);
+        this.gridGraphics.fillRect(x + 2, y + 7, tileWidth - 4, tileHeight - 7);
 
-        graphics.lineStyle(1, reserved ? 0x79e7d5 : 0x6f8c80, reserved ? 0.48 : 0.2);
-        graphics.strokeRect(x + 1, y + 1, this.grid.cell - 2, this.grid.cell - 2);
+        this.gridGraphics.fillStyle(
+          reserved ? 0x314e49 : (alternate ? 0x29453a : 0x2c493d),
+          reserved ? 0.88 : 0.72
+        );
+        this.gridGraphics.fillRect(x + 2, y + 2, tileWidth - 4, tileHeight - 9);
+
+        this.gridGraphics.lineStyle(1, reserved ? 0xa7f0dc : 0x7ca897, reserved ? 0.55 : 0.2);
+        this.gridGraphics.lineBetween(x + 3, y + 3, x + tileWidth - 3, y + 3);
+        this.gridGraphics.lineBetween(x + 3, y + 3, x + 3, y + tileHeight - 8);
+
+        this.gridGraphics.lineStyle(2, reserved ? 0x16302d : 0x102522, 0.65);
+        this.gridGraphics.lineBetween(x + 3, y + tileHeight - 7, x + tileWidth - 3, y + tileHeight - 7);
+        this.gridGraphics.lineBetween(x + tileWidth - 3, y + 3, x + tileWidth - 3, y + tileHeight - 7);
+
+        this.gridGraphics.lineStyle(1, reserved ? 0x79e7d5 : 0x526f65, reserved ? 0.42 : 0.1);
+        this.gridGraphics.strokeRect(x + 2, y + 2, tileWidth - 4, tileHeight - 9);
 
         if (reserved) {
-          graphics.lineStyle(1, 0x79e7d5, 0.18);
-          graphics.lineBetween(x + 8, y + 8, x + this.grid.cell - 8, y + this.grid.cell - 8);
-          graphics.lineBetween(x + this.grid.cell - 8, y + 8, x + 8, y + this.grid.cell - 8);
+          this.gridGraphics.lineStyle(1, 0x79e7d5, 0.18);
+          this.gridGraphics.lineBetween(x + 10, y + 9, x + tileWidth - 10, y + tileHeight - 14);
+          this.gridGraphics.lineBetween(x + tileWidth - 10, y + 9, x + 10, y + tileHeight - 14);
         }
       }
     }
 
-    graphics.lineStyle(4, 0x071014, 0.55);
-    graphics.strokeRect(8, 8, 944, 624);
+    this.updateGridState(this.session.state);
+
+    graphics.fillStyle(0x07110f, 0.75);
+    graphics.fillRect(0, 0, 24, height);
+    graphics.fillRect(width - 24, 0, 24, height);
+    graphics.fillRect(0, height - 72, width, 72);
+    graphics.lineStyle(3, 0x64786d, 0.22);
+    graphics.lineBetween(26, 18, 26, height - 74);
+    graphics.lineBetween(width - 26, 18, width - 26, height - 74);
 
     this.hoverGraphics = this.scene.add.graphics().setDepth(50000);
   }
 
+  updateGridState(state) {
+    if (!this.gridGraphics) return;
+    const planning = state.phase === PHASES.PLANNING;
+    this.gridGraphics.setAlpha(planning ? (state.selectedTool ? 1 : 0.16) : 0.06);
+  }
+
   cellTopLeft(gx, gy) {
     return {
-      x: this.grid.x + gx * this.grid.cell,
-      y: this.grid.y + gy * this.grid.cell
+      x: this.grid.x + gx * this.grid.cellWidth,
+      y: this.grid.y + gy * this.grid.cellHeight
     };
   }
 
   cellCenter(gx, gy) {
     const topLeft = this.cellTopLeft(gx, gy);
     return {
-      x: topLeft.x + this.grid.cell / 2,
-      y: topLeft.y + this.grid.cell / 2
+      x: topLeft.x + this.grid.cellWidth / 2,
+      y: topLeft.y + this.grid.cellHeight / 2
     };
   }
 
   pointToCell(x, y) {
-    const gx = Math.floor((x - this.grid.x) / this.grid.cell);
-    const gy = Math.floor((y - this.grid.y) / this.grid.cell);
+    const gx = Math.floor((x - this.grid.x) / this.grid.cellWidth);
+    const gy = Math.floor((y - this.grid.y) / this.grid.cellHeight);
 
     if (gx < 0 || gy < 0 || gx >= this.grid.cols || gy >= this.grid.rows) return null;
     return { gx, gy };
@@ -400,7 +542,7 @@ export class PlacementSystem {
   }
 
   isReserved(gx, gy) {
-    return Math.abs(gx - this.centerCell.gx) <= 1 && Math.abs(gy - this.centerCell.gy) <= 1;
+    return gy === this.centerCell.gy && Math.abs(gx - this.centerCell.gx) <= 1;
   }
 
   updateHover(x, y) {
@@ -414,9 +556,9 @@ export class PlacementSystem {
     const blocked = this.isReserved(cell.gx, cell.gy) || this.occupancy.has(this.key(cell.gx, cell.gy));
 
     this.hoverGraphics.fillStyle(blocked ? 0xff7d78 : 0x9de8d7, 0.18);
-    this.hoverGraphics.fillRect(topLeft.x + 2, topLeft.y + 2, this.grid.cell - 4, this.grid.cell - 4);
+    this.hoverGraphics.fillRect(topLeft.x + 3, topLeft.y + 3, this.grid.cellWidth - 6, this.grid.cellHeight - 6);
     this.hoverGraphics.lineStyle(2, blocked ? 0xff7d78 : 0x9de8d7, 0.8);
-    this.hoverGraphics.strokeRect(topLeft.x + 2, topLeft.y + 2, this.grid.cell - 4, this.grid.cell - 4);
+    this.hoverGraphics.strokeRect(topLeft.x + 3, topLeft.y + 3, this.grid.cellWidth - 6, this.grid.cellHeight - 6);
   }
 
   placeSelectedTool(worldX, worldY) {
@@ -464,6 +606,7 @@ export class PlacementSystem {
       : this.actorFactory.createBuilding(tool.contentId, position.x, position.y);
 
     actor.homeCell = { ...cell };
+    actor.homePosition = { ...position };
     actor.placementToolId = toolId;
     this.occupancy.set(key, actor);
     this.combat.registerActor(actor);
@@ -510,6 +653,7 @@ export class PlacementSystem {
     for (const actor of this.occupancy.values()) {
       if (!actor.alive || !actor.active) continue;
       const position = this.cellCenter(actor.homeCell.gx, actor.homeCell.gy);
+      actor.homePosition = { ...position };
       actor.setPosition(position.x, position.y);
       actor.setVelocity(0, 0);
       actor.target = null;
@@ -529,6 +673,8 @@ export class PlacementSystem {
   }
 
   destroy() {
+    this.unsubscribeState?.();
+    this.gridGraphics?.destroy();
     this.hoverGraphics?.destroy();
     this.occupancy.clear();
   }
@@ -548,16 +694,7 @@ export class WaveDirector {
     this.spawned = 0;
     this.clearDelay = 0;
 
-    this.spawnPoints = {
-      N: { x: 480, y: 22 },
-      NE: { x: 924, y: 40 },
-      E: { x: 930, y: 320 },
-      SE: { x: 920, y: 602 },
-      S: { x: 480, y: 610 },
-      SW: { x: 40, y: 602 },
-      W: { x: 30, y: 320 },
-      NW: { x: 40, y: 40 }
-    };
+    this.lanes = BATTLEFIELD_LAYOUT.lanes;
   }
 
   start(round) {
@@ -593,7 +730,7 @@ export class WaveDirector {
         schedule.push({
           at: group.delay + index * group.interval,
           monsterId: group.monsterId,
-          direction: group.direction,
+          lane: group.lane,
           statScale
         });
       }
@@ -625,15 +762,20 @@ export class WaveDirector {
   }
 
   spawn(entry) {
-    const point = this.spawnPoints[entry.direction];
-    const jitter = () => Phaser.Math.Between(-18, 18);
+    const lane = this.lanes[entry.lane];
+    if (!lane) throw new Error(`Unknown battlefield lane "${entry.lane}".`);
+    const jitterX = () => Phaser.Math.Between(-16, 16);
+    const jitterY = () => Phaser.Math.Between(-8, 8);
     const actor = this.actorFactory.createMonster(
       entry.monsterId,
-      point.x + jitter(),
-      point.y + jitter(),
+      lane.spawn.x + jitterX(),
+      lane.spawn.y + jitterY(),
       entry.statScale
     );
 
+    actor.laneId = entry.lane;
+    actor.routeWaypoints = lane.waypoints.map((waypoint) => ({ ...waypoint }));
+    actor.routeIndex = 0;
     this.combat.registerActor(actor);
     this.bus.emit('wave:spawned', { actor, entry });
   }

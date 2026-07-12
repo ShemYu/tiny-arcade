@@ -14,8 +14,8 @@ test('wave schedule expansion is chronological and deterministic', () => {
 
   const schedule = director.expandSchedule({
     groups: [
-      { monsterId: 'sprout', direction: 'N', count: 3, interval: 1, delay: 2 },
-      { monsterId: 'moth', direction: 'S', count: 2, interval: 0.5, delay: 0.5 }
+      { monsterId: 'sprout', lane: 'CENTER', count: 3, interval: 1, delay: 2 },
+      { monsterId: 'moth', lane: 'LEFT', count: 2, interval: 0.5, delay: 0.5 }
     ]
   }, 0, 1);
 
@@ -33,9 +33,9 @@ test('placement grid reports core reserve cells explicitly', () => {
     combat: {}
   });
 
-  assert.deepEqual(placement.pointToCell(480, 320), { gx: 5, gy: 4 });
-  assert.equal(placement.isReserved(5, 4), true);
-  assert.equal(placement.isReserved(4, 3), true);
-  assert.equal(placement.isReserved(5, 7), false);
+  assert.deepEqual(placement.pointToCell(360, 1086), { gx: 3, gy: 4 });
+  assert.equal(placement.isReserved(3, 4), true);
+  assert.equal(placement.isReserved(2, 4), true);
+  assert.equal(placement.isReserved(3, 3), false);
   assert.equal(placement.pointToCell(5, 5), null);
 });

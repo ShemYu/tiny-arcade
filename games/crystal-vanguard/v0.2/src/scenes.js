@@ -1,4 +1,4 @@
-import { getAppContext, PHASES } from './core.js';
+import { BATTLEFIELD_LAYOUT, getAppContext, PHASES, WORLD_SIZE } from './core.js';
 import { AssetRuntime, ActorFactory } from './runtime.js';
 import { CombatSystem, PlacementSystem, WaveDirector } from './systems.js';
 
@@ -40,8 +40,8 @@ export class BattleScene extends Phaser.Scene {
     this.content = context.content;
     this.assetRuntime = context.assetRuntime;
 
-    this.physics.world.setBounds(0, 0, 960, 640);
-    this.cameras.main.setBounds(0, 0, 960, 640);
+    this.physics.world.setBounds(0, 0, WORLD_SIZE.width, WORLD_SIZE.height);
+    this.cameras.main.setBounds(0, 0, WORLD_SIZE.width, WORLD_SIZE.height);
     this.cameras.main.roundPixels = true;
 
     this.actorFactory = new ActorFactory(this, this.content, this.assetRuntime);
@@ -66,35 +66,46 @@ export class BattleScene extends Phaser.Scene {
     this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => this.shutdownScene());
 
     this.session.setPhase(PHASES.PLANNING);
-    this.session.notify('v0.2 骨架已就緒：已有一名免費劍士，可部署建築後開始波次。', 'good');
+    this.session.notify('上方三路即將來敵；點「部署」配置守衛。', 'good');
     this.publishCounts();
   }
 
   createDecorations() {
     const graphics = this.add.graphics().setDepth(-900);
+    const { crystalX, crystalY } = BATTLEFIELD_LAYOUT.sanctuary;
+
+    graphics.fillStyle(0x061210, 0.46);
+    graphics.fillEllipse(crystalX, crystalY + 28, 220, 70);
+    graphics.fillStyle(0x506965, 0.82);
+    graphics.fillEllipse(crystalX, crystalY + 14, 176, 50);
+    graphics.fillStyle(0x243d39, 1);
+    graphics.fillEllipse(crystalX, crystalY + 5, 154, 40);
+    graphics.lineStyle(2, 0xa2d9c8, 0.3);
+    graphics.strokeEllipse(crystalX, crystalY + 5, 154, 40);
 
     graphics.lineStyle(2, 0x79e7d5, 0.12);
-    graphics.strokeCircle(480, 320, 116);
-    graphics.strokeCircle(480, 320, 176);
+    graphics.strokeEllipse(crystalX, crystalY, 250, 118);
+    graphics.strokeEllipse(crystalX, crystalY, 390, 190);
 
     graphics.lineStyle(2, 0xd6fff1, 0.08);
     for (let index = 0; index < 8; index += 1) {
       const angle = index * Math.PI / 4;
       graphics.lineBetween(
-        480 + Math.cos(angle) * 106,
-        320 + Math.sin(angle) * 106,
-        480 + Math.cos(angle) * 294,
-        320 + Math.sin(angle) * 294
+        crystalX + Math.cos(angle) * 120,
+        crystalY + Math.sin(angle) * 56,
+        crystalX + Math.cos(angle) * 300,
+        crystalY + Math.sin(angle) * 142
       );
     }
   }
 
   createCoreAndInitialDeployment() {
-    this.crystal = this.actorFactory.createCrystal(480, 320, 700);
+    const { crystalX, crystalY } = BATTLEFIELD_LAYOUT.sanctuary;
+    this.crystal = this.actorFactory.createCrystal(crystalX, crystalY, 700);
     this.combat.registerActor(this.crystal);
     this.session.setCrystalHp(this.crystal.hp, this.crystal.maxHp);
 
-    this.placement.placeInitial('unit:blade', 5, 7);
+    this.placement.placeInitial('unit:blade', 3, 2);
   }
 
   configureInput() {
@@ -138,18 +149,20 @@ export class BattleScene extends Phaser.Scene {
   }
 
   handlePointerMove(pointer) {
-    this.placement.updateHover(pointer.worldX, pointer.worldY);
+    const world = pointer.positionToCamera(this.cameras.main);
+    this.placement.updateHover(world.x, world.y);
   }
 
   handlePointerDown(pointer) {
     if (this.session.state.phase !== PHASES.PLANNING) return;
+    const world = pointer.positionToCamera(this.cameras.main);
 
     if (pointer.button === 2) {
-      this.placement.removeAt(pointer.worldX, pointer.worldY);
+      this.placement.removeAt(world.x, world.y);
       return;
     }
 
-    this.placement.placeSelectedTool(pointer.worldX, pointer.worldY);
+    this.placement.placeSelectedTool(world.x, world.y);
   }
 
   startWave() {

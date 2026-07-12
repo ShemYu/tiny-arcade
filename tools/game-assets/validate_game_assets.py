@@ -19,6 +19,8 @@ from typing import Any
 
 from PIL import Image
 
+from sprite_unit_qa import analyze_manifest, write_report
+
 
 def fail(messages: list[str], asset: str, message: str) -> None:
     messages.append(f"{asset}: {message}")
@@ -212,6 +214,20 @@ def validate_asset(root: Path, config: dict[str, Any], messages: list[str]) -> N
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("manifest", type=Path)
+    parser.add_argument(
+        "--report",
+        type=Path,
+        help="Write a deterministic sprite-set QA report as JSON.",
+    )
+    parser.add_argument(
+        "--qa-mode",
+        choices=("strict", "declared", "off"),
+        default="strict",
+        help=(
+            "strict rejects every hard QA issue; declared allows known failures only "
+            "when the manifest explicitly declares needs_rework; off runs legacy checks."
+        ),
+    )
     args = parser.parse_args()
 
     manifest_path = args.manifest.resolve()
@@ -222,13 +238,70 @@ def main() -> int:
     for asset in data.get("assets", []):
         validate_asset(root, asset, messages)
 
+    qa_reports: list[dict[str, Any]] = []
+    if args.qa_mode != "off" and data.get("sprite_sets"):
+        qa_reports = analyze_manifest(manifest_path)
+        if args.report:
+            write_report(args.report.resolve(), qa_reports)
+
+        for report in qa_reports:
+            sprite_set_id = report["sprite_set_id"]
+            hard_issues = [
+                issue for issue in report["issues"]
+                if issue["severity"] == "hard"
+            ]
+            if args.qa_mode == "strict":
+                for issue in hard_issues:
+                    fail(
+                        messages,
+                        sprite_set_id,
+                        f"{issue['code']}: {issue['message']}",
+                    )
+            elif not report["summary"]["declaration_matches_audit"]:
+                fail(
+                    messages,
+                    sprite_set_id,
+                    (
+                        "declared QA/release axes do not match the audit: "
+                        f"qa={report['declared_qa_status']!r}/{report['computed_qa_status']!r}, "
+                        f"auto={report['declared_auto_qa_status']!r}/{report['computed_auto_qa_status']!r}, "
+                        f"release={report['declared_release_eligible']!r}/"
+                        f"{report['summary']['production_eligible']!r}"
+                    ),
+                )
+
     if messages:
         print("GAME ASSET VALIDATION: FAILED", file=sys.stderr)
         for message in messages:
             print(f"- {message}", file=sys.stderr)
         return 1
 
-    print("GAME ASSET VALIDATION: PASSED")
+    has_declared_rework = (
+        args.qa_mode == "declared"
+        and any(report["computed_qa_status"] == "needs_rework" for report in qa_reports)
+    )
+    has_manual_rejection = (
+        args.qa_mode == "declared"
+        and any(report.get("manual_review", {}).get("status") == "rejected" for report in qa_reports)
+    )
+    print(
+        "GAME ASSET AUDIT: MANUALLY REJECTED"
+        if has_manual_rejection
+        else (
+            "GAME ASSET AUDIT: DECLARED NEEDS_REWORK"
+            if has_declared_rework
+            else "GAME ASSET VALIDATION: PASSED"
+        )
+    )
+    if args.qa_mode == "declared":
+        for report in qa_reports:
+            print(
+                f"- {report['sprite_set_id']}: declared={report['declared_qa_status']} "
+                f"computed={report['computed_qa_status']} "
+                f"manual={report.get('manual_review', {}).get('status', '-')} "
+                f"hard={report['summary']['hard_failure_count']} "
+                f"warnings={report['summary']['warning_count']}"
+            )
     return 0
 
 

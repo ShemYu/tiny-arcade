@@ -35,7 +35,8 @@ The v0.2 implementation is intentionally isolated under [`v0.2/`](./v0.2/) so th
 
 - Phaser 3.90 boot and battle scenes
 - a validated content registry for professions, skills, attack styles, monsters, waves, buildings, tools, and visual contracts
-- the existing Blade Rank 1 six-action, eight-direction sprite set
+- the existing Blade Rank 1 six-action, eight-direction sprite set as a
+  manually rejected, development-only legacy diagnostic
 - automatic procedural fallbacks when production art is absent or fails to load
 - planning and battle phases, placement, refunds, melee and projectile combat, skills, waves, rewards, defeat, and reset
 - two defensive buildings: a barricade and a bolt tower
@@ -49,7 +50,10 @@ cd games/crystal-vanguard/v0.2
 npm test
 ```
 
-Architecture and deliberate non-goals are documented in [`v0.2/docs/ARCHITECTURE.md`](./v0.2/docs/ARCHITECTURE.md). Missing and integrated assets are tracked in [`v0.2/docs/ASSET_BACKLOG.md`](./v0.2/docs/ASSET_BACKLOG.md).
+Architecture and deliberate non-goals are documented in [`v0.2/docs/ARCHITECTURE.md`](./v0.2/docs/ARCHITECTURE.md). Missing and integrated assets are tracked in [`v0.2/docs/ASSET_BACKLOG.md`](./v0.2/docs/ASSET_BACKLOG.md). The mobile-first v2.1 review build also exposes a non-public Blade quality lab at `v0.2/asset-lab/`.
+The reusable native-pixel sprite production plan and current Blade handoff are
+documented in
+[`v0.2/docs/SPRITE_PIPELINE_HANDOFF.md`](./v0.2/docs/SPRITE_PIPELINE_HANDOFF.md).
 
 ## Controls in the original POC
 
@@ -71,11 +75,15 @@ games/crystal-vanguard/proofs/phaser-actions/index.html
 
 It includes keyboard and click-to-move control, one-shot action locking, animation-phase-preserving direction changes, separate physics and visual actors, runtime sprite registration, asset diagnostics, and a debug overlay (`0`).
 
-The reusable sprite contract and generation prompts are documented in [`assets/units/SPRITE_GENERATION_SPEC.md`](./assets/units/SPRITE_GENERATION_SPEC.md). Validate the current unit sheets with:
+The reusable sprite contract and generation prompts are documented in [`assets/units/SPRITE_GENERATION_SPEC.md`](./assets/units/SPRITE_GENERATION_SPEC.md). Rebuild the declared-status report with:
 
 ```bash
-python3 tools/game-assets/validate_game_assets.py games/crystal-vanguard/asset-manifest.json
+cd games/crystal-vanguard/v0.2
+npm run qa:assets:report
 ```
+
+`npm run qa:assets:gate` is the strict production gate and intentionally fails
+for the current rejected Blade source.
 
 ## POC notes
 

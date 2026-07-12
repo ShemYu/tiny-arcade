@@ -6,6 +6,7 @@
  */
 
 export const DIRECTION_ROWS = Object.freeze(['S', 'SE', 'E', 'NE', 'N', 'NW', 'W', 'SW']);
+export const ENTRY_LANES = Object.freeze(['LEFT', 'CENTER', 'RIGHT']);
 export const ATTACK_TYPES = Object.freeze(['melee', 'projectile', 'none']);
 export const SKILL_EFFECT_TYPES = Object.freeze(['areaDamage', 'damageReductionBelowHealth']);
 
@@ -144,7 +145,7 @@ export class ContentRegistry {
 
       for (const group of wave.groups) {
         assert(this.has('monster', group.monsterId), `Wave "${wave.id}" references missing monster "${group.monsterId}".`);
-        assert(DIRECTION_ROWS.includes(group.direction), `Wave "${wave.id}" uses invalid direction "${group.direction}".`);
+        assert(ENTRY_LANES.includes(group.lane), `Wave "${wave.id}" uses invalid lane "${group.lane}".`);
         assertPositiveNumber(group.count, `Wave "${wave.id}" group count`);
         assertPositiveNumber(group.interval, `Wave "${wave.id}" group interval`);
         assertPositiveNumber(group.delay ?? 0, `Wave "${wave.id}" group delay`, { allowZero: true });
@@ -457,8 +458,8 @@ export const WAVES = [
     name: '苔芽試探',
     clearReward: 4,
     groups: [
-      { monsterId: 'sprout', direction: 'N', count: 4, interval: 0.85, delay: 0.5 },
-      { monsterId: 'sprout', direction: 'S', count: 3, interval: 0.95, delay: 2.0 }
+      { monsterId: 'sprout', lane: 'CENTER', count: 4, interval: 0.85, delay: 0.5 },
+      { monsterId: 'sprout', lane: 'LEFT', count: 3, interval: 0.95, delay: 2.0 }
     ]
   },
   {
@@ -466,8 +467,8 @@ export const WAVES = [
     name: '針翅夾擊',
     clearReward: 5,
     groups: [
-      { monsterId: 'moth', direction: 'W', count: 4, interval: 0.66, delay: 0.4 },
-      { monsterId: 'sprout', direction: 'E', count: 5, interval: 0.82, delay: 1.6 }
+      { monsterId: 'moth', lane: 'LEFT', count: 4, interval: 0.66, delay: 0.4 },
+      { monsterId: 'sprout', lane: 'RIGHT', count: 5, interval: 0.82, delay: 1.6 }
     ]
   },
   {
@@ -475,9 +476,9 @@ export const WAVES = [
     name: '頁岩壓境',
     clearReward: 7,
     groups: [
-      { monsterId: 'sprout', direction: 'NE', count: 5, interval: 0.72, delay: 0.4 },
-      { monsterId: 'moth', direction: 'SW', count: 4, interval: 0.62, delay: 1.2 },
-      { monsterId: 'golem', direction: 'N', count: 2, interval: 2.6, delay: 2.8 }
+      { monsterId: 'sprout', lane: 'LEFT', count: 5, interval: 0.72, delay: 0.4 },
+      { monsterId: 'moth', lane: 'RIGHT', count: 4, interval: 0.62, delay: 1.2 },
+      { monsterId: 'golem', lane: 'CENTER', count: 2, interval: 2.6, delay: 2.8 }
     ]
   }
 ];

@@ -1,9 +1,22 @@
 {
   "name": "crystal-vanguard-v0.2",
-  "version": "0.2.0",
+  "version": "2.1.0-dev",
   "private": true,
   "type": "module",
   "scripts": {
-    "test": "node --test tests/*.test.js"
+    "test": "node --test tests/*.test.js",
+    "test:asset-tools": "python3 -m unittest discover -s ../../../tools/game-assets/tests -v",
+    "test:browser": "playwright test",
+    "test:all": "npm test && npm run test:asset-tools && npm run test:browser",
+    "qa:seed:build": "python3 ../../../tools/game-assets/prepare_static_seed.py ../art/blade-rank1/revisions/frontier-blade-r1/source/concept-a-1254.png ../art/blade-rank1/revisions/frontier-blade-r1 --source-root 598 1071 --canvas-root 48 82 --envelopes 64 70 74 --selected-envelope 70 --palette-colors 28 --scale-review-status approved --scale-reviewed-on 2026-07-11 --art-review-status rejected --mobile-review-status rejected --semantic-direction-status rejected_with_source_process --source-foot-range 433:585 --source-foot-range 608:771",
+    "qa:direction:build": "python3 ../../../tools/game-assets/prepare_direction_review.py ../art/blade-rank1/revisions/frontier-blade-r1/direction-review --current ../art/blade-rank1/revisions/frontier-blade-r1/candidate/seed-se.png --palette ../art/blade-rank1/revisions/frontier-blade-r1/candidate/palette.json --balanced ../art/blade-rank1/revisions/frontier-blade-r1/direction-review/source/se-balanced-1254.png --tactical ../art/blade-rank1/revisions/frontier-blade-r1/direction-review/source/se-tactical-1254.png --envelope 70 --review-status rejected --reviewed-on 2026-07-11",
+    "qa:seed:mobile": "CV_SEED_QA_DIR=../art/blade-rank1/revisions/frontier-blade-r1/qa playwright test tests/browser/blade-seed-review.spec.js --project=seed-review-390 --project=seed-review-430",
+    "qa:seed": "npm run qa:seed:build && npm run qa:direction:build && npm run qa:seed:mobile",
+    "qa:assets:report": "python3 ../../../tools/game-assets/validate_game_assets.py ../asset-manifest.json --qa-mode declared --report ../art/blade-rank1/qa/report.json && python3 ../../../tools/game-assets/render_sprite_qa.py ../asset-manifest.json ../art/blade-rank1/qa/report.json ../art/blade-rank1/qa",
+    "qa:assets:gate": "python3 ../../../tools/game-assets/validate_game_assets.py ../asset-manifest.json --qa-mode strict"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.61.1",
+    "phaser": "^3.90.0"
   }
 }

@@ -2,17 +2,25 @@
 
 This is the source of truth for temporary art used by v0.2. The machine-readable mirror is [`../asset-backlog.json`](../asset-backlog.json).
 
-Status vocabulary:
+Art-QA status vocabulary:
 
-- **Integrated** — final/approved file is loaded by the game.
+- **Needs rework** — the file failed automated QA. Manual art review is tracked
+  separately; the legacy Blade revision is explicitly **rejected** and cannot
+  be promoted in place.
+- **Generated → normalized → auto QA passed → art approved → runtime mobile
+  approved → integrated** — the production approval chain.
 - **Placeholder in game** — gameplay is complete enough to use; art remains missing.
 - **Backlog** — specified for a later content release and not enabled in v0.2.
+
+Runtime loadability and art approval are deliberately separate. `ready` in
+`src/content.js` means that a file can be loaded by the development runtime; it
+does not imply `integrated` art approval.
 
 ## Current integration and missing production assets
 
 | ID | Asset / use | Current fallback | Required delivery | Technical specification | Status | Priority | Acceptance |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| ART-UNIT-001 | Blade Rank 1 / playable profession | None; real sheets are active | Keep current six action sheets | 96×96 cells; 8 direction rows `S,SE,E,NE,N,NW,W,SW`; idle 6, walk 8, attack 8, cast 8, hurt 4, death 8; anchor `(48,82)` | **Integrated** | P0 | Existing asset validator passes; no crop; consistent identity and anchor |
+| ART-UNIT-001 | Blade Rank 1 / playable profession | Rejected legacy sheets remain a development-only diagnostic placeholder | Frontier Blade r2 native 96×96 seed → eight-direction neutral turnaround → golden-direction actions → full sheets | 96×96 cells; 70 px approved body envelope; 8 direction rows `S,SE,E,NE,N,NW,W,SW`; idle 6, walk 8, attack 8, cast 8, hurt 4, death 8; anchor `(48,82)` | **Legacy rejected; r1 normalized seed/directions rejected as blurry; r2 not started** | P0 | Native logical pixels only; approved seed hash; body/contact mask; transition endpoints ≤3% and ≤2px; mobile review approved |
 | ART-MON-001 | 苔芽獸 / basic melee monster | Generated green slime silhouette | Full idle, walk, attack, hurt, death set | Prefer same 96×96 / 8-row contract; medium body envelope; transparent PNG; no baked shadow/VFX | **Placeholder in game** | P0 | Silhouette readable at 1×; all actions loop/finish correctly; anchor drift ≤2 px |
 | ART-MON-002 | 針翅蟲 / fast monster | Generated moth silhouette | Full idle, fly/walk, attack, hurt, death set | 96×96 cells; 8 directions; airborne root still fixed at `(48,82)`; wing cycle must not change body scale | **Placeholder in game** | P1 | Direction and wing phase readable; no cell-edge crop |
 | ART-MON-003 | 頁岩巨像 / armored monster | Generated block golem | Full idle, walk, attack, hurt, death set | 96×96 cells; large envelope 68–76 px; heavy motion; transparent PNG | **Placeholder in game** | P1 | Mass reads clearly; contact frames remain grounded |
@@ -34,10 +42,30 @@ Status vocabulary:
 2. Character world translation belongs to Phaser; keep actions in-place.
 3. Weapon trails, projectiles, hit sparks, spell circles, and floor shadows are separate assets.
 4. Export RGBA PNG with fully transparent background and no labels or grid.
-5. Run the existing repository validator for humanoid sheets:
+5. Rebuild the review report while known failures are explicitly declared:
 
 ```bash
-python3 tools/game-assets/validate_game_assets.py games/crystal-vanguard/asset-manifest.json
+cd games/crystal-vanguard/v0.2
+npm run qa:assets:report
 ```
 
-6. Update both this table and `asset-backlog.json` in the same pull request as delivered art.
+6. Run the strict release gate. This intentionally exits non-zero for the
+   current Blade source and must become green before integration:
+
+```bash
+npm run qa:assets:gate
+```
+
+7. Update the manifest, report, this table, and `asset-backlog.json` in the same
+   reviewed change as delivered art.
+
+The rejected r1 diagnostic package can be rebuilt independently without
+changing runtime art:
+
+```bash
+npm run qa:seed
+```
+
+Do not promote its output. The native-pixel r2 implementation and expansion
+contract are defined in
+[`SPRITE_PIPELINE_HANDOFF.md`](./SPRITE_PIPELINE_HANDOFF.md).

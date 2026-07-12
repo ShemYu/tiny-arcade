@@ -1,10 +1,14 @@
 <!doctype html>
-<html lang="zh-Hant">
+<html lang="zh-Hant" data-mobile-panel="deploy" data-mobile-sheet="closed">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <meta name="theme-color" content="#0b1116" />
-  <title>Crystal Vanguard v0.2｜Phaser Backbone</title>
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="format-detection" content="telephone=no" />
+  <title>Crystal Vanguard v2.1｜Portrait Arena</title>
   <link rel="stylesheet" href="./styles.css" />
 </head>
 <body>
@@ -15,9 +19,9 @@
       <div class="brand">
         <div class="brand-crystal" aria-hidden="true"></div>
         <div>
-          <p class="eyebrow">CRYSTAL VANGUARD · v0.2</p>
-          <h1>琉璃城：八方守晶</h1>
-          <p class="subtitle">以內容註冊表驅動的 Phaser 戰棋守塔骨架</p>
+          <p class="eyebrow">CRYSTAL VANGUARD · v2.1</p>
+          <h1>琉璃城：水晶護衛</h1>
+          <p class="subtitle">Mobile-first Portrait Arena</p>
         </div>
       </div>
 
@@ -40,14 +44,29 @@
 
     <main class="layout">
       <section class="arena-panel panel">
-        <div id="game" aria-label="Crystal Vanguard 遊戲畫面"></div>
-        <div class="phase-badge" id="phase-badge">部署階段</div>
-        <div class="wave-progress" id="wave-progress">尚未開始</div>
-        <div class="toast" id="toast" role="status" aria-live="polite"></div>
+        <div class="game-stage">
+          <div id="game" aria-label="Crystal Vanguard 遊戲畫面"></div>
+          <div class="phase-badge" id="phase-badge">部署階段</div>
+          <div class="wave-progress" id="wave-progress">尚未開始</div>
+          <div class="toast" id="toast" role="status" aria-live="polite"></div>
+        </div>
       </section>
 
+      <nav class="mobile-panel-tabs panel" role="tablist" aria-label="行動面板">
+        <button class="mobile-tab active" type="button" role="tab" data-mobile-panel-target="deploy" aria-controls="mobile-panel-deploy" aria-selected="true">
+          <span aria-hidden="true">✦</span>部署
+        </button>
+        <button class="mobile-tab" type="button" role="tab" data-mobile-panel-target="status" aria-controls="mobile-panel-status" aria-selected="false">
+          <span aria-hidden="true">◎</span>戰況
+        </button>
+        <button class="mobile-tab" type="button" role="tab" data-mobile-panel-target="info" aria-controls="mobile-panel-info" aria-selected="false">
+          <span aria-hidden="true">?</span>說明
+        </button>
+        <button class="mobile-sheet-close" id="mobile-sheet-close" type="button" aria-label="收合面板">⌄</button>
+      </nav>
+
       <aside class="sidebar">
-        <section class="panel card">
+        <section class="panel card deploy-card" id="mobile-panel-deploy" data-mobile-panel="deploy">
           <div class="card-title">
             <div>
               <p class="eyebrow">DEPLOY / BUILD</p>
@@ -63,21 +82,25 @@
           </div>
         </section>
 
-        <section class="panel card">
+        <section class="panel card command-card">
           <div class="card-title">
             <div>
               <p class="eyebrow">COMMAND</p>
               <h2>戰鬥控制</h2>
             </div>
           </div>
+          <button class="mobile-sheet-toggle" id="mobile-sheet-toggle" type="button" aria-controls="mobile-panel-deploy mobile-panel-status mobile-panel-info" aria-expanded="false">
+            <span aria-hidden="true">✦</span>
+            <strong>部署</strong>
+          </button>
           <button class="primary-button" id="start-wave" type="button">
             <strong>開始下一波</strong>
             <span>部署完成後進入自動戰鬥</span>
           </button>
-          <button class="danger-button" id="reset-game" type="button">重新開始 v0.2</button>
+          <button class="danger-button" id="reset-game" type="button">重新開始</button>
         </section>
 
-        <section class="panel card">
+        <section class="panel card status-card" id="mobile-panel-status" data-mobile-panel="status">
           <div class="card-title">
             <div>
               <p class="eyebrow">STATUS</p>
@@ -92,11 +115,13 @@
           <div class="log" id="event-log" aria-live="polite"></div>
         </section>
 
-        <section class="panel card compact">
+        <section class="panel card compact info-card" id="mobile-panel-info" data-mobile-panel="info">
           <p class="note">
-            v0.2 刻意只完成一條可玩的垂直切片：資料驅動內容、部署、兩種防禦建築、
-            近戰／投射物戰鬥、技能觸發與波次。商店、合成、存檔與導航網格留到後續版本。
+            v2.1 正在把招募、合成、敵情預告與召集重新接回 Phaser 骨架。
+            公開版本會留在舊 POC，直到所有手機與品質驗收通過。
           </p>
+          <button class="mobile-reset-button" id="mobile-reset-game" type="button">重新開始本次測試</button>
+          <a class="doc-link" href="./asset-lab/">開啟 Blade 素材品質實驗室</a>
           <a class="doc-link" href="./docs/ASSET_BACKLOG.md">查看素材需求清單</a>
         </section>
       </aside>

@@ -1,0 +1,218 @@
+{
+  "schema_version": 1,
+  "candidate_id": "blade-rank1-frontier-r1-se",
+  "source": {
+    "path": "../art/blade-rank1/revisions/frontier-blade-r1/source/concept-a-1254.png",
+    "sha256": "c9c07ef9e7beb5c43304a521fd778e87bb22645fa136de40726e503fa3d23d6c",
+    "size": [
+      1254,
+      1254
+    ],
+    "detected_subject_bbox": [
+      208,
+      120,
+      941,
+      1071
+    ],
+    "foreground_pixels": 344901,
+    "segmentation": "largest non-magenta component with tolerant chroma classifier"
+  },
+  "normalization": {
+    "canvas_px": [
+      96,
+      96
+    ],
+    "source_root_px": [
+      598,
+      1071
+    ],
+    "canonical_root_px": [
+      48,
+      82
+    ],
+    "envelopes_px": [
+      64,
+      70,
+      74
+    ],
+    "selected_envelope_px": 70,
+    "resampling": "premultiplied RGBA box reduction",
+    "palette_limit": 28,
+    "alpha": "binary",
+    "scale_scope": "single static candidate family"
+  },
+  "metrics": {
+    "bbox": [
+      19,
+      12,
+      73,
+      82
+    ],
+    "body_bbox": [
+      19,
+      12,
+      65,
+      82
+    ],
+    "core_bbox": [
+      36,
+      25,
+      60,
+      63
+    ],
+    "equipment_bbox": [
+      20,
+      43,
+      73,
+      75
+    ],
+    "contact_bbox": [
+      36,
+      64,
+      61,
+      82
+    ],
+    "measured_root_px": [
+      48,
+      82
+    ],
+    "root_delta_px": [
+      0,
+      0
+    ],
+    "top_clearance_px": 12,
+    "bottom_clearance_px": 14,
+    "side_clearance_px": [
+      19,
+      31
+    ],
+    "equipment_clearance_px": [
+      20,
+      43,
+      23,
+      21
+    ],
+    "alpha_values": [
+      0,
+      255
+    ],
+    "transparent_rgb_pixels": 0,
+    "magenta_pixels": 0,
+    "foreground_colors": 28,
+    "connected_components": [
+      1909
+    ],
+    "label_counts": {
+      "0": 7307,
+      "1": 652,
+      "2": 774,
+      "3": 459,
+      "4": 24,
+      "5": 0
+    }
+  },
+  "checks": [
+    {
+      "id": "binary_alpha",
+      "passed": true,
+      "observed": [
+        0,
+        255
+      ]
+    },
+    {
+      "id": "transparent_rgb_zero",
+      "passed": true,
+      "observed": 0
+    },
+    {
+      "id": "no_chroma_spill",
+      "passed": true,
+      "observed": 0
+    },
+    {
+      "id": "palette_limit",
+      "passed": true,
+      "observed": 28
+    },
+    {
+      "id": "single_component",
+      "passed": true,
+      "observed": [
+        1909
+      ]
+    },
+    {
+      "id": "head_clearance",
+      "passed": true,
+      "observed": 12
+    },
+    {
+      "id": "body_side_clearance",
+      "passed": true,
+      "observed": [
+        19,
+        31
+      ]
+    },
+    {
+      "id": "body_bottom_clearance",
+      "passed": true,
+      "observed": 14
+    },
+    {
+      "id": "equipment_clearance",
+      "passed": true,
+      "observed": [
+        20,
+        43,
+        23,
+        21
+      ]
+    },
+    {
+      "id": "root_tolerance",
+      "passed": true,
+      "observed": [
+        0,
+        0
+      ]
+    },
+    {
+      "id": "mask_has_no_vfx",
+      "passed": true,
+      "observed": 0
+    }
+  ],
+  "auto_qa_status": "passed",
+  "review": {
+    "concept": "approved",
+    "scale": "approved",
+    "normalized_art": "rejected",
+    "mobile": "rejected",
+    "semantic_direction": "rejected_with_source_process"
+  },
+  "golden_scale": {
+    "envelope_px": 70,
+    "status": "approved",
+    "reviewed_on": "2026-07-11",
+    "reason": "70 px preserves the preferred novice-chibi silhouette and 12 px headroom; 74 px remains a max-safe comparison at the 8 px minimum."
+  },
+  "manual_warning": "The source body reads closer to South/front than an unambiguous 45-degree SE pose. Identity approval does not waive the direction/camera review gate.",
+  "generation_seed_eligible": false,
+  "release_eligible": false,
+  "files": {
+    "seed": {
+      "path": "../candidate/seed-se.png",
+      "sha256": "ce1b68b33b5d6447b170b159b4a12d415977b7485b7b872b8d72ac783c39a65e"
+    },
+    "mask": {
+      "path": "../candidate/seed-se-mask.png",
+      "sha256": "f48ecdb4b20383a98d65d7ec4d1f348e51d89e039fdb7ecb9d8883e431735aa7"
+    },
+    "palette": {
+      "path": "../candidate/palette.json",
+      "sha256": "7116fe459965884b0b18986ec77ebcf9cb562ef714b6ea81e5d40992d129feea"
+    }
+  }
+}

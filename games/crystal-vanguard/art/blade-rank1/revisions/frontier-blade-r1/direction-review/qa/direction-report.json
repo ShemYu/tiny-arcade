@@ -1,0 +1,128 @@
+{
+  "schema_version": 1,
+  "review_id": "frontier-blade-r1-se-direction",
+  "purpose": "identity-preserving semantic SE direction review",
+  "canvas_px": [
+    96,
+    96
+  ],
+  "canonical_root_px": [
+    48,
+    82
+  ],
+  "golden_envelope_px": 70,
+  "palette_source": "../../candidate/palette.json",
+  "review_status": "rejected",
+  "reviewed_on": "2026-07-11",
+  "reason_codes": [
+    "non_native_pixel_source",
+    "detail_loss_from_downsampling",
+    "blurry_at_game_scale"
+  ],
+  "runtime_usage": "none",
+  "generation_seed_eligible": false,
+  "candidates": {
+    "balanced": {
+      "source": {
+        "path": "../source/se-balanced-1254.png",
+        "sha256": "b9a86994fac31ac564009af5d1308c95607ed92e09a8301a94e00f2171ed9f27",
+        "bbox": [
+          256,
+          111,
+          940,
+          1081
+        ],
+        "foreground_pixels": 343740,
+        "normalization_root_px": [
+          598,
+          1081
+        ]
+      },
+      "output": {
+        "path": "../candidate/se-balanced-70.png",
+        "sha256": "0975c1fbcfc505253d674a0c792c62c1d5f302a27ac8309918019490863b97ce",
+        "metrics": {
+          "bbox": [
+            24,
+            12,
+            73,
+            82
+          ],
+          "height_px": 70,
+          "top_clearance_px": 12,
+          "bottom_clearance_px": 14,
+          "side_clearance_px": [
+            24,
+            23
+          ],
+          "alpha_values": [
+            0,
+            255
+          ],
+          "transparent_rgb_pixels": 0,
+          "foreground_colors": 28
+        }
+      },
+      "checks": {
+        "binary_alpha": true,
+        "transparent_rgb_zero": true,
+        "palette_locked": true,
+        "height_locked": true,
+        "headroom": true,
+        "equipment_cell_clearance": true
+      },
+      "auto_qa_status": "passed"
+    },
+    "tactical": {
+      "source": {
+        "path": "../source/se-tactical-1254.png",
+        "sha256": "5501ecc97fad24a077d241c814b90a6e5c11cf91498d01ef537d753237ff17d5",
+        "bbox": [
+          234,
+          121,
+          939,
+          1090
+        ],
+        "foreground_pixels": 337972,
+        "normalization_root_px": [
+          586,
+          1090
+        ]
+      },
+      "output": {
+        "path": "../candidate/se-tactical-70.png",
+        "sha256": "d05e25ced0cb4a2b7ed89342c5d0de3a77f0bef0e35d374797f87f62f6302f0b",
+        "metrics": {
+          "bbox": [
+            23,
+            12,
+            74,
+            82
+          ],
+          "height_px": 70,
+          "top_clearance_px": 12,
+          "bottom_clearance_px": 14,
+          "side_clearance_px": [
+            23,
+            22
+          ],
+          "alpha_values": [
+            0,
+            255
+          ],
+          "transparent_rgb_pixels": 0,
+          "foreground_colors": 28
+        }
+      },
+      "checks": {
+        "binary_alpha": true,
+        "transparent_rgb_zero": true,
+        "palette_locked": true,
+        "height_locked": true,
+        "headroom": true,
+        "equipment_cell_clearance": true
+      },
+      "auto_qa_status": "passed"
+    }
+  }
+}

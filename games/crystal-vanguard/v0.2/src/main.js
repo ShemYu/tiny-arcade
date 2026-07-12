@@ -1,4 +1,4 @@
-import { EventBus, GameSession, setAppContext } from './core.js';
+import { EventBus, GameSession, setAppContext, WORLD_SIZE } from './core.js';
 import { createContentRegistry } from './content.js';
 import { BootScene, BattleScene } from './scenes.js';
 import { HudController } from './ui.js';
@@ -25,8 +25,8 @@ function boot() {
   const game = new Phaser.Game({
     type: Phaser.AUTO,
     parent: 'game',
-    width: 960,
-    height: 640,
+    width: WORLD_SIZE.width,
+    height: WORLD_SIZE.height,
     backgroundColor: '#13201f',
     pixelArt: true,
     roundPixels: true,
@@ -53,7 +53,7 @@ function boot() {
     game,
     content,
     session,
-    version: '0.2.0'
+    version: '2.1.0-dev'
   });
 }
 

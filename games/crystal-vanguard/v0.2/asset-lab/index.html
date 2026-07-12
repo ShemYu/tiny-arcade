@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="zh-Hant" data-ready="false">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#091014" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <title>Blade Asset Quality Lab | Crystal Vanguard v2.1</title>
+  <link rel="stylesheet" href="./styles.css" />
+</head>
+<body>
+  <main class="lab-shell">
+    <header class="lab-header">
+      <div>
+        <p class="eyebrow">V2.1 · DAY 2 · ASSET GATE</p>
+        <h1>Blade QA Lab</h1>
+      </div>
+      <div class="qa-badge" id="qa-badge" aria-live="polite">
+        <strong>LOADING</strong>
+        <span>QA report</span>
+      </div>
+    </header>
+
+    <section class="battle-review" aria-label="Blade 手機實際戰場比例預覽">
+      <div id="game"></div>
+      <div class="review-copy">
+        <strong id="review-title">SE · TRANSITION</strong>
+        <span id="review-detail">Red = contract root; purple = measured feet.</span>
+        <span class="metric-copy" id="metric-copy">Waiting for frame metrics…</span>
+      </div>
+      <div class="edge-badge" id="edge-badge">LEGACY SOURCE REJECTED</div>
+      <div class="size-chip" id="size-chip">390px field · ~47px body</div>
+    </section>
+
+    <section class="control-dock" aria-label="素材檢視控制">
+      <div class="control-row action-row" id="action-controls" role="group" aria-label="動作">
+        <button type="button" class="active" data-action="transition">Sequence</button>
+        <button type="button" data-action="idle">Idle</button>
+        <button type="button" data-action="walk">Walk</button>
+        <button type="button" data-action="attack">Attack</button>
+        <button type="button" data-action="cast">Cast</button>
+        <button type="button" data-action="hurt">Hurt</button>
+        <button type="button" data-action="death">Death</button>
+      </div>
+
+      <div class="control-row compact-row">
+        <label>
+          <span>Direction</span>
+          <select id="direction-control" aria-label="面向方向">
+            <option>S</option><option selected>SE</option><option>E</option><option>NE</option>
+            <option>N</option><option>NW</option><option>W</option><option>SW</option>
+          </select>
+        </label>
+        <label>
+          <span>Shared unit scale</span>
+          <select id="scale-control" aria-label="全角色共用比例候選">
+            <option value="1">Current 1.00</option>
+            <option value="0.84">Safe max 0.84</option>
+            <option value="0.82">Large 0.82</option>
+            <option value="0.72">Medium 0.72</option>
+          </select>
+        </label>
+        <button type="button" class="guide-toggle active" id="guide-toggle" aria-pressed="true">Guides</button>
+      </div>
+    </section>
+  </main>
+
+  <noscript>此品質實驗室需要 JavaScript。</noscript>
+  <script src="https://cdn.jsdelivr.net/npm/phaser@3.90.0/dist/phaser.min.js"></script>
+  <script type="module" src="./main.js"></script>
+</body>
+</html>
