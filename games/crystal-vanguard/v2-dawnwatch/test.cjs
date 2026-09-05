@@ -1,0 +1,35 @@
+'use strict';
+const assert=require('node:assert/strict');
+const E=require('./engine.js'),C=require('./content.js');
+let passed=0;
+function test(name,fn){fn();passed++;console.log('PASS '+name);}
+function advance(s,seconds,dt=1/60){for(let i=0;i<Math.ceil(seconds/dt)&&s.status==='battle';i++){E.step(s,dt);s.events.length=0;}}
+function finishBattle(s){let n=0;while(s.status==='battle'&&n++<15000){if(s.heroes.some(h=>h.slot&&h.hp<h.maxHp*.45))E.pulse(s);E.step(s,1/60);s.events.length=0;}assert.notEqual(s.status,'battle','wave must terminate');}
+function makePilot(){let bought=0;return s=>{for(let i=0;i<24;i++){let merged=false;for(const h of [...s.heroes])if(E.mergeCandidates(s,h.id).length===2){E.merge(s,h.id);merged=true;break;}if(merged)continue;const result=E.recruit(s,['ranger','mage','blade','guard'][bought%4]);if(typeof result==='number')bought++;else break;}
+ const lanes=C.waves[s.wave].lanes,tiles=[];for(const r of [2,3,4])for(const lane of lanes){const d=C.directions[lane];tiles.push({x:d.x*r,y:d.y*r});}for(const h of s.heroes)E.bench(s,h.id);s.heroes.forEach((h,i)=>{if(tiles[i])E.place(s,h.id,tiles[i].x,tiles[i].y);});if(s.core<65)E.repair(s);
+};}
+test('content tables are immutable and all wave references exist',()=>{assert.ok(Object.isFrozen(C.heroes.blade));assert.equal(new Set(C.waves.flatMap(w=>w.lanes)).size,8);for(const w of C.waves)for(const k of w.mix)assert.ok(C.monsters[k]);});
+test('initial squad has all four classes, distinct legal deployments',()=>{const s=E.create();assert.equal(new Set(s.heroes.map(h=>h.kind)).size,4);assert.ok(s.heroes.every(h=>E.cellOK(h.slot.x,h.slot.y)));assert.equal(s.gold,28);});
+test('recruit uses exact gold and adds a reserve',()=>{const s=E.create(),id=E.recruit(s,'blade');assert.equal(s.gold,16);assert.equal(s.heroes.find(h=>h.id===id).slot,null);});
+test('invalid and unaffordable recruits do not mutate state',()=>{const s=E.create();assert.equal(E.recruit(s,'invalid'),'kind');E.recruit(s,'mage');const before=JSON.stringify(s);assert.equal(E.recruit(s,'mage'),'gold');assert.equal(JSON.stringify(s),before);});
+test('placement rejects pedestal, fractional and outside cells',()=>{const s=E.create();for(const xy of [[0,0],[1,1],[5,0],[2.1,0],[NaN,0]])assert.equal(E.place(s,1,...xy),'cell');assert.equal(E.place(s,1,-4,3),true);});
+test('placing onto an occupied tile swaps without losing either unit',()=>{const s=E.create(),a={...s.heroes[0].slot},b={...s.heroes[1].slot};E.place(s,1,b.x,b.y);assert.deepEqual(s.heroes[1].slot,a);assert.deepEqual(s.heroes[0].slot,b);});
+test('bench and redeploy preserve identity and rank',()=>{const s=E.create();assert.equal(E.bench(s,1),true);assert.equal(s.heroes[0].slot,null);E.place(s,1,3,0);assert.equal(s.heroes[0].kind,'blade');});
+test('three matching heroes merge into the selected anchor',()=>{const s=E.create();E.recruit(s,'blade');E.recruit(s,'blade');const slot={...s.heroes[0].slot};assert.equal(E.merge(s,1),true);assert.equal(s.heroes.length,4);assert.equal(s.heroes[0].rank,2);assert.equal(s.heroes[0].hp,E.stats('blade',2).hp);assert.deepEqual(s.heroes[0].slot,slot);});
+test('wrong classes cannot merge and consumed IDs cannot act',()=>{const s=E.create();assert.equal(E.merge(s,1),'copies');const id=E.recruit(s,'blade');E.recruit(s,'blade');E.merge(s,1);assert.equal(E.place(s,id,3,0),'unit');});
+test('dismiss returns 70 percent of rank investment',()=>{const s=E.create();E.recruit(s,'blade');E.recruit(s,'blade');E.merge(s,1);const gold=s.gold;E.sell(s,1);assert.equal(s.gold-gold,Math.floor(36*.7));});
+test('empty field cannot start; duplicate start cannot restart battle',()=>{const s=E.create();s.heroes.forEach(h=>E.bench(s,h.id));assert.equal(E.start(s),false);E.place(s,1,2,0);assert.equal(E.start(s),true);advance(s,.5);const time=s.time;assert.equal(E.start(s),false);assert.equal(s.time,time);});
+test('battle blocks economic and placement commands',()=>{const s=E.create();E.start(s);assert.equal(E.recruit(s,'blade'),'phase');assert.equal(E.place(s,1,3,0),'phase');assert.equal(E.merge(s,1),'phase');assert.equal(E.bench(s,1),false);assert.equal(E.sell(s,1),false);});
+test('pause freezes simulation and rejects bloom',()=>{const s=E.create();E.start(s);advance(s,1);E.pause(s);const snap=JSON.stringify(s);E.step(s,1);assert.equal(E.pulse(s),false);assert.equal(JSON.stringify(s),snap);E.pause(s,false);E.step(s,.1);assert.ok(s.time>1);});
+test('crystal bloom is once per wave and heals only living allies',()=>{const s=E.create();E.start(s);s.heroes[0].hp=20;s.heroes[1].hp=0;s.heroes[1].alive=false;assert.equal(E.pulse(s),true);assert.equal(s.heroes[0].hp,69);assert.equal(s.heroes[1].hp,0);assert.equal(E.pulse(s),false);});
+test('repair caps health, charges once, and requires planning',()=>{const s=E.create();assert.equal(E.repair(s),false);s.core=90;assert.equal(E.repair(s),true);assert.equal(s.core,100);assert.equal(s.gold,16);E.start(s);s.core=90;assert.equal(E.repair(s),false);});
+test('first wave is survivable with the provided deployment',()=>{const s=E.create();E.start(s);finishBattle(s);assert.equal(s.status,'plan');assert.equal(s.core,100);assert.equal(s.kills,10);assert.equal(s.heroes.length,4);});
+test('fallen heroes revive and return to their planned tiles',()=>{const s=E.create();E.start(s);s.heroes[2].alive=false;s.heroes[2].hp=0;s.heroes[2].death=0;finishBattle(s);assert.equal(s.status,'plan');assert.ok(s.heroes.every(h=>h.alive&&h.hp===h.maxHp));assert.ok(s.heroes.every(h=>h.x===h.slot.x&&h.y===h.slot.y));});
+test('seedless schedule is deterministic for identical commands',()=>{const a=E.create(),b=E.create();E.start(a);E.start(b);advance(a,8);advance(b,8);assert.equal(JSON.stringify(a),JSON.stringify(b));});
+test('invalid frame deltas are ignored and large stalls are bounded',()=>{const s=E.create();E.start(s);for(const dt of [0,-1,NaN,Infinity])E.step(s,dt);assert.equal(s.time,0);E.step(s,99);assert.ok(s.time<=.250001);});
+test('30, 60 and 120 Hz all complete the first wave',()=>{for(const dt of [1/30,1/60,1/120]){const s=E.create();E.start(s);advance(s,90,dt);assert.equal(s.status,'plan');assert.equal(s.core,100);}});
+test('event queue is bounded even when no renderer consumes events',()=>{const s=E.create();E.start(s);for(let n=0;n<9000&&s.status==='battle';n++)E.step(s,1/60);assert.ok(s.events.length<=160);});
+test('a normal purchase/merge/deploy pilot wins all eight waves and the boss',()=>{const s=E.create(),pilot=makePilot();while(s.status==='plan'){pilot(s);assert.ok(s.gold>=0);assert.ok(s.heroes.length<=C.maxRoster);E.start(s);finishBattle(s);}assert.equal(s.status,'won');assert.equal(s.wave,8);assert.ok(s.core>0);assert.ok(s.kills>=150);const frozen=JSON.stringify(s);E.step(s,.2);assert.equal(JSON.stringify(s),frozen);console.log(`  Pilot: core ${s.core}, ${s.kills} kills, score ${s.score}`);});
+test('no recruiting or repositioning eventually loses; core never negative',()=>{const s=E.create();while(s.status==='plan'){E.start(s);finishBattle(s);}assert.equal(s.status,'lost');assert.equal(s.core,0);assert.equal(E.start(s),false);});
+console.log(`\n${passed} tests passed.`);
+module.exports={makePilot};

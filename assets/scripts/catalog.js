@@ -6,6 +6,27 @@
  */
 window.TINY_ARCADE_GAMES = [
   {
+    id: "crystal-vanguard-dawnwatch",
+    title: { en: "Crystal Vanguard II: Dawnwatch", zh: "琉璃城 II：晨曦守望" },
+    description: {
+      en: "An original isometric pixel-fantasy defense game. Recruit four adventurer classes, merge, deploy, and keep the dawn crystal alive through eight waves.",
+      zh: "斜俯視像素奇幻守城初版。招募四種冒險者、三合一升階、重新部署，守住八方攻勢與最後的首領。"
+    },
+    path: "./games/crystal-vanguard/v2-dawnwatch/",
+    source: "https://github.com/ShemYu/tiny-arcade/tree/main/games/crystal-vanguard/v2-dawnwatch",
+    // An illustrated vector cover, not a gameplay screenshot or external asset.
+    preview: "data:image/svg+xml;charset=utf-8," + encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 360"><rect width="640" height="360" fill="#e9e4ce"/><path d="M0 270 140 206 300 280 450 220 640 302V360H0Z" fill="#c6d0bc"/><path d="m300 240 145-76 167 76v28l-158 74-154-77Z" fill="#637e79"/><path d="m300 240 145-76 167 76-158 75Z" fill="#8ea677"/><path d="m331 240 119-58 130 57-124 57Z" fill="#adba8a"/><path d="m310 237 11-5 141 69-10 5zm39-23 13-7 143 70-14 7zm53-26 11-5 146 69-13 6z" fill="#c9c4a2"/><path d="m322 247 127-63 14 6-128 64zm40 20 131-64 12 6-131 64zm41 20 130-65 12 6-130 65z" fill="#c9c4a2"/><path d="m420 232 35-18 35 17v13l-34 17-36-16Z" fill="#66848b"/><path d="m420 232 35-18 35 17-34 18Z" fill="#c7ccb0"/><path d="m454 107 31 47-7 58-24 28-30-34-6-50Z" fill="#4daca8" stroke="#375d67" stroke-width="2"/><path d="m454 107-36 49 27 12z" fill="#cdf2ce"/><path d="m454 107 31 47-40 14z" fill="#8ed8be"/><path d="m445 168 40-14-7 58-24 28Z" fill="#3e8296"/><path d="m454 112-9 56 9 66" fill="none" stroke="#d7f7d2" stroke-width="2"/><g fill="#f7ecc7"><path d="m520 128 3 8 8 3-8 3-3 8-3-8-8-3 8-3zm-126 40 2 5 5 2-5 2-2 5-2-5-5-2 5-2z"/></g><g font-family="Georgia,serif" fill="#30484d"><text x="34" y="58" font-family="system-ui,sans-serif" font-size="10" letter-spacing="3">TINY ARCADE / DAWNWATCH</text><text x="31" y="122" font-size="39" font-weight="bold">CRYSTAL</text><text x="31" y="164" font-size="36" font-weight="bold">VANGUARD</text><text x="35" y="215" font-size="43" fill="#9e7a40">II</text><text x="34" y="247" font-size="18">The Dawnwatch</text><text x="35" y="288" font-family="system-ui,sans-serif" font-size="10" letter-spacing="2">4 HEROES / 8 WAVES</text></g><rect x="15" y="15" width="610" height="330" rx="2" fill="none" stroke="#b7ac8a"/></svg>`),
+    previewAlt: { en: "Illustrated cover with a teal crystal over an isometric highland island", zh: "插畫式封面：斜俯視高地島嶼上的青綠水晶" },
+    genres: ["strategy", "arcade"],
+    tags: ["pixel-art", "tower-defense", "auto-battler", "single-player"],
+    controls: ["keyboard", "mouse", "touch"],
+    status: "beta",
+    featured: false,
+    playTime: "5–10 min",
+    added: "2026-09-05",
+    updated: "2026-09-05"
+  },
+  {
     id: "crystal-vanguard-v2",
     title: { en: "Crystal Vanguard II", zh: "琉璃城 II：星霧遺跡" },
     description: {
