@@ -6,6 +6,27 @@
  */
 window.TINY_ARCADE_GAMES = [
   {
+    id: "lumen-loop",
+    title: { en: "Lumen Loop", zh: "流光迴路" },
+    description: {
+      en: "One button, two orbits, sixty seconds. Switch lanes, catch the light, and bring the signal home. Entirely drawn and scored in code.",
+      zh: "一個按鈕，兩條軌道，六十秒。切換內外軌、收集光點、閃開障礙，把訊號送回家。畫面與音效全由程式生成。"
+    },
+    path: "./games/lumen-loop/",
+    source: "https://github.com/ShemYu/tiny-arcade/tree/main/games/lumen-loop",
+    // The preview is hand-written vector code, not a downloaded or generated asset.
+    preview: "data:image/svg+xml;charset=utf-8," + encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 360"><rect width="640" height="360" fill="#101d23"/><g fill="none" stroke="#324a4f"><circle cx="440" cy="180" r="138"/><circle cx="440" cy="180" r="97"/><circle cx="440" cy="180" r="153" stroke-dasharray="1 8"/></g><circle cx="440" cy="180" r="78" fill="none" stroke="#adf0d3" stroke-width="2" stroke-dasharray="340 150" transform="rotate(-90 440 180)"/><g fill="#adf0d3"><path d="m578 180 6 6-6 6-6-6zm-138 91 6 6-6 6-6-6zm-97-97 6 6-6 6-6-6z"/><path d="m431 39 20 7-20 7 4-7z" fill="#f5efe0"/></g><g fill="#ff946e"><path d="M528 176h20v8h-20zM433 310h20v8h-20z"/></g><g font-family="system-ui,sans-serif"><text x="38" y="111" fill="#94aaa9" font-size="12" letter-spacing="3">ONE-BUTTON ARCADE</text><text x="35" y="178" fill="#f5efe0" font-size="57" font-weight="900" letter-spacing="-3">LUMEN</text><text x="35" y="233" fill="#adf0d3" font-size="57" font-weight="900" letter-spacing="-3">LOOP</text><text x="38" y="278" fill="#94aaa9" font-size="12" letter-spacing="2">60 SEC / 2 ORBITS</text><text x="440" y="194" fill="#f5efe0" font-size="46" text-anchor="middle">60</text></g></svg>`),
+    previewAlt: { en: "Code-drawn mint orbits, a white ship, and orange gates", zh: "程式繪製的雙軌、白色飛船與橘色障礙" },
+    genres: ["arcade", "action"],
+    tags: ["procedural", "single-player"],
+    controls: ["keyboard", "mouse", "touch"],
+    status: "complete",
+    featured: false,
+    playTime: "1 min",
+    added: "2026-09-05",
+    updated: "2026-09-05"
+  },
+  {
     id: "mochi-sky",
     title: {
       en: "Mochi Sky",
