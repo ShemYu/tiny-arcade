@@ -1,0 +1,68 @@
+{
+  "source": "Original generated art recovered from the unfinished Crystal Guard prototype on 2026-09-05; no replacement art generated in recovery.",
+  "files": {
+    "atlas.png": {
+      "sha256": "44a81d75f5fb9960ad4220e49093358cc52530c695cd6a0adffce01f89a06db6",
+      "bytes": 1727311
+    },
+    "environment.png": {
+      "sha256": "3f3545f3bb4e14c9d2bc53f893bed1e39f6d103ab032e3c7de5183e2472be171",
+      "bytes": 2089876
+    }
+  },
+  "atlas": {
+    "columns": [
+      0,
+      315,
+      634,
+      946,
+      1254
+    ],
+    "rows": [
+      0,
+      327,
+      650,
+      925,
+      1254
+    ],
+    "frames": [
+      "knight-idle",
+      "knight-attack",
+      "ranger-idle",
+      "ranger-attack",
+      "mage-idle",
+      "mage-cast",
+      "priest-idle",
+      "priest-cast",
+      "jelly",
+      "goblin",
+      "bat",
+      "golem",
+      "palisade",
+      "arrow-tower",
+      "frost-rune",
+      "crystal"
+    ]
+  },
+  "environment": {
+    "columns": [
+      0,
+      455,
+      915,
+      1254
+    ],
+    "rows": [
+      0,
+      660,
+      1254
+    ],
+    "frames": [
+      "broadleaf-tree",
+      "guild-house",
+      "pine-tree",
+      "stone-arch",
+      "flowers",
+      "signpost"
+    ]
+  }
+}

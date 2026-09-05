@@ -1,0 +1,1856 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#111827" />
+  <title>琉璃城：八方守晶｜單頁像素戰棋守塔</title>
+  <style>
+    :root {
+      --ink: #edf6d6;
+      --muted: #a9b89a;
+      --panel: #18222b;
+      --panel-2: #222f38;
+      --panel-3: #11191f;
+      --line: #51616a;
+      --line-hi: #9bad8f;
+      --gold: #ffd66b;
+      --cyan: #79e7d5;
+      --red: #ff7d78;
+      --violet: #c39cff;
+      --green: #97d879;
+      --shadow: #071015;
+      --cell: 8px;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { min-height: 100%; }
+    body {
+      margin: 0;
+      overflow-x: hidden;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at 15% 10%, rgba(80, 140, 122, .18), transparent 28rem),
+        radial-gradient(circle at 85% 85%, rgba(102, 75, 145, .20), transparent 32rem),
+        #0b1116;
+      font-family: ui-monospace, "SFMono-Regular", "Cascadia Mono", "Noto Sans Mono CJK TC", "PingFang TC", "Microsoft JhengHei", monospace;
+      letter-spacing: .02em;
+      user-select: none;
+    }
+
+    button { font: inherit; }
+
+    .scanlines {
+      pointer-events: none;
+      position: fixed;
+      inset: 0;
+      z-index: 99;
+      opacity: .08;
+      background: repeating-linear-gradient(to bottom, transparent 0 3px, #000 4px);
+      mix-blend-mode: multiply;
+    }
+
+    #app {
+      width: min(1560px, 100%);
+      margin: 0 auto;
+      padding: 14px;
+    }
+
+    .pixel-panel {
+      position: relative;
+      background: linear-gradient(180deg, rgba(35, 48, 58, .98), rgba(20, 29, 36, .98));
+      border: 2px solid #0a0f13;
+      box-shadow:
+        0 0 0 2px var(--line),
+        0 0 0 4px #080d11,
+        8px 8px 0 rgba(0, 0, 0, .36);
+    }
+    .pixel-panel::before,
+    .pixel-panel::after {
+      content: "";
+      position: absolute;
+      width: 8px;
+      height: 8px;
+      background: var(--line-hi);
+      opacity: .55;
+    }
+    .pixel-panel::before { left: 4px; top: 4px; }
+    .pixel-panel::after { right: 4px; bottom: 4px; }
+
+    .topbar {
+      min-height: 76px;
+      padding: 10px 14px;
+      display: grid;
+      grid-template-columns: minmax(230px, 1fr) auto auto;
+      align-items: center;
+      gap: 14px;
+      margin-bottom: 14px;
+    }
+
+    .brand { display: flex; align-items: center; gap: 12px; min-width: 0; }
+    .brand-mark {
+      width: 48px;
+      height: 48px;
+      position: relative;
+      flex: 0 0 auto;
+      filter: drop-shadow(0 4px 0 #071015);
+    }
+    .brand-mark::before {
+      content: "";
+      position: absolute;
+      inset: 5px 11px;
+      background: #9cf4e4;
+      clip-path: polygon(50% 0, 100% 28%, 82% 100%, 18% 100%, 0 28%);
+      box-shadow: inset 7px 0 #55bdbb, inset -6px 0 #d8fff2, 0 0 14px rgba(121, 231, 213, .55);
+    }
+    .brand-mark::after {
+      content: "";
+      position: absolute;
+      left: 6px; right: 6px; bottom: 1px; height: 7px;
+      background: #726895;
+      box-shadow: inset 0 2px #b5a4dd;
+    }
+    .brand h1 { margin: 0; font-size: clamp(18px, 2vw, 27px); line-height: 1; color: #fff8cf; text-shadow: 2px 2px 0 #5b4261; white-space: nowrap; }
+    .brand p { margin: 6px 0 0; color: var(--muted); font-size: 11px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+    .stats { display: flex; align-items: stretch; gap: 8px; }
+    .stat-chip {
+      min-width: 88px;
+      padding: 8px 10px;
+      background: #10181e;
+      border: 1px solid #52636c;
+      box-shadow: inset 0 0 0 2px #1e2a31;
+      text-align: center;
+    }
+    .stat-chip span { display: block; color: var(--muted); font-size: 10px; }
+    .stat-chip b { display: block; margin-top: 4px; font-size: 18px; color: #fff9d8; }
+    .stat-chip.gold b { color: var(--gold); }
+
+    .crystal-meter { width: min(260px, 24vw); }
+    .meter-row { display: flex; justify-content: space-between; gap: 8px; font-size: 11px; color: var(--muted); margin-bottom: 5px; }
+    .meter {
+      height: 16px;
+      padding: 2px;
+      background: #090e12;
+      border: 1px solid #50616a;
+      box-shadow: inset 0 0 0 1px #06090b;
+    }
+    .meter > i {
+      display: block;
+      height: 100%;
+      width: 100%;
+      background: repeating-linear-gradient(90deg, #55d8cc 0 13px, #7cf2df 13px 24px, #4bbebc 24px 27px);
+      box-shadow: 0 0 10px rgba(121, 231, 213, .6);
+      transition: width .18s ease;
+    }
+
+    .top-actions { display: flex; gap: 8px; justify-content: flex-end; }
+    .icon-btn, .small-btn, .pixel-btn {
+      color: var(--ink);
+      background: #283840;
+      border: 0;
+      border-radius: 0;
+      cursor: pointer;
+      box-shadow: inset 0 0 0 2px #6d7f7e, 3px 3px 0 #071015;
+      transition: transform .07s, filter .1s, background .1s;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .icon-btn:hover, .small-btn:hover, .pixel-btn:hover { filter: brightness(1.18); }
+    .icon-btn:active, .small-btn:active, .pixel-btn:active { transform: translate(2px, 2px); box-shadow: inset 0 0 0 2px #6d7f7e, 1px 1px 0 #071015; }
+    .icon-btn { width: 38px; height: 38px; font-size: 16px; }
+    .small-btn { min-height: 30px; padding: 6px 10px; font-size: 11px; }
+    .small-btn[disabled], .pixel-btn[disabled] { cursor: not-allowed; opacity: .45; filter: grayscale(.4); }
+
+    .layout {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 340px;
+      gap: 14px;
+      align-items: start;
+    }
+
+    .arena-shell { padding: 8px; min-width: 0; }
+    .arena-stage {
+      position: relative;
+      width: 100%;
+      aspect-ratio: 4 / 3;
+      min-height: 420px;
+      overflow: hidden;
+      background: #13201f;
+      border: 2px solid #0b1115;
+      box-shadow: inset 0 0 0 2px #4c5e61;
+    }
+    canvas {
+      width: 100%;
+      height: 100%;
+      display: block;
+      image-rendering: pixelated;
+      image-rendering: crisp-edges;
+      touch-action: manipulation;
+      cursor: crosshair;
+    }
+
+    .phase-badge {
+      position: absolute;
+      top: 12px;
+      left: 50%;
+      transform: translateX(-50%);
+      padding: 7px 14px;
+      background: rgba(13, 21, 26, .88);
+      border: 1px solid #95a58d;
+      box-shadow: 3px 3px 0 rgba(0,0,0,.45);
+      color: #fff7d1;
+      font-size: 12px;
+      pointer-events: none;
+    }
+    .phase-badge.battle { color: #ffbeb9; border-color: #d76d69; }
+
+    .battle-hud {
+      position: absolute;
+      left: 12px;
+      bottom: 12px;
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      pointer-events: none;
+    }
+    .hud-chip {
+      padding: 6px 9px;
+      background: rgba(8, 14, 18, .82);
+      border: 1px solid #52636a;
+      font-size: 11px;
+      color: #d8e2cc;
+    }
+
+    .command-dock {
+      position: absolute;
+      right: 14px;
+      bottom: 14px;
+      display: grid;
+      justify-items: end;
+      gap: 7px;
+    }
+    .rally-btn {
+      width: 190px;
+      min-height: 58px;
+      padding: 8px 12px;
+      color: #fff7da;
+      background: #7f4e49;
+      box-shadow: inset 0 0 0 2px #e6a27e, 4px 4px 0 rgba(0,0,0,.55);
+      border: 0;
+      cursor: pointer;
+      font-weight: 800;
+      text-shadow: 2px 2px 0 #40282b;
+    }
+    .rally-btn strong { display: block; font-size: 16px; }
+    .rally-btn span { display: block; margin-top: 3px; font-size: 9px; color: #ffd9b2; font-weight: 400; }
+    .rally-btn[disabled] { opacity: .48; cursor: not-allowed; filter: grayscale(.5); }
+    .rally-tip { font-size: 9px; color: #d7b5a1; background: rgba(9,14,17,.72); padding: 4px 7px; }
+
+    .toast {
+      position: absolute;
+      left: 50%;
+      top: 80px;
+      transform: translate(-50%, -12px);
+      max-width: min(520px, 84%);
+      padding: 8px 12px;
+      opacity: 0;
+      pointer-events: none;
+      background: #16232a;
+      border: 1px solid #a8b99f;
+      box-shadow: 4px 4px 0 rgba(0,0,0,.45);
+      color: #fff8d2;
+      font-size: 12px;
+      text-align: center;
+      transition: opacity .16s, transform .16s;
+      z-index: 5;
+    }
+    .toast.show { opacity: 1; transform: translate(-50%, 0); }
+    .toast.bad { border-color: #ff8781; color: #ffd0cc; }
+    .toast.good { border-color: #8ee4b0; color: #d9ffe8; }
+
+    .sidebar { display: grid; gap: 12px; min-width: 0; }
+    .side-card { padding: 11px; }
+    .card-title {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+      min-height: 28px;
+      margin: -2px -2px 9px;
+      padding-bottom: 7px;
+      border-bottom: 1px dashed #53636a;
+    }
+    .card-title h2 { margin: 0; font-size: 13px; color: #fff5c7; }
+    .card-title small { color: var(--muted); font-size: 9px; }
+
+    .forecast-wrap { display: grid; grid-template-columns: 92px 1fr; gap: 10px; }
+    .compass {
+      position: relative;
+      width: 92px;
+      height: 92px;
+      background: #0d171b;
+      border: 1px solid #4b5c64;
+      box-shadow: inset 0 0 0 2px #16252b;
+    }
+    .compass::before {
+      content: "";
+      position: absolute;
+      left: 32px; top: 32px; width: 26px; height: 26px;
+      background: #5fd4cf;
+      clip-path: polygon(50% 0, 100% 34%, 78% 100%, 22% 100%, 0 34%);
+      box-shadow: 0 0 10px rgba(95,212,207,.5);
+    }
+    .dir-dot {
+      position: absolute;
+      width: 19px;
+      height: 19px;
+      display: grid;
+      place-items: center;
+      background: #1a262b;
+      border: 1px solid #52636a;
+      color: #708087;
+      font-size: 9px;
+    }
+    .dir-dot.on { background: #773f42; border-color: #ff8d83; color: #fff0d8; animation: blink 1s steps(2) infinite; }
+    .dir-dot[data-dir="N"] { left: 36px; top: 3px; }
+    .dir-dot[data-dir="NE"] { right: 7px; top: 9px; }
+    .dir-dot[data-dir="E"] { right: 3px; top: 36px; }
+    .dir-dot[data-dir="SE"] { right: 7px; bottom: 8px; }
+    .dir-dot[data-dir="S"] { left: 36px; bottom: 3px; }
+    .dir-dot[data-dir="SW"] { left: 7px; bottom: 8px; }
+    .dir-dot[data-dir="W"] { left: 3px; top: 36px; }
+    .dir-dot[data-dir="NW"] { left: 7px; top: 9px; }
+    @keyframes blink { 50% { filter: brightness(1.5); } }
+
+    .forecast-list { display: grid; gap: 5px; align-content: start; }
+    .enemy-line {
+      display: grid;
+      grid-template-columns: 22px 1fr auto;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 6px;
+      background: #111b20;
+      border-left: 3px solid #65756f;
+      font-size: 10px;
+    }
+    .enemy-icon { width: 18px; height: 18px; display: grid; place-items: center; background: #29373b; font-size: 12px; }
+    .enemy-line b { color: #f4edcf; font-weight: 600; }
+    .enemy-line span:last-child { color: #ffae95; }
+
+    .shop-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 7px; }
+    .shop-unit {
+      position: relative;
+      display: grid;
+      grid-template-columns: 38px 1fr;
+      gap: 7px;
+      align-items: center;
+      min-height: 62px;
+      padding: 7px;
+      text-align: left;
+      color: var(--ink);
+      background: #111b21;
+      border: 1px solid #53636a;
+      cursor: pointer;
+      box-shadow: inset 0 0 0 1px #223138;
+    }
+    .shop-unit:hover { background: #19272e; border-color: #9aaa92; }
+    .shop-unit.sold { opacity: .35; filter: grayscale(1); cursor: default; }
+    .portrait {
+      width: 38px;
+      height: 44px;
+      position: relative;
+      display: grid;
+      place-items: center;
+      background: #26343a;
+      border: 1px solid #65746d;
+      font-size: 22px;
+      overflow: hidden;
+    }
+    .portrait::after { content: ""; position: absolute; inset: 0; box-shadow: inset 0 -8px rgba(0,0,0,.18); }
+    .unit-copy { min-width: 0; }
+    .unit-copy b { display: block; font-size: 10px; color: #fff6d0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .unit-copy span { display: block; margin-top: 4px; color: var(--muted); font-size: 8px; }
+    .unit-cost { position: absolute; right: 5px; bottom: 4px; color: var(--gold); font-size: 10px; }
+
+    .shop-actions { display: flex; justify-content: space-between; align-items: center; gap: 8px; margin-top: 8px; }
+    .fusion-note { color: var(--muted); font-size: 9px; line-height: 1.35; }
+
+    .roster-summary { display: flex; justify-content: space-between; color: var(--muted); font-size: 9px; margin-bottom: 7px; }
+    .roster-grid { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 6px; min-height: 50px; }
+    .roster-unit {
+      position: relative;
+      min-width: 0;
+      aspect-ratio: 1 / 1.08;
+      padding: 2px;
+      display: grid;
+      place-items: center;
+      background: #10191e;
+      border: 1px solid #4f6068;
+      cursor: pointer;
+    }
+    .roster-unit:hover { border-color: #b5c49f; }
+    .roster-unit.selected { border-color: #ffd66b; box-shadow: inset 0 0 0 2px rgba(255,214,107,.25); }
+    .roster-unit.deployed::after {
+      content: "場";
+      position: absolute;
+      right: 1px; top: 1px;
+      padding: 1px 2px;
+      color: #10201e;
+      background: #79e7d5;
+      font-size: 7px;
+      font-weight: 800;
+    }
+    .roster-unit .mini-icon { font-size: clamp(17px, 2vw, 23px); }
+    .rank-pips { position: absolute; left: 2px; right: 2px; bottom: 2px; display: flex; justify-content: center; gap: 1px; }
+    .rank-pips i { width: 5px; height: 3px; background: #ffd66b; box-shadow: 1px 1px 0 #513e1b; }
+    .empty-roster { grid-column: 1 / -1; min-height: 50px; display: grid; place-items: center; color: #718078; border: 1px dashed #48575e; font-size: 9px; }
+
+    .selected-card { min-height: 128px; }
+    .selected-main { display: grid; grid-template-columns: 56px 1fr; gap: 10px; align-items: start; }
+    .selected-avatar { width: 56px; height: 62px; display: grid; place-items: center; background: #111b20; border: 1px solid #607169; font-size: 31px; }
+    .selected-name { margin: 0 0 3px; font-size: 12px; color: #fff5ca; }
+    .selected-job { color: var(--cyan); font-size: 9px; }
+    .stat-lines { margin-top: 7px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; }
+    .stat-line { padding: 4px; background: #0e171c; text-align: center; font-size: 8px; color: var(--muted); }
+    .stat-line b { display: block; color: #f2efd8; font-size: 10px; margin-top: 2px; }
+    .skill-line { margin-top: 7px; color: #bdc9b3; font-size: 9px; line-height: 1.4; }
+    .selected-actions { display: flex; gap: 7px; margin-top: 9px; }
+
+    .start-btn {
+      width: 100%;
+      min-height: 58px;
+      padding: 9px 12px;
+      background: #3d725e;
+      box-shadow: inset 0 0 0 2px #9bd39f, 4px 4px 0 #071015;
+      color: #fff8d6;
+      border: 0;
+      cursor: pointer;
+      font-size: 15px;
+      font-weight: 800;
+      text-shadow: 2px 2px 0 #264838;
+    }
+    .start-btn span { display: block; margin-top: 3px; color: #cde7c7; font-size: 9px; font-weight: 400; }
+    .start-btn[disabled] { opacity: .5; filter: grayscale(.7); cursor: not-allowed; }
+
+    .keybar { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px 13px; margin-top: 12px; color: #6f7d78; font-size: 9px; }
+    kbd { padding: 1px 4px; color: #cdd8c8; background: #151f24; border: 1px solid #506068; box-shadow: 0 1px 0 #05090b; font: inherit; }
+
+    .modal-layer {
+      position: fixed;
+      inset: 0;
+      z-index: 50;
+      display: grid;
+      place-items: center;
+      padding: 20px;
+      background: rgba(3, 8, 11, .78);
+      backdrop-filter: blur(3px);
+    }
+    .modal-layer.hidden { display: none; }
+    .modal {
+      width: min(690px, 96vw);
+      padding: 24px;
+      background: #17232a;
+      border: 2px solid #080d10;
+      box-shadow: 0 0 0 2px #6f817b, 0 0 0 5px #090e12, 14px 14px 0 rgba(0,0,0,.45);
+    }
+    .modal-hero { display: grid; grid-template-columns: 130px 1fr; gap: 22px; align-items: center; }
+    .big-crystal {
+      width: 120px;
+      height: 145px;
+      position: relative;
+      margin: auto;
+      filter: drop-shadow(0 12px 0 rgba(0,0,0,.34));
+    }
+    .big-crystal::before {
+      content: "";
+      position: absolute;
+      inset: 4px 19px 24px;
+      background: linear-gradient(90deg, #53b8bb 0 25%, #a7f7e5 25% 53%, #6edbd2 53% 78%, #d8fff1 78%);
+      clip-path: polygon(50% 0, 100% 24%, 78% 100%, 22% 100%, 0 24%);
+      box-shadow: 0 0 24px rgba(102,230,218,.7);
+    }
+    .big-crystal::after {
+      content: "";
+      position: absolute;
+      left: 7px; right: 7px; bottom: 8px; height: 23px;
+      background: #6f678d;
+      box-shadow: inset 0 6px #a69bc4, 0 8px 0 #383446;
+    }
+    .modal h2 { margin: 0; color: #fff5c8; font-size: clamp(23px, 4vw, 38px); text-shadow: 3px 3px 0 #55405d; }
+    .modal .subtitle { margin: 9px 0 0; color: #9de8d7; font-size: 12px; }
+    .modal p { color: #b8c5b1; line-height: 1.7; font-size: 12px; }
+    .rule-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin: 18px 0; }
+    .rule { min-height: 90px; padding: 10px; background: #0f181d; border: 1px solid #4d5d64; }
+    .rule b { display: block; margin-bottom: 5px; color: #ffe4a6; font-size: 11px; }
+    .rule span { color: #95a59b; font-size: 9px; line-height: 1.5; }
+    .modal-actions { display: flex; justify-content: center; gap: 10px; }
+    .pixel-btn { min-width: 180px; min-height: 48px; padding: 10px 16px; font-weight: 800; }
+    .pixel-btn.primary { background: #437960; box-shadow: inset 0 0 0 2px #9bd39f, 4px 4px 0 #071015; }
+    .gameover-score { margin: 18px 0; padding: 13px; text-align: center; background: #0e171c; border: 1px solid #53636a; }
+    .gameover-score b { display: block; color: var(--gold); font-size: 28px; margin-top: 4px; }
+
+    @media (max-width: 1100px) {
+      .topbar { grid-template-columns: 1fr auto; }
+      .crystal-meter { grid-column: 1 / -1; width: 100%; }
+      .layout { grid-template-columns: minmax(0, 1fr) 310px; }
+      .arena-stage { min-height: 380px; }
+    }
+
+    @media (max-width: 820px) {
+      #app { padding: 8px; }
+      .topbar { margin-bottom: 10px; padding: 9px; gap: 8px; }
+      .brand p { display: none; }
+      .stats { gap: 4px; }
+      .stat-chip { min-width: 61px; padding: 6px; }
+      .stat-chip b { font-size: 14px; }
+      .top-actions { grid-column: 1 / -1; justify-content: stretch; }
+      .top-actions .icon-btn { flex: 1; }
+      .layout { grid-template-columns: 1fr; gap: 11px; }
+      .arena-stage { min-height: 0; }
+      .sidebar { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .sidebar > .start-wrap, .sidebar > .selected-card { grid-column: 1 / -1; }
+      .rally-btn { width: 160px; min-height: 50px; }
+      .rally-tip { display: none; }
+    }
+
+    @media (max-width: 560px) {
+      .brand-mark { width: 37px; height: 37px; }
+      .brand h1 { font-size: 16px; white-space: normal; }
+      .stats { width: 100%; }
+      .stat-chip { flex: 1; }
+      .layout { display: block; }
+      .sidebar { display: grid; grid-template-columns: 1fr; margin-top: 11px; }
+      .sidebar > * { grid-column: auto !important; }
+      .forecast-wrap { grid-template-columns: 84px 1fr; }
+      .compass { transform: scale(.91); transform-origin: top left; margin-right: -8px; }
+      .shop-grid { grid-template-columns: repeat(2, 1fr); }
+      .roster-grid { grid-template-columns: repeat(6, 1fr); }
+      .phase-badge { top: 7px; padding: 5px 9px; font-size: 9px; }
+      .command-dock { right: 8px; bottom: 8px; }
+      .rally-btn { width: 135px; min-height: 43px; padding: 6px 8px; }
+      .rally-btn strong { font-size: 12px; }
+      .rally-btn span { font-size: 7px; }
+      .battle-hud { left: 7px; bottom: 7px; gap: 4px; }
+      .hud-chip { font-size: 8px; padding: 4px 5px; }
+      .modal { padding: 17px; }
+      .modal-hero { grid-template-columns: 80px 1fr; gap: 10px; }
+      .big-crystal { width: 75px; height: 100px; }
+      .rule-grid { grid-template-columns: 1fr; }
+      .rule { min-height: auto; }
+    }
+  </style>
+</head>
+<body>
+  <div class="scanlines"></div>
+  <div id="app">
+    <header class="topbar pixel-panel">
+      <div class="brand">
+        <div class="brand-mark" aria-hidden="true"></div>
+        <div>
+          <h1>琉璃城：八方守晶</h1>
+          <p>原創像素戰棋守塔 · 招募、合成、部署、守住中央華麗水晶</p>
+        </div>
+      </div>
+
+      <div class="stats">
+        <div class="stat-chip"><span>回合</span><b id="roundValue">1</b></div>
+        <div class="stat-chip gold"><span>星幣</span><b id="goldValue">12</b></div>
+        <div class="stat-chip"><span>上陣</span><b id="capValue">0 / 3</b></div>
+      </div>
+
+      <div class="crystal-meter">
+        <div class="meter-row"><span>華麗水晶耐久</span><b id="crystalText">700 / 700</b></div>
+        <div class="meter"><i id="crystalFill"></i></div>
+      </div>
+
+      <div class="top-actions">
+        <button id="speedBtn" class="icon-btn" title="戰鬥速度">×1</button>
+        <button id="pauseBtn" class="icon-btn" title="暫停 / 繼續">Ⅱ</button>
+        <button id="muteBtn" class="icon-btn" title="音效開關">♪</button>
+      </div>
+    </header>
+
+    <main class="layout">
+      <section class="arena-shell pixel-panel">
+        <div class="arena-stage" id="arenaStage">
+          <canvas id="gameCanvas" width="960" height="720" aria-label="八方守晶戰場"></canvas>
+          <div id="phaseBadge" class="phase-badge">部署階段 · 點選棋子後再點格子</div>
+          <div class="battle-hud">
+            <div class="hud-chip" id="enemyHud">敵軍 0</div>
+            <div class="hud-chip" id="spawnHud">待出現 0</div>
+          </div>
+          <div class="command-dock">
+            <div class="rally-tip">會中斷所有棋子的當下攻擊與移動</div>
+            <button id="rallyBtn" class="rally-btn" disabled>
+              <strong>召集戰棋 <kbd>Q</kbd></strong>
+              <span id="rallyLabel">僅能在戰鬥中使用</span>
+            </button>
+          </div>
+          <div id="toast" class="toast"></div>
+        </div>
+      </section>
+
+      <aside class="sidebar">
+        <section class="side-card pixel-panel">
+          <div class="card-title"><h2>敵情預告</h2><small id="waveThreat">威脅：低</small></div>
+          <div class="forecast-wrap">
+            <div class="compass" aria-label="來襲方向">
+              <i class="dir-dot" data-dir="N">北</i><i class="dir-dot" data-dir="NE">↗</i>
+              <i class="dir-dot" data-dir="E">東</i><i class="dir-dot" data-dir="SE">↘</i>
+              <i class="dir-dot" data-dir="S">南</i><i class="dir-dot" data-dir="SW">↙</i>
+              <i class="dir-dot" data-dir="W">西</i><i class="dir-dot" data-dir="NW">↖</i>
+            </div>
+            <div class="forecast-list" id="forecastList"></div>
+          </div>
+        </section>
+
+        <section class="side-card pixel-panel">
+          <div class="card-title"><h2>本回合招募</h2><small>點卡片購買</small></div>
+          <div class="shop-grid" id="shopGrid"></div>
+          <div class="shop-actions">
+            <div class="fusion-note">三枚同職、同轉自動合成<br>一轉 → 二轉 → 三轉 → 四轉</div>
+            <button id="refreshBtn" class="small-btn">重抽 1幣 <kbd>R</kbd></button>
+          </div>
+        </section>
+
+        <section class="side-card pixel-panel">
+          <div class="card-title"><h2>戰棋名冊</h2><small>點選後部署</small></div>
+          <div class="roster-summary"><span id="rosterCount">0 / 15</span><span>金條 = 轉職階級</span></div>
+          <div class="roster-grid" id="rosterGrid"></div>
+        </section>
+
+        <section class="side-card pixel-panel selected-card">
+          <div class="card-title"><h2>棋子情報</h2><small id="selectedHint">尚未選取</small></div>
+          <div id="selectedContent"></div>
+        </section>
+
+        <section class="start-wrap">
+          <button id="startBattleBtn" class="start-btn" disabled>
+            開始迎擊 <kbd>Space</kbd>
+            <span id="startSub">至少部署 1 枚戰棋</span>
+          </button>
+          <div class="keybar">
+            <span><kbd>1–4</kbd> 招募</span><span><kbd>R</kbd> 重抽</span><span><kbd>Q</kbd> 召集</span><span><kbd>P</kbd> 暫停</span>
+          </div>
+        </section>
+      </aside>
+    </main>
+  </div>
+
+  <div class="modal-layer" id="introModal">
+    <div class="modal">
+      <div class="modal-hero">
+        <div class="big-crystal" aria-hidden="true"></div>
+        <div>
+          <h2>八方守晶</h2>
+          <div class="subtitle">不是站樁塔防，是會追敵、受傷、倒下的自動戰棋。</div>
+          <p>每回合先讀取敵情、招募與合成戰棋，再把角色部署到戰場。怪物會從預告方向湧向中央華麗水晶；你的戰棋會自行尋敵與交戰。</p>
+        </div>
+      </div>
+      <div class="rule-grid">
+        <div class="rule"><b>① 合成轉職</b><span>三枚同職同階會自動合成，依序成為一轉、二轉、三轉、四轉。</span></div>
+        <div class="rule"><b>② 戰前部署</b><span>先點名冊中的棋子，再點戰場格子。已上陣棋子也能互換位置。</span></div>
+        <div class="rule"><b>③ 召集有代價</b><span>戰鬥中按 Q 令全員撤向水晶，但會取消當下攻擊與移動指令。</span></div>
+      </div>
+      <div class="modal-actions"><button id="beginBtn" class="pixel-btn primary">開始守夜</button></div>
+    </div>
+  </div>
+
+  <div class="modal-layer hidden" id="gameoverModal">
+    <div class="modal" style="max-width:520px;text-align:center">
+      <h2>水晶碎裂</h2>
+      <p>琉璃城的夜色吞沒了最後一道光，但名冊仍記得這次守夜。</p>
+      <div class="gameover-score">本次守到第 <b id="finalRound">1</b> 回合</div>
+      <p id="recordText">最高紀錄：第 1 回合</p>
+      <div class="modal-actions"><button id="restartBtn" class="pixel-btn primary">重新部署</button></div>
+    </div>
+  </div>
+
+<script>
+(() => {
+  'use strict';
+
+  // ---------- DOM ----------
+  const $ = (s) => document.querySelector(s);
+  const $$ = (s) => [...document.querySelectorAll(s)];
+  const canvas = $('#gameCanvas');
+  const ctx = canvas.getContext('2d');
+  ctx.imageSmoothingEnabled = false;
+
+  const ui = {
+    round: $('#roundValue'), gold: $('#goldValue'), cap: $('#capValue'),
+    crystalText: $('#crystalText'), crystalFill: $('#crystalFill'),
+    phase: $('#phaseBadge'), enemyHud: $('#enemyHud'), spawnHud: $('#spawnHud'),
+    waveThreat: $('#waveThreat'), forecastList: $('#forecastList'), shopGrid: $('#shopGrid'),
+    rosterGrid: $('#rosterGrid'), rosterCount: $('#rosterCount'), selected: $('#selectedContent'),
+    selectedHint: $('#selectedHint'), refresh: $('#refreshBtn'), start: $('#startBattleBtn'),
+    startSub: $('#startSub'), rally: $('#rallyBtn'), rallyLabel: $('#rallyLabel'), toast: $('#toast'),
+    speed: $('#speedBtn'), pause: $('#pauseBtn'), mute: $('#muteBtn'), intro: $('#introModal'),
+    gameover: $('#gameoverModal'), begin: $('#beginBtn'), restart: $('#restartBtn'),
+    finalRound: $('#finalRound'), recordText: $('#recordText')
+  };
+
+  // ---------- Constants ----------
+  const W = 960, H = 720;
+  const CENTER = { x: W / 2, y: H / 2 };
+  const GRID = { x: 150, y: 90, cols: 11, rows: 9, cell: 60 };
+  const MAX_ROSTER = 15;
+  const RANK_LABELS = ['一轉', '二轉', '三轉', '四轉'];
+  const RANK_MULT = [1, 1.82, 3.12, 5.18];
+
+  const DIRS = [
+    { id: 'N',  name: '北',   angle: -Math.PI / 2, icon: '↑' },
+    { id: 'NE', name: '東北', angle: -Math.PI / 4, icon: '↗' },
+    { id: 'E',  name: '東',   angle: 0, icon: '→' },
+    { id: 'SE', name: '東南', angle: Math.PI / 4, icon: '↘' },
+    { id: 'S',  name: '南',   angle: Math.PI / 2, icon: '↓' },
+    { id: 'SW', name: '西南', angle: Math.PI * 3 / 4, icon: '↙' },
+    { id: 'W',  name: '西',   angle: Math.PI, icon: '←' },
+    { id: 'NW', name: '西北', angle: -Math.PI * 3 / 4, icon: '↖' }
+  ];
+
+  const FAMILIES = {
+    blade: {
+      icon: '⚔', hue: '#d8e2df', accent: '#6c93a5',
+      names: ['劍士', '騎士', '符文近衛', '龍紋領主'],
+      role: '近戰守衛', skill: '高耐久與減傷；交戰時能拉住附近怪物。',
+      base: { hp: 175, atk: 18, range: 29, speed: 52, cd: .78, detect: 300, armor: .18 }
+    },
+    bow: {
+      icon: '➹', hue: '#b9db86', accent: '#5f8a62',
+      names: ['弓手', '神射手', '鷹眼遊俠', '星界狙擊'],
+      role: '遠程輸出', skill: '遠距離追擊；高轉職後箭矢能穿透第二個目標。',
+      base: { hp: 102, atk: 17, range: 205, speed: 50, cd: .88, detect: 390 }
+    },
+    arcane: {
+      icon: '✦', hue: '#d1adff', accent: '#765a9c',
+      names: ['法師', '巫師', '元素術士', '天象賢者'],
+      role: '範圍法術', skill: '法球命中後造成範圍傷害，適合處理密集來襲。',
+      base: { hp: 88, atk: 25, range: 174, speed: 43, cd: 1.24, detect: 360, splash: 42 }
+    },
+    light: {
+      icon: '✚', hue: '#fff1b0', accent: '#c7906d',
+      names: ['服事', '祭司', '聖光主教', '神諭守護'],
+      role: '治療支援', skill: '優先治療受傷隊友；沒有人受傷時才投射聖光攻擊。',
+      base: { hp: 116, atk: 10, heal: 24, range: 165, speed: 46, cd: 1.08, detect: 330 }
+    },
+    shade: {
+      icon: '◆', hue: '#b8a6d8', accent: '#554765',
+      names: ['盜賊', '刺客', '影刃', '幻影夜行'],
+      role: '高速刺殺', skill: '攻速與移速極快，攻擊有機率造成暴擊。',
+      base: { hp: 108, atk: 14, range: 28, speed: 76, cd: .46, detect: 340, crit: .28 }
+    },
+    gel: {
+      icon: '●', hue: '#9decb3', accent: '#4d9e7a',
+      names: ['嫩芽軟泥', '彩芽靈', '王冠膠獸', '星核史萊姆'],
+      role: '怪物坦克', skill: '血量極高，攻擊會使怪物緩速並擴大自身吸引範圍。',
+      base: { hp: 220, atk: 11, range: 31, speed: 39, cd: 1.0, detect: 280, slow: .35 }
+    }
+  };
+
+  const ENEMIES = {
+    sprout: { name: '苔芽獸', icon: '♣', color: '#79bb6c', hp: 48, atk: 7, speed: 31, range: 26, cd: 1.0, radius: 13, unlock: 1, threat: 1 },
+    moth:   { name: '針翅蟲', icon: '⌁', color: '#e3c975', hp: 36, atk: 6, speed: 57, range: 23, cd: .78, radius: 11, unlock: 2, threat: 1 },
+    fungus: { name: '紫帽菇', icon: '♠', color: '#bc83ca', hp: 92, atk: 11, speed: 23, range: 29, cd: 1.16, radius: 16, unlock: 3, threat: 2 },
+    golem:  { name: '頁岩巨像', icon: '■', color: '#9f9a82', hp: 190, atk: 16, speed: 17, range: 34, cd: 1.32, radius: 21, unlock: 4, threat: 3, armor: .16 },
+    shaman: { name: '燭角巫獸', icon: '⌃', color: '#e28372', hp: 74, atk: 10, speed: 22, range: 138, cd: 1.42, radius: 14, unlock: 5, threat: 3, ranged: true },
+    wolf:   { name: '月紋獵狼', icon: '≋', color: '#9bb5c4', hp: 132, atk: 14, speed: 43, range: 28, cd: .82, radius: 17, unlock: 6, threat: 3 },
+    monarch:{ name: '荒角王獸', icon: '♛', color: '#d99159', hp: 620, atk: 25, speed: 19, range: 39, cd: 1.02, radius: 29, unlock: 5, threat: 8, boss: true, armor: .12 }
+  };
+
+  const FAMILY_KEYS = Object.keys(FAMILIES);
+  const ENEMY_KEYS = Object.keys(ENEMIES).filter(k => k !== 'monarch');
+
+  // ---------- Game state ----------
+  const state = {
+    mode: 'intro',
+    round: 1,
+    gold: 12,
+    crystal: { hp: 700, maxHp: 700, flash: 0 },
+    roster: [],
+    selectedId: null,
+    shop: [],
+    wave: null,
+    enemies: [],
+    projectiles: [],
+    particles: [],
+    texts: [],
+    nextUnitId: 1,
+    nextEnemyId: 1,
+    battleTime: 0,
+    spawnIndex: 0,
+    rallyCooldown: 0,
+    rallyPulse: 0,
+    paused: false,
+    speed: 1,
+    muted: false,
+    resultTimer: 0,
+    screenShake: 0,
+    lastTs: 0,
+    toastTimer: 0,
+    rngSeed: (Date.now() ^ 0x5f3759df) >>> 0,
+    best: loadBest()
+  };
+
+  // ---------- Utility ----------
+  function loadBest() {
+    try { return Number(localStorage.getItem('crystalVanguardBest') || 0); }
+    catch (_) { return 0; }
+  }
+  function saveBest(value) {
+    try { localStorage.setItem('crystalVanguardBest', String(value)); }
+    catch (_) { /* Storage can be blocked in embedded previews; gameplay still works. */ }
+  }
+
+  const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
+  const lerp = (a, b, t) => a + (b - a) * t;
+  const dist = (a, b) => Math.hypot(a.x - b.x, a.y - b.y);
+  const snap = (v) => Math.round(v);
+  const escapeHtml = (s) => String(s).replace(/[&<>'"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]));
+
+  function mulberry32(seed) {
+    return function() {
+      let t = seed += 0x6D2B79F5;
+      t = Math.imul(t ^ t >>> 15, t | 1);
+      t ^= t + Math.imul(t ^ t >>> 7, t | 61);
+      return ((t ^ t >>> 14) >>> 0) / 4294967296;
+    };
+  }
+
+  function weightedPick(items, weights, rng = Math.random) {
+    let total = weights.reduce((a,b) => a + b, 0);
+    let roll = rng() * total;
+    for (let i = 0; i < items.length; i++) {
+      roll -= weights[i];
+      if (roll <= 0) return items[i];
+    }
+    return items[items.length - 1];
+  }
+
+  function cellCenter(gx, gy) {
+    return { x: GRID.x + gx * GRID.cell + GRID.cell / 2, y: GRID.y + gy * GRID.cell + GRID.cell / 2 };
+  }
+
+  function pointToCell(x, y) {
+    const gx = Math.floor((x - GRID.x) / GRID.cell);
+    const gy = Math.floor((y - GRID.y) / GRID.cell);
+    if (gx < 0 || gy < 0 || gx >= GRID.cols || gy >= GRID.rows) return null;
+    return { gx, gy };
+  }
+
+  function isReservedCell(gx, gy) {
+    return gx === Math.floor(GRID.cols / 2) && gy === Math.floor(GRID.rows / 2);
+  }
+
+  function boardUnits() { return state.roster.filter(u => u.gx != null && u.gy != null); }
+  function benchUnits() { return state.roster.filter(u => u.gx == null || u.gy == null); }
+  function boardCap() { return Math.min(9, 3 + Math.floor((state.round - 1) / 2)); }
+  function getUnit(id) { return state.roster.find(u => u.id === id); }
+  function getEnemy(id) { return state.enemies.find(e => e.id === id); }
+  function unitAtCell(gx, gy) { return state.roster.find(u => u.gx === gx && u.gy === gy); }
+
+  function unitStats(family, rank) {
+    const f = FAMILIES[family];
+    const m = RANK_MULT[rank - 1];
+    return {
+      maxHp: Math.round(f.base.hp * m),
+      atk: Math.round(f.base.atk * m),
+      heal: f.base.heal ? Math.round(f.base.heal * m) : 0,
+      range: f.base.range + (rank - 1) * 4,
+      speed: f.base.speed * (1 + (rank - 1) * .035),
+      cd: Math.max(.26, f.base.cd * (1 - (rank - 1) * .055)),
+      detect: f.base.detect + (rank - 1) * 25,
+      armor: clamp((f.base.armor || 0) + (rank - 1) * .035, 0, .48),
+      splash: f.base.splash ? f.base.splash + (rank - 1) * 10 : 0,
+      crit: f.base.crit ? f.base.crit + (rank - 1) * .035 : 0,
+      slow: f.base.slow ? f.base.slow + (rank - 1) * .04 : 0
+    };
+  }
+
+  function makeUnit(family, rank = 1) {
+    const u = {
+      id: state.nextUnitId++, family, rank, gx: null, gy: null,
+      x: CENTER.x, y: CENTER.y, hp: 1, maxHp: 1, alive: true,
+      attackTimer: Math.random() * .4, retargetTimer: 0, targetId: null,
+      attackFlash: 0, hitFlash: 0, facing: 1, forced: null,
+      commandLock: 0, slowTimer: 0, rallying: false
+    };
+    applyStats(u, true);
+    return u;
+  }
+
+  function applyStats(u, refill = false) {
+    const prevMax = u.maxHp || 1;
+    const s = unitStats(u.family, u.rank);
+    Object.assign(u, s);
+    if (refill) u.hp = s.maxHp;
+    else u.hp = Math.min(s.maxHp, u.hp * s.maxHp / prevMax);
+  }
+
+  function resetUnitForBattle(u) {
+    applyStats(u, true);
+    const p = cellCenter(u.gx, u.gy);
+    u.x = p.x; u.y = p.y;
+    u.alive = true; u.attackTimer = Math.random() * .45; u.retargetTimer = 0;
+    u.targetId = null; u.attackFlash = 0; u.hitFlash = 0; u.forced = null;
+    u.commandLock = 0; u.rallying = false; u.slowTimer = 0;
+  }
+
+  function showToast(message, kind = '') {
+    ui.toast.textContent = message;
+    ui.toast.className = 'toast show' + (kind ? ' ' + kind : '');
+    state.toastTimer = 2.25;
+  }
+
+  function threatLabel(score) {
+    if (score < 13) return '低';
+    if (score < 25) return '中';
+    if (score < 42) return '高';
+    if (score < 65) return '危險';
+    return '災厄';
+  }
+
+  // ---------- Audio ----------
+  let audioCtx = null;
+  function ensureAudio() {
+    if (!audioCtx) {
+      const AC = window.AudioContext || window.webkitAudioContext;
+      if (AC) audioCtx = new AC();
+    }
+    if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
+  }
+
+  function sfx(type) {
+    if (state.muted) return;
+    ensureAudio();
+    if (!audioCtx) return;
+    const now = audioCtx.currentTime;
+    const o = audioCtx.createOscillator();
+    const g = audioCtx.createGain();
+    const table = {
+      buy: [560, 760, .08, 'square'], merge: [380, 920, .28, 'triangle'],
+      hit: [130, 70, .045, 'square'], shoot: [620, 430, .035, 'square'],
+      heal: [530, 780, .11, 'sine'], rally: [180, 420, .32, 'sawtooth'],
+      crystal: [90, 48, .1, 'square'], win: [420, 840, .34, 'triangle'],
+      bad: [150, 105, .12, 'sawtooth']
+    };
+    const v = table[type] || table.hit;
+    o.type = v[3]; o.frequency.setValueAtTime(v[0], now); o.frequency.exponentialRampToValueAtTime(Math.max(20, v[1]), now + v[2]);
+    g.gain.setValueAtTime(.045, now); g.gain.exponentialRampToValueAtTime(.001, now + v[2]);
+    o.connect(g); g.connect(audioCtx.destination); o.start(now); o.stop(now + v[2]);
+  }
+
+  // ---------- Wave generation ----------
+  function generateWave(round) {
+    const rng = mulberry32((state.rngSeed + round * 0x9E3779B9) >>> 0);
+    let dirCount = round <= 1 ? 1 : round <= 3 ? 2 : Math.min(8, 2 + Math.floor(round / 3));
+    if (round > 4 && rng() < .42) dirCount = Math.min(8, dirCount + 1);
+    const shuffled = [...DIRS].sort(() => rng() - .5);
+    const directions = shuffled.slice(0, dirCount).sort((a,b) => DIRS.indexOf(a) - DIRS.indexOf(b));
+
+    let count = 5 + round * 2 + Math.floor(round * .55);
+    const bossWave = round % 5 === 0;
+    if (bossWave) count = Math.max(8, count - 3);
+    const unlocked = ENEMY_KEYS.filter(k => ENEMIES[k].unlock <= round);
+    const weights = unlocked.map(k => {
+      const e = ENEMIES[k];
+      const age = round - e.unlock;
+      if (k === 'sprout') return Math.max(1.4, 6 - round * .24);
+      if (k === 'moth') return 3.5;
+      if (k === 'fungus') return 2.7 + Math.min(2, age * .2);
+      if (k === 'golem') return 1.1 + Math.min(2.3, age * .25);
+      if (k === 'shaman') return .9 + Math.min(2.1, age * .24);
+      if (k === 'wolf') return 1.0 + Math.min(2.2, age * .22);
+      return 1;
+    });
+
+    const duration = 9 + Math.min(22, round * .9);
+    const spawns = [];
+    for (let i = 0; i < count; i++) {
+      const type = weightedPick(unlocked, weights, rng);
+      const dir = directions[Math.floor(rng() * directions.length)];
+      const cluster = Math.floor(i / Math.max(2, Math.floor(count / Math.max(1, directions.length * 2))));
+      const time = .55 + (i / Math.max(1, count - 1)) * duration + cluster * .08 + rng() * .65;
+      spawns.push({ type, dir, time });
+    }
+    if (bossWave) {
+      const dir = directions[Math.floor(rng() * directions.length)];
+      spawns.push({ type: 'monarch', dir, time: duration * .58 });
+    }
+    spawns.sort((a,b) => a.time - b.time);
+
+    const counts = {};
+    let threat = 0;
+    for (const s of spawns) {
+      counts[s.type] = (counts[s.type] || 0) + 1;
+      threat += ENEMIES[s.type].threat;
+    }
+    return { round, directions, spawns, counts, threat, bossWave };
+  }
+
+  function makeEnemy(type, dir) {
+    const base = ENEMIES[type];
+    const scaleHp = 1 + (state.round - 1) * .115 + Math.max(0, state.round - 8) * .014;
+    const scaleAtk = 1 + (state.round - 1) * .058;
+    const angle = dir.angle + (Math.random() - .5) * .23;
+    const radius = 455 + Math.random() * 34;
+    const x = CENTER.x + Math.cos(angle) * radius;
+    const y = CENTER.y + Math.sin(angle) * radius;
+    return {
+      id: state.nextEnemyId++, type, x, y,
+      hp: Math.round(base.hp * scaleHp), maxHp: Math.round(base.hp * scaleHp),
+      atk: Math.round(base.atk * scaleAtk), speed: base.speed * (1 + Math.min(.18, state.round * .008)),
+      range: base.range, cd: base.cd, radius: base.radius,
+      alive: true, attackTimer: Math.random() * .4, targetUnitId: null,
+      hitFlash: 0, attackFlash: 0, facing: Math.cos(angle) > 0 ? -1 : 1,
+      slowTimer: 0, slowAmount: 0, armor: base.armor || 0
+    };
+  }
+
+  // ---------- Shop and fusion ----------
+  function rollShop(free = false) {
+    if (state.mode !== 'prep') return;
+    if (!free) {
+      if (state.gold < 1) { showToast('星幣不足，無法重抽。', 'bad'); sfx('bad'); return; }
+      state.gold -= 1;
+    }
+    const rng = Math.random;
+    state.shop = Array.from({ length: 4 }, () => ({ family: weightedPick(FAMILY_KEYS, [4,4,3.5,3.1,3.6,2.7], rng), sold: false }));
+    renderAllUI();
+  }
+
+  function buyOffer(index) {
+    if (state.mode !== 'prep') return;
+    const offer = state.shop[index];
+    if (!offer || offer.sold) return;
+    if (state.gold < 3) { showToast('招募需要 3 枚星幣。', 'bad'); sfx('bad'); return; }
+    if (state.roster.length >= MAX_ROSTER) { showToast('名冊已滿，先合成或整理戰棋。', 'bad'); sfx('bad'); return; }
+    state.gold -= 3;
+    offer.sold = true;
+    const u = makeUnit(offer.family, 1);
+    state.roster.push(u);
+    state.selectedId = u.id;
+    sfx('buy');
+    showToast(`招募了 ${FAMILIES[u.family].names[0]}。`);
+    tryFuse(u.family, 1);
+    renderAllUI();
+  }
+
+  function tryFuse(family, rank) {
+    if (rank >= 4) return;
+    let candidates = state.roster.filter(u => u.family === family && u.rank === rank);
+    while (candidates.length >= 3) {
+      candidates.sort((a,b) => (b.gx != null) - (a.gx != null));
+      const consumed = candidates.slice(0, 3);
+      const anchor = consumed.find(u => u.gx != null) || consumed[0];
+      const pos = { gx: anchor.gx, gy: anchor.gy };
+      const ids = new Set(consumed.map(u => u.id));
+      state.roster = state.roster.filter(u => !ids.has(u.id));
+      const upgraded = makeUnit(family, rank + 1);
+      upgraded.gx = pos.gx; upgraded.gy = pos.gy;
+      if (upgraded.gx != null) {
+        const p = cellCenter(upgraded.gx, upgraded.gy);
+        upgraded.x = p.x; upgraded.y = p.y;
+      }
+      state.roster.push(upgraded);
+      state.selectedId = upgraded.id;
+      sfx('merge');
+      burst(upgraded.x, upgraded.y, FAMILIES[family].hue, 22, 86);
+      floatText(upgraded.x, upgraded.y - 36, `${RANK_LABELS[rank]}！`, '#ffe58b', 1.15);
+      showToast(`轉職成功：${FAMILIES[family].names[rank]}！`, 'good');
+      rank += 1;
+      if (rank >= 4) break;
+      candidates = state.roster.filter(u => u.family === family && u.rank === rank);
+    }
+  }
+
+  // ---------- Deployment ----------
+  function selectUnit(id) {
+    if (!getUnit(id)) return;
+    state.selectedId = id;
+    renderRoster();
+    renderSelected();
+  }
+
+  function deploySelected(gx, gy) {
+    if (state.mode !== 'prep') return;
+    const u = getUnit(state.selectedId);
+    if (!u) { showToast('先從名冊或戰場選一枚戰棋。'); return; }
+    if (isReservedCell(gx, gy)) { showToast('華麗水晶所在位置不能部署。', 'bad'); return; }
+    const occupied = unitAtCell(gx, gy);
+    if (occupied && occupied.id === u.id) return;
+
+    if (u.gx == null && boardUnits().length >= boardCap()) {
+      showToast(`本回合最多上陣 ${boardCap()} 枚戰棋。`, 'bad'); sfx('bad'); return;
+    }
+
+    if (occupied) {
+      if (u.gx != null) {
+        const old = { gx: u.gx, gy: u.gy };
+        occupied.gx = old.gx; occupied.gy = old.gy;
+        const op = cellCenter(occupied.gx, occupied.gy); occupied.x = op.x; occupied.y = op.y;
+      } else {
+        showToast('格子已有戰棋；先選它移開，或使用「收回待命區」。', 'bad'); return;
+      }
+    }
+
+    u.gx = gx; u.gy = gy;
+    const p = cellCenter(gx, gy); u.x = p.x; u.y = p.y;
+    sfx('buy');
+    renderAllUI();
+  }
+
+  function benchSelected() {
+    if (state.mode !== 'prep') return;
+    const u = getUnit(state.selectedId);
+    if (!u || u.gx == null) return;
+    u.gx = null; u.gy = null;
+    showToast(`${FAMILIES[u.family].names[u.rank - 1]} 已回到待命區。`);
+    renderAllUI();
+  }
+
+  // ---------- Battle ----------
+  function startBattle() {
+    if (state.mode !== 'prep') return;
+    if (boardUnits().length === 0) { showToast('至少部署 1 枚戰棋。', 'bad'); return; }
+    ensureAudio();
+    state.mode = 'battle';
+    state.battleTime = 0; state.spawnIndex = 0;
+    state.enemies = []; state.projectiles = []; state.particles = []; state.texts = [];
+    state.rallyCooldown = 0; state.rallyPulse = 0; state.paused = false;
+    boardUnits().forEach(resetUnitForBattle);
+    ui.phase.textContent = `第 ${state.round} 回合 · 八方迎擊`;
+    ui.phase.classList.add('battle');
+    showToast('敵軍開始接近華麗水晶！');
+    renderAllUI();
+  }
+
+  function rally() {
+    if (state.mode !== 'battle' || state.paused) return;
+    if (state.rallyCooldown > 0) { showToast(`召集仍在冷卻：${state.rallyCooldown.toFixed(1)} 秒`, 'bad'); return; }
+    const units = boardUnits().filter(u => u.alive);
+    if (!units.length) return;
+    const ordered = [...units].sort((a,b) => Math.atan2(a.y-CENTER.y,a.x-CENTER.x)-Math.atan2(b.y-CENTER.y,b.x-CENTER.x));
+    const ring = ordered.length <= 5 ? 78 : 92;
+    ordered.forEach((u, i) => {
+      const a = -Math.PI / 2 + i / ordered.length * Math.PI * 2;
+      u.forced = { x: CENTER.x + Math.cos(a) * ring, y: CENTER.y + Math.sin(a) * ring, ttl: 2.65 };
+      u.commandLock = .58;
+      u.rallying = true;
+      u.targetId = null;
+      u.attackTimer = Math.max(u.attackTimer, .62);
+      floatText(u.x, u.y - 30, '召集！', '#ffd3a0', .68);
+    });
+    state.projectiles = state.projectiles.filter(p => p.sourceSide !== 'unit');
+    state.rallyCooldown = 13;
+    state.rallyPulse = 1;
+    burst(CENTER.x, CENTER.y, '#ffd0a0', 36, 145);
+    state.screenShake = 5;
+    sfx('rally');
+    showToast('召集令下達：所有戰棋取消當下行動並撤向水晶。');
+    renderAllUI();
+  }
+
+  function updateBattle(dt) {
+    state.battleTime += dt;
+    state.rallyCooldown = Math.max(0, state.rallyCooldown - dt);
+    state.rallyPulse = Math.max(0, state.rallyPulse - dt * .75);
+
+    while (state.spawnIndex < state.wave.spawns.length && state.wave.spawns[state.spawnIndex].time <= state.battleTime) {
+      const s = state.wave.spawns[state.spawnIndex++];
+      const e = makeEnemy(s.type, s.dir);
+      state.enemies.push(e);
+      burst(e.x, e.y, ENEMIES[s.type].color, 7, 35);
+    }
+
+    for (const u of boardUnits()) updateUnit(u, dt);
+    for (const e of state.enemies) updateEnemy(e, dt);
+    updateProjectiles(dt);
+
+    state.enemies = state.enemies.filter(e => e.alive || e.deathTimer > 0);
+
+    if (state.crystal.hp <= 0) {
+      endGame();
+      return;
+    }
+
+    const living = state.enemies.some(e => e.alive);
+    const pending = state.spawnIndex < state.wave.spawns.length;
+    if (!living && !pending && state.mode === 'battle') finishWave();
+  }
+
+  function updateUnit(u, dt) {
+    if (!u.alive) return;
+    u.attackTimer -= dt; u.retargetTimer -= dt; u.attackFlash = Math.max(0, u.attackFlash - dt); u.hitFlash = Math.max(0, u.hitFlash - dt); u.commandLock = Math.max(0, u.commandLock - dt);
+
+    if (u.forced) {
+      u.forced.ttl -= dt;
+      const d = Math.hypot(u.forced.x-u.x, u.forced.y-u.y);
+      if (d > 7 && u.commandLock <= 0) moveEntity(u, u.forced.x, u.forced.y, u.speed * 1.12, dt, 3);
+      if (d <= 7 || u.forced.ttl <= 0) { u.forced = null; u.rallying = false; u.retargetTimer = 0; }
+      return;
+    }
+    if (u.commandLock > 0) return;
+
+    const family = FAMILIES[u.family];
+    if (u.family === 'light') {
+      const wounded = boardUnits().filter(a => a.alive && a.hp < a.maxHp * .88 && dist(u,a) <= u.range + 90).sort((a,b) => a.hp/a.maxHp - b.hp/b.maxHp)[0];
+      if (wounded && u.attackTimer <= 0 && dist(u,wounded) <= u.range) {
+        performUnitHeal(u, wounded); return;
+      }
+    }
+
+    let target = getEnemy(u.targetId);
+    if (!target || !target.alive || dist(u, target) > u.detect * 1.28 || u.retargetTimer <= 0) {
+      target = nearestEnemy(u, u.detect);
+      u.targetId = target ? target.id : null;
+      u.retargetTimer = .24 + Math.random() * .18;
+    }
+
+    if (!target) {
+      const home = cellCenter(u.gx, u.gy);
+      if (dist(u, home) > 10) moveEntity(u, home.x, home.y, u.speed * .62, dt, 5);
+      return;
+    }
+
+    const d = dist(u, target);
+    const stop = u.range + target.radius * .45;
+    u.facing = target.x >= u.x ? 1 : -1;
+    if (d > stop) moveEntity(u, target.x, target.y, u.speed, dt, stop - 3);
+    else if (u.attackTimer <= 0) performUnitAttack(u, target);
+  }
+
+  function nearestEnemy(from, maxD = Infinity) {
+    let best = null, bd = maxD;
+    for (const e of state.enemies) {
+      if (!e.alive) continue;
+      const d = dist(from, e);
+      if (d < bd) { bd = d; best = e; }
+    }
+    return best;
+  }
+
+  function performUnitAttack(u, target) {
+    u.attackTimer = u.cd;
+    u.attackFlash = .16;
+    if (u.family === 'shade' && Math.random() < u.crit) {
+      dealDamage(target, Math.round(u.atk * 2.15), 'unit', true);
+      floatText(target.x, target.y - 28, '暴擊', '#ffe87a', .72);
+      sfx('hit');
+      return;
+    }
+
+    if (u.range > 70 || u.family === 'arcane' || u.family === 'light') {
+      const kind = u.family === 'arcane' ? 'arcane' : u.family === 'bow' ? 'arrow' : 'light';
+      state.projectiles.push({
+        x: u.x, y: u.y - 14, target, speed: kind === 'arrow' ? 430 : 310,
+        damage: u.atk, kind, splash: u.splash || 0, sourceSide: 'unit',
+        pierce: u.family === 'bow' && u.rank >= 3 ? 1 : 0, trail: []
+      });
+      sfx('shoot');
+    } else {
+      dealDamage(target, u.atk, 'unit');
+      if (u.family === 'gel') { target.slowTimer = 1.45; target.slowAmount = u.slow; }
+      if (u.family === 'blade') {
+        for (const e of state.enemies) if (e.alive && dist(u,e) < 82) e.targetUnitId = u.id;
+      }
+      sfx('hit');
+    }
+  }
+
+  function performUnitHeal(u, ally) {
+    u.attackTimer = u.cd;
+    u.attackFlash = .2;
+    state.projectiles.push({ x: u.x, y: u.y - 16, target: ally, speed: 290, damage: u.heal, kind: 'heal', sourceSide: 'unit', trail: [] });
+    sfx('heal');
+  }
+
+  function updateEnemy(e, dt) {
+    if (!e.alive) { e.deathTimer -= dt; return; }
+    e.attackTimer -= dt; e.hitFlash = Math.max(0, e.hitFlash - dt); e.attackFlash = Math.max(0, e.attackFlash - dt); e.slowTimer = Math.max(0, e.slowTimer - dt);
+    const base = ENEMIES[e.type];
+
+    let targetUnit = getUnit(e.targetUnitId);
+    if (!targetUnit || !targetUnit.alive || dist(e, targetUnit) > (base.ranged ? 230 : 115)) targetUnit = null;
+
+    if (!targetUnit) {
+      let aggro = base.ranged ? 170 : 76;
+      let bestD = aggro;
+      for (const u of boardUnits()) {
+        if (!u.alive) continue;
+        let radius = aggro;
+        if (u.family === 'gel') radius += 54;
+        const d = dist(e, u);
+        if (d < radius && d < bestD + (u.family === 'gel' ? 54 : 0)) { bestD = d; targetUnit = u; }
+      }
+      e.targetUnitId = targetUnit ? targetUnit.id : null;
+    }
+
+    const target = targetUnit || CENTER;
+    const targetRadius = targetUnit ? 12 : 34;
+    const d = Math.hypot(e.x - target.x, e.y - target.y);
+    const stop = e.range + targetRadius * .5;
+    e.facing = target.x >= e.x ? 1 : -1;
+    const speedScale = e.slowTimer > 0 ? 1 - e.slowAmount : 1;
+
+    if (d > stop) {
+      moveEntity(e, target.x, target.y, e.speed * speedScale, dt, stop - 2);
+    } else if (e.attackTimer <= 0) {
+      e.attackTimer = e.cd;
+      e.attackFlash = .18;
+      if (base.ranged) {
+        state.projectiles.push({ x: e.x, y: e.y - 12, target: targetUnit || state.crystal, targetPoint: targetUnit ? null : CENTER, speed: 250, damage: e.atk, kind: 'enemyOrb', sourceSide: 'enemy', trail: [] });
+      } else if (targetUnit) {
+        damageUnit(targetUnit, e.atk);
+      } else {
+        damageCrystal(e.atk);
+      }
+    }
+  }
+
+  function moveEntity(o, tx, ty, speed, dt, stop = 0) {
+    const dx = tx - o.x, dy = ty - o.y;
+    const d = Math.hypot(dx, dy) || 1;
+    if (d <= stop) return;
+    const step = Math.min(d - stop, speed * dt);
+    o.x += dx / d * step;
+    o.y += dy / d * step;
+  }
+
+  function dealDamage(target, amount, source = 'unit', crit = false) {
+    if (!target || !target.alive) return;
+    const reduced = Math.max(1, Math.round(amount * (1 - (target.armor || 0))));
+    target.hp -= reduced;
+    target.hitFlash = .11;
+    floatText(target.x, target.y - target.radius - 10, `-${reduced}`, crit ? '#fff27f' : '#ffd0bd', .58);
+    burst(target.x, target.y, source === 'unit' ? '#fff0b1' : '#ff8b83', crit ? 9 : 4, crit ? 72 : 42);
+    if (target.hp <= 0) killEnemy(target);
+  }
+
+  function killEnemy(e) {
+    if (!e.alive) return;
+    e.alive = false; e.deathTimer = .32;
+    burst(e.x, e.y, ENEMIES[e.type].color, ENEMIES[e.type].boss ? 34 : 12, ENEMIES[e.type].boss ? 125 : 75);
+    if (ENEMIES[e.type].boss) { state.screenShake = 9; floatText(e.x, e.y - 40, '王獸擊破！', '#ffe28a', 1.1); }
+  }
+
+  function damageUnit(u, amount) {
+    if (!u.alive) return;
+    const reduced = Math.max(1, Math.round(amount * (1 - (u.armor || 0))));
+    u.hp -= reduced; u.hitFlash = .12;
+    floatText(u.x, u.y - 30, `-${reduced}`, '#ffaaa2', .54);
+    burst(u.x, u.y, '#ff8d83', 5, 45);
+    sfx('hit');
+    if (u.hp <= 0) {
+      u.hp = 0; u.alive = false; u.targetId = null; u.forced = null;
+      burst(u.x, u.y, FAMILIES[u.family].hue, 14, 78);
+      floatText(u.x, u.y - 28, '倒下', '#b9b5b2', .8);
+    }
+  }
+
+  function damageCrystal(amount) {
+    const dmg = Math.max(1, Math.round(amount));
+    state.crystal.hp = Math.max(0, state.crystal.hp - dmg);
+    state.crystal.flash = .18; state.screenShake = Math.min(10, state.screenShake + 3.5);
+    floatText(CENTER.x + (Math.random()-.5)*30, CENTER.y - 66, `-${dmg}`, '#ff8f89', .67);
+    burst(CENTER.x, CENTER.y, '#8ff2e2', 10, 75);
+    sfx('crystal');
+    updateTopStats();
+  }
+
+  function updateProjectiles(dt) {
+    for (const p of state.projectiles) {
+      if (p.dead) continue;
+      let tx, ty, valid = true;
+      if (p.targetPoint) { tx = p.targetPoint.x; ty = p.targetPoint.y; }
+      else if (p.target && (p.target.alive !== false || p.kind === 'heal')) { tx = p.target.x; ty = p.target.y - (p.kind === 'heal' ? 6 : 0); }
+      else valid = false;
+      if (!valid) { p.dead = true; continue; }
+      p.trail ||= [];
+      p.trail.push({ x: p.x, y: p.y, life: .15 });
+      if (p.trail.length > 6) p.trail.shift();
+      p.trail.forEach(t => t.life -= dt);
+      const dx = tx - p.x, dy = ty - p.y;
+      const d = Math.hypot(dx, dy) || 1;
+      const step = p.speed * dt;
+      if (d <= step + 5) {
+        p.x = tx; p.y = ty; p.dead = true;
+        resolveProjectile(p);
+      } else {
+        p.x += dx / d * step; p.y += dy / d * step;
+      }
+    }
+    state.projectiles = state.projectiles.filter(p => !p.dead);
+  }
+
+  function resolveProjectile(p) {
+    if (p.kind === 'heal') {
+      const t = p.target;
+      if (t && t.alive) {
+        const before = t.hp;
+        t.hp = Math.min(t.maxHp, t.hp + p.damage);
+        floatText(t.x, t.y - 34, `+${Math.round(t.hp-before)}`, '#a7ffc1', .68);
+        burst(t.x, t.y, '#caffb5', 8, 52);
+      }
+      return;
+    }
+    if (p.sourceSide === 'enemy') {
+      if (p.targetPoint) damageCrystal(p.damage);
+      else if (p.target && p.target.alive) damageUnit(p.target, p.damage);
+      return;
+    }
+    const t = p.target;
+    if (!t || !t.alive) return;
+    dealDamage(t, p.damage, 'unit');
+    if (p.splash > 0) {
+      for (const e of state.enemies) {
+        if (e.alive && e.id !== t.id && dist(e, t) <= p.splash) dealDamage(e, Math.round(p.damage * .58), 'unit');
+      }
+      burst(t.x, t.y, '#c6a2ff', 15, 84);
+    }
+    if (p.pierce > 0) {
+      const second = state.enemies.filter(e => e.alive && e.id !== t.id && dist(e,t) < 105).sort((a,b)=>dist(a,t)-dist(b,t))[0];
+      if (second) dealDamage(second, Math.round(p.damage * .52), 'unit');
+    }
+  }
+
+  function finishWave() {
+    if (state.mode !== 'battle') return;
+    state.mode = 'result';
+    const hpRatio = state.crystal.hp / state.crystal.maxHp;
+    const bonus = hpRatio > .8 ? 2 : hpRatio > .45 ? 1 : 0;
+    const reward = 4 + Math.floor(state.round * .65) + bonus;
+    state.gold += reward;
+    state.resultTimer = 1.65;
+    state.best = Math.max(state.best, state.round);
+    saveBest(state.best);
+    sfx('win');
+    showToast(`回合守住！獲得 ${reward} 星幣${bonus ? `（水晶狀態獎勵 +${bonus}）` : ''}`, 'good');
+    ui.phase.textContent = `第 ${state.round} 回合守住 · +${reward} 星幣`;
+    ui.phase.classList.remove('battle');
+    renderAllUI();
+  }
+
+  function beginNextRound() {
+    state.round += 1;
+    state.mode = 'prep';
+    state.crystal.hp = Math.min(state.crystal.maxHp, state.crystal.hp + Math.max(26, Math.round(state.crystal.maxHp * .075)));
+    for (const u of state.roster) {
+      applyStats(u, true); u.alive = true;
+      if (u.gx != null) { const p = cellCenter(u.gx,u.gy); u.x=p.x; u.y=p.y; }
+    }
+    state.enemies = []; state.projectiles = []; state.particles = []; state.texts = [];
+    state.wave = generateWave(state.round);
+    rollShop(true);
+    ui.phase.textContent = '部署階段 · 點選棋子後再點格子';
+    ui.phase.classList.remove('battle');
+    showToast(`第 ${state.round} 回合敵情已送達；水晶獲得少量修復。`);
+    renderAllUI();
+  }
+
+  function endGame() {
+    if (state.mode === 'gameover') return;
+    state.mode = 'gameover'; state.paused = false;
+    state.best = Math.max(state.best, state.round);
+    saveBest(state.best);
+    ui.finalRound.textContent = state.round;
+    ui.recordText.textContent = `最高紀錄：第 ${state.best} 回合`;
+    ui.gameover.classList.remove('hidden');
+    sfx('bad');
+    renderAllUI();
+  }
+
+  function newGame() {
+    state.mode = 'prep'; state.round = 1; state.gold = 12;
+    state.crystal.hp = state.crystal.maxHp;
+    state.roster = []; state.selectedId = null; state.enemies = []; state.projectiles = []; state.particles = []; state.texts = [];
+    state.nextUnitId = 1; state.nextEnemyId = 1; state.battleTime = 0; state.spawnIndex = 0; state.rallyCooldown = 0; state.paused = false; state.resultTimer = 0;
+    state.wave = generateWave(1);
+    rollShop(true);
+    ui.gameover.classList.add('hidden');
+    ui.intro.classList.add('hidden');
+    ui.phase.textContent = '部署階段 · 點選棋子後再點格子';
+    ui.phase.classList.remove('battle');
+    // Starter gift: three different rank-one pieces so the first choice matters without forcing a reroll.
+    ['blade', 'bow', 'light'].forEach(f => state.roster.push(makeUnit(f, 1)));
+    state.selectedId = state.roster[0].id;
+    showToast('新手名冊已備妥：選棋子，再點戰場格子部署。', 'good');
+    renderAllUI();
+  }
+
+  // ---------- Particles ----------
+  function burst(x, y, color, count = 8, speed = 50) {
+    for (let i=0;i<count;i++) {
+      const a = Math.random()*Math.PI*2, s = speed*(.35+Math.random()*.75);
+      state.particles.push({ x, y, vx:Math.cos(a)*s, vy:Math.sin(a)*s, life:.28+Math.random()*.42, maxLife:.7, color, size:2+Math.floor(Math.random()*3) });
+    }
+  }
+  function floatText(x,y,text,color='#fff',life=.7) { state.texts.push({x,y,text,color,life,maxLife:life}); }
+  function updateEffects(dt) {
+    for (const p of state.particles) { p.life -= dt; p.x += p.vx*dt; p.y += p.vy*dt; p.vx *= Math.pow(.06,dt); p.vy = p.vy*Math.pow(.08,dt)+17*dt; }
+    state.particles = state.particles.filter(p=>p.life>0);
+    for (const t of state.texts) { t.life -= dt; t.y -= 22*dt; }
+    state.texts = state.texts.filter(t=>t.life>0);
+    state.crystal.flash = Math.max(0,state.crystal.flash-dt);
+    state.screenShake = Math.max(0,state.screenShake-dt*20);
+    if (state.toastTimer > 0) {
+      state.toastTimer -= dt;
+      if (state.toastTimer <= 0) ui.toast.classList.remove('show');
+    }
+  }
+
+  // ---------- Rendering ----------
+  const bgRng = mulberry32(0xA17B3C2D);
+  const groundBits = Array.from({length:180},()=>({x:Math.floor(bgRng()*W/8)*8,y:Math.floor(bgRng()*H/8)*8,t:bgRng()}));
+
+  function render() {
+    ctx.save();
+    const shakeX = state.screenShake ? (Math.random()-.5)*state.screenShake : 0;
+    const shakeY = state.screenShake ? (Math.random()-.5)*state.screenShake : 0;
+    ctx.translate(shakeX, shakeY);
+    drawGround();
+    drawSpawnWarnings();
+    drawSanctuary();
+    if (state.mode === 'prep' || state.mode === 'intro') drawGrid();
+    drawProjectiles(true);
+    for (const e of state.enemies) if (e.alive || e.deathTimer > 0) drawEnemy(e);
+    for (const u of boardUnits()) if (state.mode !== 'battle' || u.alive) drawUnit(u);
+    drawProjectiles(false);
+    drawParticles();
+    drawTexts();
+    if (state.paused && state.mode === 'battle') drawPauseOverlay();
+    ctx.restore();
+  }
+
+  function drawGround() {
+    ctx.fillStyle = '#1b3430'; ctx.fillRect(0,0,W,H);
+    const tile=32;
+    for(let y=0;y<H;y+=tile){
+      for(let x=0;x<W;x+=tile){
+        const n=((x/tile)*17+(y/tile)*31)%7;
+        ctx.fillStyle=n<2?'#1d3832':n<5?'#203b34':'#244038';
+        ctx.fillRect(x,y,tile,tile);
+        if(n===0){ctx.fillStyle='#2a483c';ctx.fillRect(x+7,y+9,3,6);ctx.fillRect(x+11,y+7,3,8);}
+      }
+    }
+    for (const b of groundBits) {
+      if (Math.hypot(b.x-CENTER.x,b.y-CENTER.y)<125) continue;
+      ctx.fillStyle = b.t < .45 ? '#315044' : b.t < .8 ? '#172c29' : '#51634c';
+      if (b.t < .8) ctx.fillRect(b.x,b.y,b.t<.45?3:5,2);
+      else { ctx.fillRect(b.x,b.y,2,7); ctx.fillRect(b.x-2,b.y+2,2,3); }
+    }
+    ctx.strokeStyle='rgba(9,20,20,.38)';ctx.lineWidth=4;ctx.strokeRect(8,8,W-16,H-16);
+    ctx.strokeStyle='rgba(112,137,113,.24)';ctx.lineWidth=2;ctx.strokeRect(15,15,W-30,H-30);
+  }
+
+  function drawSpawnWarnings() {
+    if (!state.wave) return;
+    const pulse = .55 + Math.sin(performance.now()/180)*.25;
+    for (const d of state.wave.directions) {
+      const r = 405;
+      const x = CENTER.x + Math.cos(d.angle)*r;
+      const y = CENTER.y + Math.sin(d.angle)*r;
+      ctx.save(); ctx.translate(x,y); ctx.rotate(d.angle+Math.PI/2);
+      ctx.globalAlpha = state.mode === 'battle' ? .28 : pulse;
+      ctx.fillStyle='#ff8d7e';
+      ctx.beginPath();ctx.moveTo(0,-19);ctx.lineTo(13,11);ctx.lineTo(4,8);ctx.lineTo(4,24);ctx.lineTo(-4,24);ctx.lineTo(-4,8);ctx.lineTo(-13,11);ctx.closePath();ctx.fill();
+      ctx.restore();
+    }
+  }
+
+  function drawSanctuary() {
+    ctx.save();
+    ctx.translate(CENTER.x,CENTER.y);
+    ctx.globalAlpha=.55;
+    ctx.fillStyle='#2b4142'; ctx.beginPath();ctx.arc(0,0,110,0,Math.PI*2);ctx.fill();
+    ctx.strokeStyle='#7b8b78';ctx.lineWidth=3;ctx.beginPath();ctx.arc(0,0,96,0,Math.PI*2);ctx.stroke();
+    ctx.strokeStyle='#4d6d6b';ctx.lineWidth=2;ctx.beginPath();ctx.arc(0,0,72,0,Math.PI*2);ctx.stroke();
+    for(let i=0;i<8;i++){
+      const a=i/8*Math.PI*2;ctx.save();ctx.rotate(a);ctx.fillStyle=i%2?'#5a6661':'#607a72';ctx.fillRect(-4,-101,8,17);ctx.restore();
+    }
+    if(state.rallyPulse>0){
+      ctx.globalAlpha=state.rallyPulse*.7;ctx.strokeStyle='#ffd4a0';ctx.lineWidth=5;ctx.beginPath();ctx.arc(0,0,lerp(45,145,1-state.rallyPulse),0,Math.PI*2);ctx.stroke();
+    }
+    ctx.globalAlpha=1;
+    drawCrystal();
+    ctx.restore();
+  }
+
+  function drawCrystal() {
+    const flash=state.crystal.flash>0;
+    ctx.fillStyle='rgba(8,17,19,.52)';ctx.beginPath();ctx.ellipse(0,37,48,16,0,0,Math.PI*2);ctx.fill();
+    ctx.fillStyle='#625d7a';ctx.fillRect(-34,21,68,18);ctx.fillStyle='#968bb2';ctx.fillRect(-27,17,54,8);ctx.fillStyle='#3f3b50';ctx.fillRect(-27,36,54,8);
+    ctx.shadowBlur=flash?24:14;ctx.shadowColor=flash?'#fff4d0':'#63d9cf';
+    ctx.fillStyle=flash?'#fff4d5':'#70ded4';
+    ctx.beginPath();ctx.moveTo(0,-59);ctx.lineTo(29,-33);ctx.lineTo(21,19);ctx.lineTo(0,30);ctx.lineTo(-21,19);ctx.lineTo(-29,-33);ctx.closePath();ctx.fill();
+    ctx.shadowBlur=0;
+    ctx.fillStyle='#c3fff0';ctx.beginPath();ctx.moveTo(0,-55);ctx.lineTo(10,-28);ctx.lineTo(3,17);ctx.lineTo(-8,17);ctx.lineTo(-16,-28);ctx.closePath();ctx.fill();
+    ctx.fillStyle='#4ab0b4';ctx.beginPath();ctx.moveTo(-29,-33);ctx.lineTo(-16,-28);ctx.lineTo(-8,17);ctx.lineTo(-21,19);ctx.closePath();ctx.fill();
+    ctx.fillStyle='#e5fff4';ctx.fillRect(3,-38,5,19);
+  }
+
+  function drawGrid() {
+    const selected=getUnit(state.selectedId);
+    for(let gy=0;gy<GRID.rows;gy++)for(let gx=0;gx<GRID.cols;gx++){
+      const x=GRID.x+gx*GRID.cell,y=GRID.y+gy*GRID.cell;
+      const reserved=isReservedCell(gx,gy), occupied=unitAtCell(gx,gy);
+      ctx.fillStyle=reserved?'rgba(95,220,210,.08)':occupied?'rgba(246,213,120,.10)':'rgba(206,240,205,.045)';
+      ctx.fillRect(x+2,y+2,GRID.cell-4,GRID.cell-4);
+      ctx.strokeStyle=reserved?'rgba(100,220,210,.30)':occupied?'rgba(255,218,117,.42)':'rgba(168,190,166,.22)';
+      ctx.lineWidth=1;ctx.strokeRect(x+3.5,y+3.5,GRID.cell-7,GRID.cell-7);
+      if(selected&&selected.gx===gx&&selected.gy===gy){ctx.strokeStyle='#ffe083';ctx.lineWidth=3;ctx.strokeRect(x+5,y+5,GRID.cell-10,GRID.cell-10);}
+    }
+  }
+
+  function drawUnit(u) {
+    const f=FAMILIES[u.family];
+    const bob=state.mode==='battle'?Math.sin(performance.now()/130+u.id)*1.2:0;
+    const x=snap(u.x), y=snap(u.y+bob);
+    ctx.save();ctx.translate(x,y);
+    if(!u.alive)ctx.globalAlpha=.28;
+    ctx.fillStyle='rgba(3,9,11,.45)';ctx.beginPath();ctx.ellipse(0,11,15+u.rank*2,6,0,0,Math.PI*2);ctx.fill();
+    if(u.rank>=3){ctx.globalAlpha=.22+.08*Math.sin(performance.now()/200);ctx.fillStyle=f.hue;ctx.beginPath();ctx.arc(0,-5,22+u.rank*2,0,Math.PI*2);ctx.fill();ctx.globalAlpha=1;}
+    if(u.rallying){ctx.strokeStyle='#ffd0a0';ctx.lineWidth=2;ctx.beginPath();ctx.arc(0,-5,22,0,Math.PI*2);ctx.stroke();}
+    const flip=u.facing<0?-1:1;ctx.scale(flip,1);
+    const hit=u.hitFlash>0;
+    if(u.family==='gel') drawGelSprite(u,hit);
+    else drawHumanoidSprite(u,hit);
+    ctx.scale(flip,1);
+    drawHealthBar(u, -25, -39-u.rank*2, 50, 5, f.hue);
+    if(state.selectedId===u.id&&state.mode==='prep'){ctx.strokeStyle='#ffe082';ctx.lineWidth=2;ctx.strokeRect(-25,-32,50,48);}
+    ctx.restore();
+  }
+
+  function drawHumanoidSprite(u,hit) {
+    const f=FAMILIES[u.family], rank=u.rank;
+    const body=hit?'#fff4e8':f.accent, cloth=hit?'#fff':f.hue;
+    ctx.fillStyle=body;ctx.fillRect(-10,-15,20,23);ctx.fillRect(-13,-10,4,14);ctx.fillRect(9,-10,4,14);
+    if(rank>=2){ctx.fillStyle='#5a4b61';ctx.fillRect(-12,5,24,5);}
+    if(rank>=3){ctx.fillStyle=cloth;ctx.fillRect(-15,-12,4,21);ctx.fillRect(11,-12,4,21);}
+    ctx.fillStyle='#f2c9a0';ctx.fillRect(-8,-28,16,13);ctx.fillRect(-5,-15,10,3);
+    ctx.fillStyle='#3a2d32';ctx.fillRect(-4,-23,2,2);ctx.fillRect(3,-23,2,2);
+    if(u.family==='blade'){
+      ctx.fillStyle=cloth;ctx.fillRect(-10,-31,20,6);ctx.fillRect(-12,-29,4,10);ctx.fillRect(8,-29,4,10);
+      ctx.fillStyle='#dce8e5';ctx.fillRect(13,-17,3,24);ctx.fillStyle='#7c6147';ctx.fillRect(11,4,7,3);
+      if(rank>=4){ctx.fillStyle='#cf8058';ctx.fillRect(-15,-34,6,17);ctx.fillRect(9,-34,6,17);}
+    } else if(u.family==='bow'){
+      ctx.fillStyle=cloth;ctx.beginPath();ctx.moveTo(-11,-29);ctx.lineTo(0,-36);ctx.lineTo(11,-29);ctx.lineTo(7,-19);ctx.lineTo(-7,-19);ctx.closePath();ctx.fill();
+      ctx.strokeStyle='#a8754b';ctx.lineWidth=3;ctx.beginPath();ctx.arc(14,-7,9,-Math.PI/2,Math.PI/2);ctx.stroke();ctx.strokeStyle='#e7dbc0';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(14,-16);ctx.lineTo(14,2);ctx.stroke();
+      if(rank>=3){ctx.fillStyle='#e4c56c';ctx.fillRect(-2,-38,4,9);}
+    } else if(u.family==='arcane'){
+      ctx.fillStyle=cloth;ctx.beginPath();ctx.moveTo(-14,-29);ctx.lineTo(4,-43);ctx.lineTo(12,-28);ctx.closePath();ctx.fill();ctx.fillRect(-14,-29,27,5);
+      ctx.fillStyle='#7b543f';ctx.fillRect(14,-23,3,30);ctx.fillStyle='#d7a9ff';ctx.fillRect(11,-26,9,8);
+      if(rank>=4){ctx.fillStyle='#fff0a1';ctx.fillRect(-2,-40,4,4);ctx.fillRect(5,-34,3,3);}
+    } else if(u.family==='light'){
+      ctx.fillStyle='#fff1c3';ctx.fillRect(-10,-31,20,6);ctx.fillStyle='#d69475';ctx.fillRect(-3,-34,6,6);
+      ctx.fillStyle='#f6e5a1';ctx.fillRect(13,-10,9,12);ctx.fillStyle='#b87b61';ctx.fillRect(14,-8,7,2);
+      if(rank>=3){ctx.fillStyle='#f5d46f';ctx.fillRect(-13,-26,3,22);ctx.fillRect(10,-26,3,22);}
+    } else if(u.family==='shade'){
+      ctx.fillStyle='#43394f';ctx.fillRect(-10,-31,20,8);ctx.fillStyle='#bca8d9';ctx.fillRect(-7,-24,14,3);
+      ctx.fillStyle='#d4d9df';ctx.fillRect(13,-13,3,14);ctx.fillRect(-16,-10,3,14);
+      if(rank>=3){ctx.fillStyle='#675478';ctx.fillRect(-15,-28,5,20);}
+    }
+    ctx.fillStyle='#263038';ctx.fillRect(-9,8,7,6);ctx.fillRect(2,8,7,6);
+    if(u.attackFlash>0){ctx.globalAlpha=u.attackFlash/.16;ctx.strokeStyle='#fff5bf';ctx.lineWidth=3;ctx.beginPath();ctx.arc(10,-7,22,-1.1,.9);ctx.stroke();ctx.globalAlpha=1;}
+  }
+
+  function drawGelSprite(u,hit) {
+    const f=FAMILIES.gel, r=u.rank;
+    ctx.fillStyle=hit?'#fff':f.hue;ctx.beginPath();ctx.moveTo(-19,7);ctx.quadraticCurveTo(-21,-17,-8,-24);ctx.quadraticCurveTo(0,-32,10,-23);ctx.quadraticCurveTo(22,-16,18,7);ctx.quadraticCurveTo(0,15,-19,7);ctx.fill();
+    ctx.fillStyle='#315c4a';ctx.fillRect(-8,-14,4,4);ctx.fillRect(6,-14,4,4);ctx.fillRect(-2,-6,5,2);
+    ctx.fillStyle='rgba(255,255,255,.45)';ctx.fillRect(-11,-21,6,4);
+    if(r>=2){ctx.fillStyle='#f2ca66';ctx.fillRect(-10,-29,20,5);ctx.fillRect(-7,-34,4,6);ctx.fillRect(4,-34,4,6);}
+    if(r>=4){ctx.fillStyle='#bca2ff';ctx.fillRect(-3,-40,6,8);ctx.fillRect(-7,-36,14,3);}
+    if(u.attackFlash>0){ctx.fillStyle='#d7ffad';ctx.fillRect(16,-10,8,8);}
+  }
+
+  function drawEnemy(e) {
+    const base=ENEMIES[e.type];
+    const deathAlpha=e.alive?1:clamp(e.deathTimer/.32,0,1);
+    const squish=e.attackFlash>0?1.12:1;
+    ctx.save();ctx.globalAlpha=deathAlpha;ctx.translate(snap(e.x),snap(e.y));ctx.scale(e.facing,squish);
+    ctx.fillStyle='rgba(3,8,10,.45)';ctx.beginPath();ctx.ellipse(0,e.radius*.55,e.radius*1.05,e.radius*.38,0,0,Math.PI*2);ctx.fill();
+    const c=e.hitFlash>0?'#fff1de':base.color;
+    switch(e.type){
+      case 'sprout':
+        ctx.fillStyle=c;ctx.beginPath();ctx.arc(0,-4,13,0,Math.PI*2);ctx.fill();ctx.fillStyle='#436d45';ctx.fillRect(-6,-21,5,10);ctx.fillRect(2,-22,5,10);ctx.fillStyle='#202a25';ctx.fillRect(-5,-7,3,3);ctx.fillRect(4,-7,3,3);break;
+      case 'moth':
+        ctx.fillStyle=c;ctx.fillRect(-5,-15,10,24);ctx.beginPath();ctx.moveTo(-4,-12);ctx.lineTo(-20,-18);ctx.lineTo(-14,3);ctx.lineTo(-3,1);ctx.fill();ctx.beginPath();ctx.moveTo(4,-12);ctx.lineTo(20,-18);ctx.lineTo(14,3);ctx.lineTo(3,1);ctx.fill();ctx.fillStyle='#493b35';ctx.fillRect(-2,-18,4,5);break;
+      case 'fungus':
+        ctx.fillStyle='#d7c0a2';ctx.fillRect(-8,-7,16,20);ctx.fillStyle=c;ctx.beginPath();ctx.arc(0,-12,18,Math.PI,0);ctx.lineTo(18,-8);ctx.lineTo(-18,-8);ctx.closePath();ctx.fill();ctx.fillStyle='#f3d6d0';ctx.fillRect(-9,-19,5,4);ctx.fillRect(5,-15,5,4);ctx.fillStyle='#3b3138';ctx.fillRect(-5,-2,3,3);ctx.fillRect(4,-2,3,3);break;
+      case 'golem':
+        ctx.fillStyle=c;ctx.fillRect(-17,-22,34,31);ctx.fillStyle='#777664';ctx.fillRect(-12,-27,10,9);ctx.fillRect(4,-28,10,10);ctx.fillRect(-24,-15,8,22);ctx.fillRect(16,-15,8,22);ctx.fillStyle='#e8c95e';ctx.fillRect(-8,-12,4,4);ctx.fillRect(5,-12,4,4);break;
+      case 'shaman':
+        ctx.fillStyle=c;ctx.beginPath();ctx.moveTo(-14,10);ctx.lineTo(-11,-17);ctx.lineTo(0,-28);ctx.lineTo(11,-17);ctx.lineTo(14,10);ctx.closePath();ctx.fill();ctx.fillStyle='#3d2f36';ctx.fillRect(-7,-15,14,10);ctx.fillStyle='#ffdb69';ctx.fillRect(-5,-12,3,3);ctx.fillRect(3,-12,3,3);ctx.fillStyle='#694735';ctx.fillRect(17,-20,3,30);ctx.fillStyle='#ff8f70';ctx.fillRect(14,-25,9,8);break;
+      case 'wolf':
+        ctx.fillStyle=c;ctx.fillRect(-18,-11,29,19);ctx.beginPath();ctx.moveTo(7,-12);ctx.lineTo(19,-20);ctx.lineTo(22,-5);ctx.lineTo(12,2);ctx.fill();ctx.beginPath();ctx.moveTo(-17,-10);ctx.lineTo(-27,-18);ctx.lineTo(-21,-3);ctx.fill();ctx.fillStyle='#26313a';ctx.fillRect(13,-10,3,3);ctx.fillRect(-13,7,5,8);ctx.fillRect(5,7,5,8);break;
+      case 'monarch':
+        ctx.fillStyle=c;ctx.fillRect(-28,-20,51,35);ctx.beginPath();ctx.moveTo(18,-20);ctx.lineTo(32,-30);ctx.lineTo(35,-5);ctx.lineTo(21,5);ctx.fill();ctx.fillStyle='#f1d6a0';ctx.beginPath();ctx.moveTo(17,-19);ctx.lineTo(25,-39);ctx.lineTo(28,-17);ctx.fill();ctx.beginPath();ctx.moveTo(28,-17);ctx.lineTo(41,-31);ctx.lineTo(35,-8);ctx.fill();ctx.fillStyle='#401f24';ctx.fillRect(25,-14,5,4);ctx.fillStyle='#6d4d35';ctx.fillRect(-22,11,8,13);ctx.fillRect(9,11,8,13);ctx.fillStyle='#f0c862';ctx.fillRect(-12,-30,24,5);ctx.fillRect(-8,-35,5,7);ctx.fillRect(5,-35,5,7);break;
+    }
+    ctx.scale(e.facing,1/squish);
+    drawHealthBar(e,-Math.max(20,e.radius+3),-e.radius-20,Math.max(40,e.radius*2+6),4,base.boss?'#ffb260':'#ff7d78');
+    if(e.slowTimer>0){ctx.strokeStyle='#9de7ff';ctx.lineWidth=2;ctx.beginPath();ctx.arc(0,2,e.radius+5,0,Math.PI*2);ctx.stroke();}
+    ctx.restore();
+  }
+
+  function drawHealthBar(o,x,y,w,h,color) {
+    const ratio=clamp(o.hp/o.maxHp,0,1);
+    if(ratio>=.999&&state.mode!=='battle')return;
+    ctx.fillStyle='#071014';ctx.fillRect(x-1,y-1,w+2,h+2);ctx.fillStyle='#392f31';ctx.fillRect(x,y,w,h);ctx.fillStyle=color;ctx.fillRect(x,y,Math.floor(w*ratio),h);
+  }
+
+  function drawProjectiles(behind) {
+    for(const p of state.projectiles){
+      const isBehind=p.kind==='enemyOrb';if(isBehind!==behind)continue;
+      for(const t of p.trail||[]){ctx.globalAlpha=clamp(t.life/.15,0,1)*.5;ctx.fillStyle=projectileColor(p.kind);ctx.fillRect(snap(t.x)-2,snap(t.y)-2,4,4);}
+      ctx.globalAlpha=1;ctx.fillStyle=projectileColor(p.kind);
+      const size=p.kind==='arcane'?8:p.kind==='heal'?7:5;ctx.fillRect(snap(p.x)-size/2,snap(p.y)-size/2,size,size);
+      if(p.kind==='arrow'){ctx.strokeStyle='#f5dfb0';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(p.x-7,p.y+2);ctx.lineTo(p.x+5,p.y-2);ctx.stroke();}
+    }
+    ctx.globalAlpha=1;
+  }
+  function projectileColor(k){return k==='arcane'?'#caa2ff':k==='heal'?'#c8ffad':k==='enemyOrb'?'#ff8a72':k==='light'?'#fff0a0':'#e9dfc1';}
+
+  function drawParticles(){for(const p of state.particles){ctx.globalAlpha=clamp(p.life/p.maxLife,0,1);ctx.fillStyle=p.color;ctx.fillRect(snap(p.x),snap(p.y),p.size,p.size);}ctx.globalAlpha=1;}
+  function drawTexts(){ctx.font='bold 11px ui-monospace, monospace';ctx.textAlign='center';for(const t of state.texts){ctx.globalAlpha=clamp(t.life/t.maxLife,0,1);ctx.fillStyle='#071014';ctx.fillText(t.text,t.x+1,t.y+2);ctx.fillStyle=t.color;ctx.fillText(t.text,t.x,t.y);}ctx.globalAlpha=1;ctx.textAlign='start';}
+  function drawPauseOverlay(){ctx.fillStyle='rgba(5,10,13,.62)';ctx.fillRect(0,0,W,H);ctx.textAlign='center';ctx.font='bold 34px ui-monospace, monospace';ctx.fillStyle='#fff2bf';ctx.fillText('暫停中',W/2,H/2-8);ctx.font='13px ui-monospace, monospace';ctx.fillStyle='#b4c2b2';ctx.fillText('按 P 或右上按鈕繼續',W/2,H/2+23);ctx.textAlign='start';}
+
+  // ---------- UI render ----------
+  function renderAllUI() {
+    updateTopStats(); renderForecast(); renderShop(); renderRoster(); renderSelected(); renderButtons();
+  }
+
+  function updateTopStats() {
+    ui.round.textContent = state.round;
+    ui.gold.textContent = state.gold;
+    ui.cap.textContent = `${boardUnits().length} / ${boardCap()}`;
+    ui.crystalText.textContent = `${Math.ceil(state.crystal.hp)} / ${state.crystal.maxHp}`;
+    ui.crystalFill.style.width = `${clamp(state.crystal.hp/state.crystal.maxHp*100,0,100)}%`;
+    ui.crystalFill.style.filter = state.crystal.hp/state.crystal.maxHp < .3 ? 'hue-rotate(140deg) saturate(1.5)' : '';
+    const living = state.enemies.filter(e=>e.alive).length;
+    ui.enemyHud.textContent = `敵軍 ${living}`;
+    ui.spawnHud.textContent = `待出現 ${state.wave ? state.wave.spawns.length-state.spawnIndex : 0}`;
+  }
+
+  function renderForecast() {
+    if (!state.wave) return;
+    const active = new Set(state.wave.directions.map(d=>d.id));
+    $$('.dir-dot').forEach(el=>el.classList.toggle('on',active.has(el.dataset.dir)));
+    ui.waveThreat.textContent = `威脅：${threatLabel(state.wave.threat)}${state.wave.bossWave?' · 王獸':''}`;
+    ui.forecastList.innerHTML = Object.entries(state.wave.counts).sort((a,b)=>ENEMIES[b[0]].threat-ENEMIES[a[0]].threat).map(([k,count])=>{
+      const e=ENEMIES[k];return `<div class="enemy-line" style="border-left-color:${e.color}"><span class="enemy-icon">${e.icon}</span><b>${escapeHtml(e.name)}</b><span>×${count}</span></div>`;
+    }).join('');
+  }
+
+  function renderShop() {
+    ui.shopGrid.innerHTML = state.shop.map((o,i)=>{
+      const f=FAMILIES[o.family];
+      return `<button class="shop-unit ${o.sold?'sold':''}" data-buy="${i}" ${o.sold||state.mode!=='prep'?'disabled':''}>
+        <span class="portrait" style="color:${f.hue}">${f.icon}</span>
+        <span class="unit-copy"><b>${escapeHtml(f.names[0])}</b><span>${escapeHtml(f.role)} · 一轉</span></span>
+        <span class="unit-cost">◈ 3</span>
+      </button>`;
+    }).join('');
+    $$('[data-buy]').forEach(btn=>btn.addEventListener('click',()=>buyOffer(Number(btn.dataset.buy))));
+  }
+
+  function renderRoster() {
+    ui.rosterCount.textContent = `${state.roster.length} / ${MAX_ROSTER}`;
+    if(!state.roster.length){ui.rosterGrid.innerHTML='<div class="empty-roster">名冊目前空白</div>';return;}
+    const sorted=[...state.roster].sort((a,b)=>(b.gx!=null)-(a.gx!=null)||b.rank-a.rank||a.id-b.id);
+    ui.rosterGrid.innerHTML=sorted.map(u=>{
+      const f=FAMILIES[u.family];return `<button class="roster-unit ${u.id===state.selectedId?'selected':''} ${u.gx!=null?'deployed':''}" data-unit="${u.id}" title="${escapeHtml(f.names[u.rank-1])}">
+        <span class="mini-icon" style="color:${f.hue}">${f.icon}</span><span class="rank-pips">${'<i></i>'.repeat(u.rank)}</span>
+      </button>`;
+    }).join('');
+    $$('[data-unit]').forEach(btn=>btn.addEventListener('click',()=>selectUnit(Number(btn.dataset.unit))));
+  }
+
+  function renderSelected() {
+    const u=getUnit(state.selectedId);
+    if(!u){ui.selectedHint.textContent='尚未選取';ui.selected.innerHTML='<div class="empty-roster" style="min-height:78px">點選名冊中的戰棋查看情報</div>';return;}
+    const f=FAMILIES[u.family],s=unitStats(u.family,u.rank);
+    ui.selectedHint.textContent=u.gx!=null?`部署：${u.gx+1}, ${u.gy+1}`:'待命區';
+    ui.selected.innerHTML=`<div class="selected-main">
+      <div class="selected-avatar" style="color:${f.hue}">${f.icon}</div>
+      <div><h3 class="selected-name">${escapeHtml(f.names[u.rank-1])}</h3><div class="selected-job">${RANK_LABELS[u.rank-1]} · ${escapeHtml(f.role)}</div>
+      <div class="stat-lines"><span class="stat-line">耐久<b>${s.maxHp}</b></span><span class="stat-line">攻擊<b>${s.atk}${s.heal?' / '+s.heal:''}</b></span><span class="stat-line">射程<b>${Math.round(s.range)}</b></span></div>
+      <div class="skill-line">${escapeHtml(f.skill)}</div></div></div>
+      <div class="selected-actions"><button id="benchBtn" class="small-btn" ${u.gx==null||state.mode!=='prep'?'disabled':''}>收回待命區</button><button id="focusBtn" class="small-btn" ${u.gx==null?'disabled':''}>鏡頭標記位置</button></div>`;
+    $('#benchBtn')?.addEventListener('click',benchSelected);
+    $('#focusBtn')?.addEventListener('click',()=>{burst(u.x,u.y,'#ffe28a',18,75);floatText(u.x,u.y-42,'這裡', '#ffe28a',.8);});
+  }
+
+  function renderButtons() {
+    const prep=state.mode==='prep',battle=state.mode==='battle';
+    ui.refresh.disabled=!prep||state.gold<1;
+    ui.start.disabled=!prep||boardUnits().length===0;
+    ui.startSub.textContent=boardUnits().length?`預告方向：${state.wave.directions.map(d=>d.name).join('、')}`:'至少部署 1 枚戰棋';
+    ui.rally.disabled=!battle||state.rallyCooldown>0||state.paused;
+    ui.rallyLabel.textContent=!battle?'僅能在戰鬥中使用':state.rallyCooldown>0?`冷卻 ${state.rallyCooldown.toFixed(1)} 秒`:'取消當下行動，撤向中央';
+    ui.speed.textContent=`×${state.speed}`;
+    ui.pause.textContent=state.paused?'▶':'Ⅱ';
+    ui.mute.textContent=state.muted?'×':'♪';
+    updateTopStats();
+  }
+
+  // ---------- Input ----------
+  canvas.addEventListener('pointerdown',(ev)=>{
+    ensureAudio();
+    const rect=canvas.getBoundingClientRect();
+    const x=(ev.clientX-rect.left)*W/rect.width;
+    const y=(ev.clientY-rect.top)*H/rect.height;
+    if(state.mode!=='prep')return;
+    const hit=[...boardUnits()].reverse().find(u=>Math.hypot(u.x-x,u.y-y)<28);
+    if(hit){selectUnit(hit.id);return;}
+    const cell=pointToCell(x,y);if(cell)deploySelected(cell.gx,cell.gy);
+  });
+  canvas.addEventListener('contextmenu',(ev)=>{ev.preventDefault();benchSelected();});
+
+  ui.begin.addEventListener('click',newGame);
+  ui.restart.addEventListener('click',newGame);
+  ui.refresh.addEventListener('click',()=>rollShop(false));
+  ui.start.addEventListener('click',startBattle);
+  ui.rally.addEventListener('click',rally);
+  ui.speed.addEventListener('click',()=>{state.speed=state.speed===1?2:1;renderButtons();showToast(`戰鬥速度 ×${state.speed}`);});
+  ui.pause.addEventListener('click',()=>{if(state.mode!=='battle')return;state.paused=!state.paused;renderButtons();});
+  ui.mute.addEventListener('click',()=>{state.muted=!state.muted;renderButtons();if(!state.muted)sfx('buy');});
+
+  window.addEventListener('keydown',(ev)=>{
+    if(ev.repeat)return;
+    if(['INPUT','TEXTAREA'].includes(document.activeElement?.tagName))return;
+    if(ev.code==='Space'){ev.preventDefault();startBattle();}
+    else if(ev.key.toLowerCase()==='q')rally();
+    else if(ev.key.toLowerCase()==='r')rollShop(false);
+    else if(ev.key.toLowerCase()==='p'){if(state.mode==='battle'){state.paused=!state.paused;renderButtons();}}
+    else if(ev.key.toLowerCase()==='m'){state.muted=!state.muted;renderButtons();}
+    else if(/^[1-4]$/.test(ev.key))buyOffer(Number(ev.key)-1);
+  });
+
+  // ---------- Main loop ----------
+  function loop(ts){
+    let raw=state.lastTs?(ts-state.lastTs)/1000:0;state.lastTs=ts;raw=Math.min(raw,.05);
+    const dt=raw*(state.mode==='battle'?state.speed:1);
+    if(!state.paused){
+      if(state.mode==='battle')updateBattle(dt);
+      else if(state.mode==='result'){state.resultTimer-=dt;if(state.resultTimer<=0)beginNextRound();}
+      updateEffects(dt);
+    }
+    render();
+    if(state.mode==='battle'&&Math.floor(ts/100)%2===0)renderButtons();
+    requestAnimationFrame(loop);
+  }
+
+  // Initial static preview for modal background.
+  state.wave=generateWave(1);
+  state.shop=Array.from({length:4},(_,i)=>({family:FAMILY_KEYS[i],sold:false}));
+  renderAllUI();
+  requestAnimationFrame(loop);
+
+  // Automated screenshot / smoke-test hook; harmless during normal play.
+  if(new URLSearchParams(location.search).get('autostart')==='1')setTimeout(newGame,100);
+  window.__crystalVanguard={state,newGame,startBattle,rally,buyOffer,deploySelected};
+})();
+</script>
+</body>
+</html>

@@ -98,27 +98,27 @@ window.TINY_ARCADE_GAMES = [
     id: "crystal-vanguard",
     title: {
       en: "Crystal Vanguard",
-      zh: "琉璃城：八方守晶"
+      zh: "琉璃城：森林守望"
     },
     description: {
-      en: "A pixel tactics tower-defense game. Recruit, merge, deploy, and guard the crystal from enemies arriving from eight directions.",
-      zh: "像素戰棋守塔遊戲。招募、合成、部署戰棋，抵禦八方來襲的敵軍並守住華麗水晶。"
+      en: "Command four heroes, build during battle, and choose gear each wave in a twelve-wave forest defense adventure.",
+      zh: "指揮四位英雄，一邊建造一邊守城，逐波刷裝，守過十二波森林敵襲。"
     },
     path: "./games/crystal-vanguard/",
     source: "https://github.com/ShemYu/tiny-arcade/tree/main/games/crystal-vanguard",
     preview: "./assets/previews/crystal-vanguard.png",
     previewAlt: {
-      en: "Crystal Vanguard gameplay showing a pixel battlefield with crystal defense UI",
-      zh: "琉璃城：八方守晶遊戲畫面，顯示像素戰場與水晶防衛介面"
+      en: "Crystal Vanguard forest battlefield with four adventurers, palisades, frost runes and an arrow tower",
+      zh: "琉璃城：森林守望遊戲畫面，四位冒險者與木柵、冰霜符文、箭塔守護水晶"
     },
     genres: ["strategy", "arcade"],
-    tags: ["pixel-art", "tower-defense", "auto-battler", "single-player"],
+    tags: ["pixel-art", "tower-defense", "roguelite", "single-player"],
     controls: ["keyboard", "mouse", "touch"],
-    status: "poc",
+    status: "beta",
     featured: false,
     playTime: "10–20 min",
     added: "2026-06-23",
-    updated: "2026-06-23"
+    updated: "2026-09-05"
   },
   {
   id: "wink-pop-seoul",
