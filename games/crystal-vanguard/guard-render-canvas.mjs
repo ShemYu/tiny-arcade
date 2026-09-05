@@ -1,4 +1,4 @@
-import {ActorMotion} from './guard-motion.mjs?v=motion1';
+import {ActorMotion} from './guard-motion.mjs?v=motion2';
 import {W,H,CORE,ROCKS,ENTRANCES,HEROES,BUILDINGS,WAVES,TEXT} from './guard-content.mjs';
 const TAU=Math.PI*2;
 export class Renderer {

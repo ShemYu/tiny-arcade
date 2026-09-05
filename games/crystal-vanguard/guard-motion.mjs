@@ -26,7 +26,7 @@ export class ActorMotion {
   const recoil=Math.sin(clamp(this.hitAge/.22,0,1)*Math.PI)*(1-clamp(this.hitAge/.22,0,1));
   const pose={x:this.x,y:this.y,face:this.face,phase:this.stride,move,attack:weight,breath,lean:this.lean+(strike*.10-anticipation*.045)*this.face-recoil*.1*this.face,lift:Math.abs(walk)*.045*move+breath*.008*(1-move),stretch:1+breath*.009*(1-move)-Math.cos(this.stride*2)*.025*move,sway:walk*.02*move,thrust:strike*.12-anticipation*.035,hit:recoil};
   if(actor.kind==='jelly'){pose.stretch=1+Math.sin(this.time*7)*.12;pose.lift=Math.max(0,Math.sin(this.time*7))*.07;}
-  if(actor.flying){pose.lift=.45+Math.sin(this.time*6)*.07;pose.lean+=Math.sin(this.time*4)*.07;}
+  if(actor.flying){pose.phase=this.time*12;pose.lift=.45+Math.sin(this.time*6)*.07;pose.lean+=Math.sin(this.time*4)*.07;}
   if(reduced)Object.assign(pose,{x:actor.x,y:actor.y,lift:actor.flying?.45:0,lean:0,stretch:1,sway:0,thrust:0,move:0,hit:0,breath:0,phase:0});
   return pose;
  }

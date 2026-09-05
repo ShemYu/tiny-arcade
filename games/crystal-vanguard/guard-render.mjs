@@ -1,11 +1,11 @@
-import {ActorMotion,deformVertex} from './guard-motion.mjs?v=motion1';
+import {ActorMotion,deformVertex} from './guard-motion.mjs?v=motion2';
 import * as THREE from './vendor/three/three.module.min.js';
 import {W,H,CORE,ENTRANCES,HEROES,BUILDINGS,WAVES,TEXT} from './guard-content.mjs';
-import {BattlefieldCamera} from './three/camera.mjs?v=motion1';
-import {ForestAssets} from './three/assets.mjs?v=motion1';
-import {ObjectFactory} from './three/objects.mjs?v=motion1';
-import {EffectsView} from './three/effects.mjs?v=motion1';
-import {WorldLabels} from './three/labels.mjs?v=motion1';
+import {BattlefieldCamera} from './three/camera.mjs?v=motion2';
+import {ForestAssets} from './three/assets.mjs?v=motion2';
+import {ObjectFactory} from './three/objects.mjs?v=motion2';
+import {EffectsView} from './three/effects.mjs?v=motion2';
+import {WorldLabels} from './three/labels.mjs?v=motion2';
 
 export class Renderer {
   constructor(canvas,context) {
@@ -97,7 +97,7 @@ export class Renderer {
       body.material.opacity=opacity*(1-weight);body.visible=weight<.995;
       body.material.color.set(pose.hit>.05?'#ffe6d8':actor.enraged?'#ffd2c4':'#ffffff');
       attackBody.visible=hero&&weight>.005;attackBody.userData.alive=actor.hp>0;
-      if(attackBody.visible){attackBody.material.map=this.assets.actors[actor.sprite+1];attackBody.material.opacity=opacity*weight;attackBody.position.copy(body.position);attackBody.quaternion.copy(body.quaternion);attackBody.translateZ(.005);attackBody.scale.copy(body.scale);}
+      if(attackBody.visible){attackBody.material.map=this.assets.actors[actor.sprite+1];attackBody.material.opacity=opacity*weight;attackBody.position.copy(body.position);attackBody.quaternion.copy(body.quaternion);attackBody.translateZ(.005);attackBody.scale.copy(body.scale);const art=attackBody.material.map.image;attackBody.scale.x=pose.face*(art.width/art.height)*height/pose.stretch;}
       shadow.scale.setScalar(actor.boss?.6:.35);shadow.visible=actor.hp>0;
       bar.position.y=height/Math.cos(Math.PI/6)+.15+body.position.y;bar.visible=actor.hp>0;
       this.bar(bar,actor.hp,hero?game.stats(actor).hp:actor.maxHp);

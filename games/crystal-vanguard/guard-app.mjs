@@ -1,5 +1,5 @@
-import {Game,distance} from './guard-core.mjs?v=motion1';
-import {createRenderer} from './guard-view.mjs?v=motion1';
+import {Game,distance} from './guard-core.mjs?v=motion2';
+import {createRenderer} from './guard-view.mjs?v=motion2';
 import {W,H,CORE,HEROES,BUILDINGS,WAVES,GEAR,RARITIES,SLOTS,TEXT} from './guard-content.mjs';
 const $=id=>document.getElementById(id),SAVE='crystalGuard.run.v1',PREF='crystalGuard.preferences.v1';
 const storage={get(k){try{return JSON.parse(localStorage.getItem(k));}catch{return null;}},set(k,v){try{localStorage.setItem(k,JSON.stringify(v));return true;}catch{return false;}},remove(k){try{localStorage.removeItem(k);}catch{}}};
