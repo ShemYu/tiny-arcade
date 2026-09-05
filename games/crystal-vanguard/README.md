@@ -48,7 +48,9 @@ No build step or runtime dependencies are required. Serve through HTTP; ES modul
 - 12 Node tests pass, including five complete twelve-wave campaigns using ordinary construction, upgrade, repair, skill, loot and equipment commands.
 - Tests cover rerouting, sealed-path rejection, hero escape routes, flying enemies, siege damage, lifesteal/overkill, piercing, frost, cooldowns, corrupt saves, checkpoint recovery, defeat and immutable end states.
 - The production renderer was exercised offline at 1280×720 and 390×550 using `@napi-rs/canvas` (QA dependency only). All 16 actor/structure frames and six scenery frames load; all 165 tile centers project and unproject correctly; hero picking is checked. Preparation and battle renders were visually inspected.
-- This environment blocked local browser navigation and data-URL previews. **The revised DOM UI, native dialogs, live loading, touch hardware and Safari have not been browser-tested.** Offline renderer checks do not prove browser layout or interaction. Public deployment remains pending user approval; the existing live URL still serves the previous game.
+- Published to [the main game entry](https://shemyu.github.io/tiny-arcade/games/crystal-vanguard/?lang=zh) on 2026-09-05; GitHub Pages deployment succeeded.
+- Live Chrome checks passed: initial loading, tower construction, frost construction during combat, knight skill activation, pause/resume, 2× speed, first-wave completion, three-choice rewards, equipped-item stats, and reloading/resuming the same adventure with its wave, gold and equipment retained. No game-origin console warnings or errors were recorded.
+- Physical touch hardware and Safari remain untested. The mobile renderer checks above do not replace those browser/device checks.
 
 Optional offline renderer check, with `@napi-rs/canvas` available:
 
