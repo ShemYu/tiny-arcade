@@ -2,6 +2,16 @@
 
 Recovered and completed from the unfinished **Crystal Guard** prototype, using its original generated character atlas and environment art. The main `index.html` is the intended entry point. The previous single-page game is preserved at `legacy.html`; `v0.2/`, `v2/` and `v2-dawnwatch/` are unchanged.
 
+## Three.js runtime
+
+The main game now uses **Three.js 0.185.1 / WebGL 2**. The island, rocks, crystal, palisades, towers, frost runes, range indicators and combat effects are actual 3D scene objects. The original painted heroes, enemies and forest scenery are camera-facing textured cutouts, preserving the prototype’s art direction. No new character art replaces the recovered atlas.
+
+The orthographic camera supports pan, zoom and 45-degree rotation. Ground commands and alpha-aware actor selection use Three.js raycasting. HP bars live in the scene; labels, menus, loot and the HUD remain accessible DOM elements. Shared geometry and materials are cached; expired actor materials, route buffers and effects are released. Device pixel ratio is capped at 2 (1.5 on narrow screens). Context loss pauses combat, and restoration waits for the player to resume.
+
+`guard-core.mjs` remains a renderer-independent deterministic grid simulation. Existing version-1 run checkpoints remain compatible. The game has no physical 3D collision response, so navigation uses its existing grid rules.
+
+The pinned, MIT-licensed Three.js browser modules are served from `vendor/three/`, without a runtime CDN dependency or a site-wide build change. If WebGL 2 cannot start, the original Canvas renderer supplies a compatible display; `?renderer=canvas` explicitly selects that mode. Camera rotation is hidden in that mode.
+
 ## The adventure
 
 Command Arthur (knight), Lilu (ranger), Mira (mage) and Nora (acolyte) through twelve waves. Build palisades to reroute ground enemies, arrow towers for damage, and frost runes for slowing. Build, repair, upgrade and dismantle during combat. All three entrances must retain a route to the crystal, and construction cannot trap heroes or ground enemies.
@@ -26,7 +36,8 @@ Choose one of three pieces of gear after each nonfinal wave. Twenty-four items a
 | P | Pause / resume |
 | I | Equipment bag |
 | Drag / pinch / wheel / + / − | Pan / zoom |
-| Fit / 全景 | Reset the full-map view |
+| [ / ] / curved-arrow buttons | Rotate the camera 45 degrees |
+| Fit / 全景 | Reset zoom, pan and camera angle |
 | ↻ | Confirm a fresh adventure |
 
 The game pauses when its tab becomes hidden or its window loses focus. Dialogs pause simulation. Equipment changes are restricted to preparation. Touch and keyboard commands share the same gameplay functions.
@@ -39,20 +50,20 @@ From the repository root:
 python3 -m http.server 8080
 # Open http://localhost:8080/games/crystal-vanguard/?lang=zh
 node --test games/crystal-vanguard/tests/guard-core.test.mjs
+# Scene tests additionally use @napi-rs/canvas (QA only):
+node --test games/crystal-vanguard/tests/three-scene.test.mjs
 ```
 
 No build step or runtime dependencies are required. Serve through HTTP; ES modules are not intended to run directly from `file://`.
 
 ## Validation and remaining boundary
 
-- 12 Node tests pass, including five complete twelve-wave campaigns using ordinary construction, upgrade, repair, skill, loot and equipment commands.
-- Tests cover rerouting, sealed-path rejection, hero escape routes, flying enemies, siege damage, lifesteal/overkill, piercing, frost, cooldowns, corrupt saves, checkpoint recovery, defeat and immutable end states.
-- The production renderer was exercised offline at 1280×720 and 390×550 using `@napi-rs/canvas` (QA dependency only). All 16 actor/structure frames and six scenery frames load; all 165 tile centers project and unproject correctly; hero picking is checked. Preparation and battle renders were visually inspected.
-- Published to [the main game entry](https://shemyu.github.io/tiny-arcade/games/crystal-vanguard/?lang=zh) on 2026-09-05; GitHub Pages deployment succeeded.
-- Live Chrome checks passed: initial loading, tower construction, frost construction during combat, knight skill activation, pause/resume, 2× speed, first-wave completion, three-choice rewards, equipped-item stats, and reloading/resuming the same adventure with its wave, gold and equipment retained. No game-origin console warnings or errors were recorded.
-- Physical touch hardware and Safari remain untested. The mobile renderer checks above do not replace those browser/device checks.
+- 12 gameplay tests pass, including five complete twelve-wave campaigns, path safety, combat effects, loot, checkpoint compatibility and terminal states.
+- Five scene tests cover all 165 tiles at desktop, portrait and landscape dimensions across five camera angles and four zoom levels; original texture crops; actor alpha picking; simulation immutability; finite combat transforms; and actor/effect resource cleanup.
+- The compatible Canvas renderer is still exercised offline at 1280×720 and 390×550.
+- Live WebGL interaction and visual checks are performed after deployment. Physical touch hardware and Safari require separate device testing.
 
-Optional offline renderer check, with `@napi-rs/canvas` available:
+Optional fallback renderer check, with `@napi-rs/canvas` available:
 
 ```sh
 node games/crystal-vanguard/tests/render-guard.cjs /tmp/crystal-guard-proof
@@ -60,6 +71,6 @@ node games/crystal-vanguard/tests/render-guard.cjs /tmp/crystal-guard-proof
 
 ## Files
 
-`guard-content.mjs` owns content; `guard-core.mjs` owns combat and serializable state; `guard-render.mjs` owns the isometric canvas; `guard-app.mjs` owns DOM, input, audio and storage; `guard-style.css` owns layout. Original recovered imagery and source notes live in `guard-assets/`.
+`guard-content.mjs` owns content; `guard-core.mjs` owns combat and serializable state; `guard-render.mjs` adapts simulation state to the Three.js scene; `three/` contains camera, assets, object factories, effects and world labels; `guard-view.mjs` selects the renderer; `guard-render-canvas.mjs` provides the compatible display; `guard-app.mjs` owns DOM, input, audio and storage; `guard-style.css` owns layout. Original recovered imagery and source notes live in `guard-assets/`.
 
 Older implementation notes are preserved in [LEGACY_NOTES.md](./LEGACY_NOTES.md).

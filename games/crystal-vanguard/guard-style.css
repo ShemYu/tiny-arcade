@@ -9,3 +9,12 @@
 @media(max-width:400px){.topbar{padding:0 7px;gap:3px}.brand-gem{display:none}.brand b{font-size:16px}.brand small{font-size:5px}.resources{gap:6px}.resources b{font-size:14px}.crystal-resource small{display:none}.utilities{gap:2px}.utilities button{width:26px;height:32px;font-size:10px}.command-deck{padding-left:7px;padding-right:7px;grid-template-columns:minmax(0,1fr) 66px;gap:6px}.skill-section{width:66px}.hero-button{flex-direction:column;height:58px;justify-content:center}.hero-button img{width:27px;height:34px}.hero-button small{display:none}.skill-button{height:57px}.build-tools{gap:3px}.build-tool{gap:1px}.build-tool img{width:19px}.build-tool b{font-size:8px}.action-float{max-width:95%}.action-float>span{white-space:normal;text-align:center}.loot-card{grid-template-columns:34px minmax(0,1fr) 68px;gap:0 6px}.loot-card button{width:68px}.loot-card h3{font-size:15px}}
 @media(max-height:530px) and (min-width:650px){.skill-button{height:42px}.hero-button{flex-direction:row}}
 #field:focus-visible{outline:3px solid #579a86;outline-offset:-3px}
+/* Three.js battlefield: DOM text stays crisp without covering input. */
+.world{background:radial-gradient(ellipse at 20% 9%,#aacbb64a,transparent 38%),radial-gradient(ellipse at 90% 25%,#a2c4ad4a,transparent 34%),linear-gradient(#d5e3d9,#e9edda 50%,#c9d9ca)}
+.world-labels{position:absolute;inset:0;overflow:hidden;pointer-events:none;z-index:0}
+.world-labels>span{position:absolute;left:0;top:0;white-space:nowrap;font-weight:600;line-height:1.25;text-shadow:0 1px 3px #eff4dc}
+.world-labels .label-chip,.world-labels .label-damage{background:#314a43db;padding:2px 6px;border-radius:4px;text-shadow:none}
+.world-labels .label-damage{font-variant-numeric:tabular-nums;padding:1px 4px}
+.wave-panel,.field-controls,.action-float,#boss-bar,#toast{z-index:1}
+#pause-overlay{z-index:2}
+@media(max-width:600px){.field-controls{gap:3px}.field-controls button{min-width:28px;width:auto;padding:0 5px}.wave-panel{max-width:52%}.wave-panel h1{font-size:19px}}

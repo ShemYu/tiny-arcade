@@ -7,7 +7,7 @@ const assert=require('node:assert/strict');
  const root=resolve(__dirname,'..'),out=resolve(process.argv[2]||'/tmp/crystal-guard-proof');mkdirSync(out,{recursive:true});
  global.document={createElement:()=>createCanvas(1,1)};
  global.matchMedia=()=>({matches:false});global.devicePixelRatio=1;
- const {Renderer}=await import(join(root,'guard-render.mjs'));
+ const {Renderer}=await import(join(root,'guard-render-canvas.mjs'));
  const {Game}=await import(join(root,'guard-core.mjs'));
  const atlas=await loadImage(join(root,'guard-assets/atlas.png'));
  const env=await loadImage(join(root,'guard-assets/environment.png'));
