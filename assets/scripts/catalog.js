@@ -6,6 +6,27 @@
  */
 window.TINY_ARCADE_GAMES = [
   {
+    id: "crystal-vanguard-v2",
+    title: { en: "Crystal Vanguard II", zh: "琉璃城 II：星霧遺跡" },
+    description: {
+      en: "A code-only isometric pixel adventure. Recruit four classes, merge your heroes, and hold eight roads against the Ruin Warden.",
+      zh: "純程式打造的 2.5D 漫畫像素戰棋。招募四職業、三合一升階，抵禦八方敵襲與遺跡看守者。"
+    },
+    path: "./games/crystal-vanguard/v2/",
+    source: "https://github.com/ShemYu/tiny-arcade/tree/main/games/crystal-vanguard/v2",
+    // Hand-written vector illustration. No media download or embedded bitmap.
+    preview: "data:image/svg+xml;charset=utf-8," + encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 360"><rect width="640" height="360" fill="#1c2b3e"/><circle cx="552" cy="66" r="25" fill="#bcc6b3"/><path d="m320 200 134-66 145 69-137 72z" fill="#83958a" stroke="#acb8a0"/><path d="m320 200 142 75v52l-75-20-58-39z" fill="#3c4e65"/><path d="m462 275 137-72-11 61-77 51-49 12z" fill="#526078"/><g fill="none" stroke="#667d78"><path d="m345 188 140 75m-112-89 140 75m-112-89 140 75m-112-88 140 75m-99-79-133 66m160-52-132 67m159-52-132 65m158-51-133 65"/></g><ellipse cx="461" cy="212" rx="27" ry="12" fill="#537c83"/><path d="m461 139 17 31-6 30-11 14-15-21-5-26z" fill="#80d4ce" stroke="#304d63" stroke-width="2"/><path d="m461 139 4 32-4 43 11-14 6-30z" fill="#4593aa"/><path d="m461 139-15 27 19 5z" fill="#caf3d4"/><g stroke="#273548" stroke-width="2"><g transform="translate(386 203)"><path d="m-9-12-4 19 12-4 13 5-4-20" fill="#954e61"/><path d="m-6 0-1 14h6V3h4v11h6L7 0" fill="#819aa6"/><path d="M-9-15H9V3H-9Z" fill="#bccdcd"/><path d="M-9-29H8l3 9-5 8H-5l-7-8Z" fill="#f0c5a0"/><path d="m-12-24 3-10 7 2 5-2 8 5v10l-5-6-4 5-4-5-6 5z" fill="#b2bcc7"/><path d="M14 0v-32l3-5 3 5V0Z" fill="#cbdcd6"/><path d="M10-2h14" stroke="#e6c996"/></g><g transform="translate(513 205)"><path d="m-7-13-8 27h28L7-13Z" fill="#9580b0"/><path d="M-8-29H7l4 11-7 5H-6l-5-7Z" fill="#edc59e"/><path d="m-16-25 8-7 2-18 10-5 8 7H4l7 15 7 8-17 3z" fill="#a28dbd"/><path d="M17 14V-36" stroke="#ca9e77" stroke-width="3"/><path d="m17-45 5 7-5 7-5-7Z" fill="#abdfc9"/></g></g><g font-family="Georgia,serif" fill="#eee5ce"><text x="30" y="122" font-size="35">CRYSTAL</text><text x="30" y="164" font-size="35">VANGUARD</text><text x="31" y="217" font-size="49" fill="#edcc94">II</text></g><g font-family="monospace" fill="#b4c2b9" font-size="10" letter-spacing="2"><text x="32" y="78">CHAPTER 01 / FIRST LIGHT</text><text x="32" y="265">4 CLASSES / 8 WAVES</text><text x="32" y="286">100% CODE</text></g></svg>`),
+    previewAlt: { en: "Vector illustration of an isometric crystal island with a knight and mage", zh: "純程式向量示意：浮空水晶遺跡、劍士與法師" },
+    genres: ["strategy", "arcade"],
+    tags: ["pixel-art", "tower-defense", "procedural", "single-player"],
+    controls: ["keyboard", "mouse", "touch"],
+    status: "beta",
+    featured: false,
+    playTime: "4–6 min",
+    added: "2026-09-05",
+    updated: "2026-09-05"
+  },
+  {
     id: "lumen-loop",
     title: { en: "Lumen Loop", zh: "流光迴路" },
     description: {

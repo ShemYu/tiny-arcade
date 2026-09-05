@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#1c2b39"><meta name="description" content="Crystal Vanguard II: an original, code-only isometric pixel tactics game. Recruit four classes, merge your heroes, and defend the crystal through eight waves.">
+<title>Crystal Vanguard II · 琉璃城 II · Tiny Arcade</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%231c2b39'/%3E%3Cpath d='M32 6L49 28L43 47L32 58L17 41L15 27Z' fill='%2380d4ce'/%3E%3Cpath d='M32 6L33 29L32 58L43 47L49 28Z' fill='%234593aa'/%3E%3Cpath d='M32 6L19 27L33 29Z' fill='%23caf3d4'/%3E%3C/svg%3E">
+<link rel="stylesheet" href="./style.css">
+<script defer src="./core.js"></script><script defer src="./art.js"></script><script defer src="./world.js"></script><script defer src="./app.js"></script>
+</head>
+<body>
+<svg class="symbols" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><defs>
+<symbol id="i-gem" viewBox="0 0 24 24"><path d="m12 2 7 8-2 8-5 4-6-7-1-6Z"/><path d="m12 2 1 9-1 11M5 9l8 2 6-1"/></symbol>
+<symbol id="i-sound" viewBox="0 0 24 24"><path d="M4 9h4l5-4v14l-5-4H4ZM17 8q4 4 0 8"/></symbol>
+<symbol id="i-pause" viewBox="0 0 24 24"><path d="M8 5v14M16 5v14"/></symbol>
+<symbol id="i-book" viewBox="0 0 24 24"><path d="M12 5v15M3 4q6-1 9 2 3-3 9-2v14q-6-1-9 2-3-3-9-2ZM6 8h3M15 8h3M6 12h3M15 12h3"/></symbol>
+<symbol id="i-arrow" viewBox="0 0 24 24"><path d="M4 12h15m-6-6 6 6-6 6"/></symbol>
+<symbol id="i-coin" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><path d="m12 7 3 5-3 5-3-5Z"/></symbol>
+<symbol id="i-zoom" viewBox="0 0 24 24"><circle cx="10" cy="10" r="6"/><path d="m15 15 5 5M7 10h6M10 7v6"/></symbol>
+</defs></svg>
+<main class="app">
+  <header class="topbar">
+    <a class="home" href="../../../" aria-label="Tiny Arcade">‹</a>
+    <div class="brand"><span class="kicker">TINY ARCADE / CHAPTER 01</span><h1><span class="brand-full">CRYSTAL VANGUARD</span><span class="brand-short">琉璃城</span> <em>II</em></h1></div>
+    <nav class="tools" aria-label="Game settings">
+      <button class="tool" id="language" aria-label="Switch language">EN</button>
+      <button class="tool" id="speed" aria-label="Battle speed">1×</button>
+      <button class="tool" id="sound" aria-pressed="false" aria-label="Mute sound"><svg><use href="#i-sound"/></svg></button>
+      <button class="tool" id="codex" aria-label="How to play and character codex"><svg><use href="#i-book"/></svg></button>
+      <button class="tool" id="pause" aria-label="Pause game"><svg><use href="#i-pause"/></svg></button>
+    </nav>
+  </header>
+  <section class="statusbar" aria-label="Game status">
+    <div class="crystal-stat"><svg class="gem-icon"><use href="#i-gem"/></svg><div><span class="stat-label" data-t="crystal">琉璃之心</span><div class="health-track"><i id="health-bar"></i></div></div><strong id="health">100</strong><span class="stat-denom">/100</span></div>
+    <div class="gold-stat"><svg><use href="#i-coin"/></svg><strong id="gold">18</strong><span class="stat-label" data-t="gold">金幣</span></div>
+    <div class="wave-stat"><span class="stat-label" data-t="wave">波次</span><strong id="wave">01</strong><span class="stat-denom">/08</span></div>
+    <span class="phase-pill" id="phase">整備中</span>
+  </section>
+  <div class="workspace">
+    <section class="stage" id="stage" aria-label="Isometric battlefield">
+      <div class="stage-heading"><p class="kicker" data-t="chapter">THE LAST LIGHT OF ASTER</p><h2 data-t="map">星霧遺跡</h2><span class="map-note" data-t="mapNote">守住這束光，直到天亮。</span></div>
+      <div class="forecast"><span class="kicker" id="forecast-label"></span><strong id="forecast"></strong><small id="composition"></small></div>
+      <canvas id="battlefield" tabindex="0" role="application" aria-label="Battlefield. Arrow keys move the tile cursor; Enter deploys the selected hero. Press 1 to 4 to recruit, Space to start a wave, and P to pause." aria-describedby="map-instructions"></canvas>
+      <div class="map-tools"><button class="tool" id="zoom" aria-label="Zoom battlefield"><svg><use href="#i-zoom"/></svg></button><span id="zoom-tip"></span></div>
+      <p class="map-instructions" id="map-instructions" data-t="mapInstructions">選取隊員，再點石板部署 · 點角色可檢視</p>
+      <div class="announcement" id="announcement" role="status" aria-live="polite"></div>
+    </section>
+    <aside class="command" aria-label="Recruit and deploy">
+      <section class="guild group"><div class="group-heading"><h3 data-t="guild">公會招募</h3><span class="eyebrow" data-t="recruitHint">每位 6 金</span></div><div class="recruits" id="recruits"></div></section>
+      <section class="army group"><div class="group-heading"><h3 data-t="army">遠征隊</h3><span id="army-count">4/8</span></div><div class="roster" id="roster" aria-label="Your heroes"></div><p class="bench-note" id="bench-note"></p></section>
+      <section class="selection" aria-live="polite"><div class="selected-title"><strong id="selected-name"></strong><span id="selected-stats"></span></div><p id="selected-copy"></p><div class="unit-actions"><button id="merge" data-t="merge">三合一</button><button id="bench" data-t="bench">撤回</button><button id="sell" data-t="sell">遣返</button></div></section>
+      <div class="command-bottom"><div class="preflight"><span id="phase-hint"></span><button id="repair"></button></div><button class="primary" id="action"><span id="action-label"></span><svg><use href="#i-arrow"/></svg></button></div>
+    </aside>
+  </div>
+  <footer class="footnote"><span><i></i><span data-t="footnote">一座遺跡，八個方向，一束不能熄滅的光。</span></span><a href="../" data-t="legacy">原版</a><span>100% CODE · V2 FIRST LIGHT</span></footer>
+</main>
+<dialog id="modal" aria-labelledby="modal-title"><button class="modal-close" id="modal-close" aria-label="Close">×</button><p class="kicker" id="modal-kicker"></p><h2 id="modal-title"></h2><div id="modal-content"></div><div class="modal-actions" id="modal-actions"></div></dialog>
+<noscript><p style="padding:30px">本遊戲需要 JavaScript。This game needs JavaScript.</p></noscript>
+</body></html>
