@@ -1,3 +1,4 @@
+import {prepareParts} from '../guard-rig.mjs';
 import * as THREE from '../vendor/three/three.module.min.js';
 
 export function measureFrames(image,xs,ys) {
@@ -31,6 +32,8 @@ export class ForestAssets {
     this.env=measureFrames(this.environment,[0,455,915,this.environment.width],[0,660,this.environment.height]);
     this.actors=this.frames.map(f=>this.texture(this.atlas,f));
     this.scenery=this.env.map(f=>this.texture(this.environment,f));
+    const image=await loader.loadAsync(new URL('../guard-assets/hero-parts.png',import.meta.url).href);
+    this.rigParts=prepareParts(image);this.rigs=this.rigParts.map(row=>row.map(image=>this.texture(image,{x:0,y:0,w:image.width,h:image.height})));
   }
   texture(image,frame) {
     const canvas=document.createElement('canvas');canvas.width=frame.w+4;canvas.height=frame.h+4;

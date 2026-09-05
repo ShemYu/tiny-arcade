@@ -6,7 +6,7 @@ export async function createRenderer(canvas) {
     try {
       const context=canvas.getContext('webgl2',{antialias:true,alpha:true,powerPreference:'default'});
       if(context) {
-        const {Renderer}=await import('./guard-render.mjs?v=motion2');
+        const {Renderer}=await import('./guard-render.mjs?v=professional1');
         renderer=new Renderer(canvas,context);
       }
     } catch(error) {console.warn('3D display unavailable; using compatible display.',error);}
@@ -14,9 +14,9 @@ export async function createRenderer(canvas) {
   if(renderer)return renderer;
   // A canvas which acquired a GPU context cannot acquire a 2D context.
   const replacement=canvas.cloneNode(true);canvas.replaceWith(replacement);
-  const {Renderer}=await import('./guard-render-canvas.mjs?v=motion2');
+  const {Renderer}=await import('./guard-render-canvas.mjs?v=professional1');
   renderer=new Renderer(replacement);renderer.backend='canvas';
   renderer.resetCamera=(mobile=false)=>{renderer.pan={x:0,y:0};renderer.zoom=mobile&&replacement.getBoundingClientRect().width<600?1.65:1;};
-  renderer.diagnostics=()=>({backend:'canvas',contextLost:false});
+  renderer.diagnostics=()=>({backend:'canvas',motion:'professional1',riggedHeroes:renderer.rigParts?4:0,contextLost:false});
   return renderer;
 }

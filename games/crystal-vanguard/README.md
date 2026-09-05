@@ -84,3 +84,30 @@ node games/crystal-vanguard/tests/render-guard.cjs /tmp/crystal-guard-proof
 `guard-content.mjs` owns content; `guard-core.mjs` owns combat and serializable state; `guard-render.mjs` adapts simulation state to the Three.js scene; `three/` contains camera, assets, object factories, effects and world labels; `guard-view.mjs` selects the renderer; `guard-render-canvas.mjs` provides the compatible display; `guard-app.mjs` owns DOM, input, audio and storage; `guard-style.css` owns layout. Original recovered imagery and source notes live in `guard-assets/`.
 
 Older implementation notes are preserved in [LEGACY_NOTES.md](./LEGACY_NOTES.md).
+
+### Professional motion pass (professional1)
+
+The Forest Watch entry uses four independently posed cutout rigs, preserving the
+original atlas for portraits and the original environment. `hero-parts.png` is an
+original-atlas-referenced supplementary art export, normalized with a chroma key
+at load time. Shared joint poses drive both Three and Canvas: head, torso, cape,
+shoulder/weapon transforms, two-link leg IK, and two-link ranger draw/bow arms.
+This is a 2D cutout rig in a 3D scene, not a replacement with full 3D character models.
+
+`guard-combat.mjs` owns windup/release/recovery and projectile arrival, including
+healing, towers, enemy strikes and active skills. Unreleased actions cancel on
+movement/death; released projectiles remain valid but cannot hit a dead target
+twice or revive a dead lifesteal source. Combat sounds consume those events.
+Rendering samples previous/current simulation positions at the fixed-step
+accumulator fraction; stride advances with distance, planted feet retain ground
+anchors, and facing is relative to the camera. Defeated enemies settle and fade;
+heroes walk home after loot instead of teleporting at wave completion.
+
+Validation: `node --test games/crystal-vanguard/tests/*.test.mjs` covers 33 tests,
+including five complete 12-wave campaigns, 30/60/120 Hz and double-speed schedules,
+release cancellation, projectile impact, checkpoint compatibility, joint/raycast
+scene reconciliation and resource disposal. `tests/render-guard.cjs` generates
+native Canvas desktop/mobile visual proofs. The cloud browser lacks WebGL2, so
+browser interaction checks use Canvas; actual device GPU frame pacing still needs
+measurement on the player's device. No hardware FPS guarantee is inferred from
+CPU scene tests. Three diagnostics report the motion revision and rig count.

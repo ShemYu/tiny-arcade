@@ -8,12 +8,14 @@ const assert=require('node:assert/strict');
  global.document={createElement:()=>createCanvas(1,1)};
  global.matchMedia=()=>({matches:false});global.devicePixelRatio=1;
  const {Renderer}=await import(join(root,'guard-render-canvas.mjs'));
+ const {prepareParts}=await import(join(root,'guard-rig.mjs'));
+ const parts=prepareParts(await loadImage(join(root,'guard-assets/hero-parts.png')));
  const {Game}=await import(join(root,'guard-core.mjs'));
  const atlas=await loadImage(join(root,'guard-assets/atlas.png'));
  const env=await loadImage(join(root,'guard-assets/environment.png'));
  for(const [name,w,h]of [['desktop',1280,720],['mobile',390,550]]){
   const canvas=createCanvas(w,h);canvas.getBoundingClientRect=()=>({width:w,height:h});
-  const r=new Renderer(canvas);r.resize();r.atlas=atlas;r.environment=env;
+  const r=new Renderer(canvas);r.resize();r.atlas=atlas;r.environment=env;r.rigParts=parts;
   r.frames=r.measure(atlas,[0,315,634,946,1254],[0,327,650,925,1254]);
   r.env=r.measure(env,[0,455,915,env.width],[0,660,env.height]);
   assert.equal(r.frames.length,16);assert.equal(r.env.length,6);

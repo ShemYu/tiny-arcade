@@ -1,11 +1,13 @@
-import {ActorMotion,deformVertex} from './guard-motion.mjs?v=motion2';
+import {createRig,updateRig} from './three/rig.mjs';
+import {RIG_IDS} from './guard-rig.mjs';
+import {ActorMotion,deformVertex} from './guard-motion.mjs?v=professional1';
 import * as THREE from './vendor/three/three.module.min.js';
 import {W,H,CORE,ENTRANCES,HEROES,BUILDINGS,WAVES,TEXT} from './guard-content.mjs';
-import {BattlefieldCamera} from './three/camera.mjs?v=motion2';
-import {ForestAssets} from './three/assets.mjs?v=motion2';
-import {ObjectFactory} from './three/objects.mjs?v=motion2';
-import {EffectsView} from './three/effects.mjs?v=motion2';
-import {WorldLabels} from './three/labels.mjs?v=motion2';
+import {BattlefieldCamera} from './three/camera.mjs?v=professional1';
+import {ForestAssets} from './three/assets.mjs?v=professional1';
+import {ObjectFactory} from './three/objects.mjs?v=professional1';
+import {EffectsView} from './three/effects.mjs?v=professional1';
+import {WorldLabels} from './three/labels.mjs?v=professional1';
 
 export class Renderer {
   constructor(canvas,context) {
@@ -53,7 +55,7 @@ export class Renderer {
   unproject(x,y){this.camera();return this.view.unproject(x,y);}
   pickActor(state,px,py) {
     this.camera();this.scene.updateMatrixWorld(true);
-    const targets=[...this.actors.values()].flatMap(group=>[group.userData.body,group.userData.attackBody]).filter(body=>body?.userData.alive&&body.visible);
+    const targets=[...this.actors.values()].flatMap(group=>(group.userData.rig?group.userData.rig.children:[group.userData.body,group.userData.attackBody])).filter(body=>body?.userData.alive&&body.visible);
     for(const hit of this.view.ray(px,py).intersectObjects(targets,false)) {
       const body=hit.object,texture=body.material.map,uv=hit.uv;
       if(uv&&texture?.image) {
@@ -83,21 +85,26 @@ export class Renderer {
       if(!group){group=this.factory.actor(texture,height,hero?base.color:'#c48c76',type,actor.id);this.actors.set(key,group);this.scene.add(group);}
       const {body,attackBody,bar,select,slow,shadow}=group.userData;
       group.userData.motion??=new ActorMotion(actor);
-      const pose=group.userData.motion.update(actor,this.motionDt||0,this.reduced);
+      const pose=group.userData.motion.update(actor,this.motionDt||0,this.reduced,this.displayAzimuth??Math.PI/4,this.interpolation??1);
       group.position.set(pose.x,0,pose.y);body.material.map=texture;body.userData.alive=actor.hp>0;
       const width=texture.image.width/texture.image.height*height;
       body.scale.set(pose.face*width/pose.stretch,height*pose.stretch,1);
       body.position.set(pose.thrust*pose.face*.12,pose.lift,0);
       body.quaternion.copy(this.view.camera.quaternion);
-      body.rotateZ(actor.hp>0?pose.lean:-.35);
+      body.rotateZ(actor.hp>0?pose.lean:-pose.death*.65);
       const positions=body.geometry.attributes.position,rest=body.userData.rest;
       for(let i=0;i<positions.count;i++){const p=deformVertex(rest[i*3],rest[i*3+1],pose,actor.flying);positions.setXYZ(i,p.x,p.y,rest[i*3+2]);}
       positions.needsUpdate=true;
-      const weight=hero?pose.attack:0,opacity=actor.hp>0?1:.3;
+      const weight=0,opacity=actor.hp>0?1:hero?.32:Math.max(0,1-pose.death);
       body.material.opacity=opacity*(1-weight);body.visible=weight<.995;
       body.material.color.set(pose.hit>.05?'#ffe6d8':actor.enraged?'#ffd2c4':'#ffffff');
       attackBody.visible=hero&&weight>.005;attackBody.userData.alive=actor.hp>0;
       if(attackBody.visible){attackBody.material.map=this.assets.actors[actor.sprite+1];attackBody.material.opacity=opacity*weight;attackBody.position.copy(body.position);attackBody.quaternion.copy(body.quaternion);attackBody.translateZ(.005);attackBody.scale.copy(body.scale);const art=attackBody.material.map.image;attackBody.scale.x=pose.face*(art.width/art.height)*height/pose.stretch;}
+      if(hero&&this.assets.rigs){
+        group.userData.rig??=createRig(this.assets.rigs[RIG_IDS.indexOf(actor.id)],actor.id);
+        const rig=group.userData.rig;if(!rig.parent)group.add(rig);
+        updateRig(rig,this.assets.rigs[RIG_IDS.indexOf(actor.id)],pose,height,this.view.camera,actor.hp>0);body.visible=false;attackBody.visible=false;
+      }
       shadow.scale.setScalar(actor.boss?.6:.35);shadow.visible=actor.hp>0;
       bar.position.y=height/Math.cos(Math.PI/6)+.15+body.position.y;bar.visible=actor.hp>0;
       this.bar(bar,actor.hp,hero?game.stats(actor).hp:actor.maxHp);
@@ -186,13 +193,13 @@ export class Renderer {
     this.coreBar.visible=game.state.core.hp<game.state.core.maxHp;this.bar(this.coreBar,game.state.core.hp,game.state.core.maxHp);
     for(const effect of game.state.effects)if(['number','coin'].includes(effect.type)) {
       let entry=this.effectIds.get(effect);if(!entry){entry={id:this.nextEffect++,born:this.time,ttl:effect.ttl};this.effectIds.set(effect,entry);}
-      const age=this.time-entry.born;if(age>entry.ttl)continue;
+      const age=(effect.duration??entry.ttl)-effect.ttl;if(age>entry.ttl)continue;
       const p=this.view.project(effect.x,effect.y,50+age*22);
       this.labels.put(`effect:${entry.id}`,effect.type==='coin'?`+${effect.value}`:effect.value,p.x,p.y,{color:effect.type==='coin'?'#8a6537':effect.color,className:effect.type==='number'?'label-damage':'',opacity:Math.min(1,(entry.ttl-age)*4),size:Math.max(11,13*this.scale)});
     }
     this.labels.end();this.gpu.render(this.scene,this.view.camera);
   }
-  diagnostics(){return {backend:this.backend,revision:THREE.REVISION,contextLost:this.lost,drawCalls:this.gpu.info.render.calls,triangles:this.gpu.info.render.triangles,geometries:this.gpu.info.memory.geometries,textures:this.gpu.info.memory.textures,actors:this.actors.size,buildings:this.buildings.size};}
+  diagnostics(){return {backend:this.backend,motion:'professional1',riggedHeroes:[...this.actors.values()].filter(a=>a.userData.rig).length,revision:THREE.REVISION,contextLost:this.lost,drawCalls:this.gpu.info.render.calls,triangles:this.gpu.info.render.triangles,geometries:this.gpu.info.memory.geometries,textures:this.gpu.info.memory.textures,actors:this.actors.size,buildings:this.buildings.size};}
   dispose() {
     if(this.disposed)return;this.disposed=true;
     this.canvas.removeEventListener('webglcontextlost',this.contextLost);this.canvas.removeEventListener('webglcontextrestored',this.contextRestored);

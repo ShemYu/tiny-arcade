@@ -34,11 +34,11 @@ test('flying enemies cross walls while a sapper damages structures',()=>{
 });
 test('equipment modifies attacks: lifesteal, piercing and frost',()=>{
  const g=new Game(5),h=g.state.heroes[0];h.gear.weapon='fang';h.hp=100;
- let e=g.spawn('golem',0);e.x=h.x+.5;e.y=h.y;g.attack(h,e);assert.ok(h.hp>100);
+ let e=g.spawn('golem',0);e.x=h.x+.5;e.y=h.y;g.attack(h,e);for(let i=0;i<40;i++)g.advanceCombat(1/60);assert.ok(h.hp>100);
  const r=g.state.heroes[1];r.gear.weapon='pierce';r.x=3;r.y=5;
  const a=g.spawn('goblin',0),b=g.spawn('goblin',0);a.x=5;a.y=5;b.x=6;b.y=5;
- const hp=b.hp;g.attack(r,a);assert.ok(b.hp<hp);
- const m=g.state.heroes[2];m.gear.weapon='icestaff';g.attack(m,e);assert.ok(e.slow>0);
+ const hp=b.hp;g.attack(r,a);for(let i=0;i<60;i++)g.advanceCombat(1/60);assert.ok(b.hp<hp);
+ const m=g.state.heroes[2];m.gear.weapon='icestaff';g.attack(m,e);for(let i=0;i<60;i++)g.advanceCombat(1/60);assert.ok(e.slow>0);
 });
 test('healing does not create lifesteal from overkill damage',()=>{
  const g=new Game(6),h=g.state.heroes[0];h.gear.weapon='fang';h.hp=50;
@@ -47,7 +47,7 @@ test('healing does not create lifesteal from overkill damage',()=>{
 test('cooldowns, death and phase gate active skills',()=>{
  const g=new Game(7);assert.equal(g.skill('mage',5,5),false);g.start();
  assert.equal(g.skill('mage',5,5),true);assert.equal(g.skill('mage',5,5),false);
- assert.equal(g.state.fields.length,1);assert.equal(g.skill('ranger',NaN,5),false);
+ assert.equal(g.state.fields.length,0);for(let i=0;i<40;i++)g.tick(1/60);assert.equal(g.state.fields.length,1);assert.equal(g.skill('ranger',NaN,5),false);
  const before=g.snapshot();g.tick(NaN);g.tick(-1);assert.deepEqual(g.snapshot(),before);
 });
 test('loot selection is single-use, class-safe and swaps equipment to the bag',()=>{

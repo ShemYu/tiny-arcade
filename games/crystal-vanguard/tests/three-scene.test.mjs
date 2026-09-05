@@ -1,3 +1,4 @@
+import {prepareParts} from '../guard-rig.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {createRequire} from 'node:module';
@@ -21,7 +22,7 @@ async function assets() {
   a.frames=measureFrames(a.atlas,[0,315,634,946,1254],[0,327,650,925,1254]);
   a.env=measureFrames(a.environment,[0,455,915,1254],[0,660,1254]);
   a.actors=a.frames.map(f=>a.texture(a.atlas,f));a.scenery=a.env.map(f=>a.texture(a.environment,f));
-  return a;
+  a.rigParts=prepareParts(await loadImage(new URL('../guard-assets/hero-parts.png',import.meta.url).pathname));a.rigs=a.rigParts.map(row=>row.map(im=>a.texture(im,{x:0,y:0,w:im.width,h:im.height})));return a;
 }
 
 test('raycasting addresses all 165 tiles after resize, pan, zoom and camera rotation',()=>{
@@ -56,7 +57,7 @@ test('scene reconciliation renders combat without changing simulation or leaking
   const effects=new EffectsView(scene,f);game.start();
   let disposed=0,maxMaterials=0;
   for(let i=0;i<900;i++) {
-    game.tick(1/60);r.time+=1/60;
+    game.tick(1/60);r.time+=1/60;r.motionDt=1/60;
     r.updateActors(game);r.updateBuildings(game.state);effects.update(game.state,r.time,false);
     for(const group of r.actors.values())if(!group.userData.watched){group.userData.watched=true;group.userData.body.material.addEventListener('dispose',()=>disposed++);}
     scene.updateMatrixWorld(true);
@@ -66,7 +67,7 @@ test('scene reconciliation renders combat without changing simulation or leaking
   assert.ok(game.state.kills>0);assert.ok(disposed>0,'dead enemy sprite materials are disposed');
   assert.equal(r.actors.size,4+game.state.enemies.length);
   assert.ok(maxMaterials<35,`bounded shared materials: ${maxMaterials}`);
-  game.state.effects=[];game.state.fields=[];effects.update(game.state,100,false);
+  game.state.effects=[];game.state.fields=[];game.state.projectiles=[];effects.update(game.state,100,false);
   assert.equal(effects.items.size,0);assert.equal(effects.fields.size,0);
   effects.dispose();f.dispose();a.dispose();
 });

@@ -37,16 +37,16 @@ export class EffectsView {
   }
   update(state,time,reduced) {
     const alive=new Set();
-    for(const effect of state.effects) {
+    for(const effect of [...state.effects,...(state.projectiles||[])]) {
       if(['number','coin'].includes(effect.type))continue;
       alive.add(effect);
       let item=this.items.get(effect);
       if(!item){item={group:this.create(effect),born:time,ttl:effect.ttl};this.items.set(effect,item);}
-      const age=time-item.born,progress=Math.min(1,age/Math.max(.01,item.ttl));
+      const age=effect.age??((effect.duration??item.ttl)-effect.ttl),duration=effect.duration??item.ttl,progress=Math.min(1,age/Math.max(.01,duration));
       const {projectile,from,to,arc}=item.group.userData;
-      if(projectile){projectile.position.lerpVectors(from,to,progress);projectile.position.y+=Math.sin(progress*Math.PI)*.18;projectile.lookAt(item.group.localToWorld(to.clone()));}
+      if(projectile){to.set(effect.tx-effect.x,.5,effect.ty-effect.y);projectile.position.lerpVectors(from,to,progress);projectile.position.y+=Math.sin(progress*Math.PI)*.18;projectile.lookAt(item.group.localToWorld(to.clone()));}
       if(arc){arc.rotation.z=-Math.PI*.6+progress*Math.PI*1.3;arc.scale.setScalar(.8+progress*.6);}
-      item.group.visible=age<item.ttl;
+      item.group.visible=age<duration;
       if(!['shot','slash','rain'].includes(effect.type))item.group.scale.setScalar(reduced?1:1+Math.min(age,1)*.5);
       if(effect.type==='rain')item.group.position.y=reduced?.05:.05+Math.max(0,1-progress*1.8);
     }
