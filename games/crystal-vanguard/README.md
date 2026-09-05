@@ -12,6 +12,16 @@ The orthographic camera supports pan, zoom and 45-degree rotation. Ground comman
 
 The pinned, MIT-licensed Three.js browser modules are served from `vendor/three/`, without a runtime CDN dependency or a site-wide build change. If WebGL 2 cannot start, the original Canvas renderer supplies a compatible display; `?renderer=canvas` explicitly selects that mode. Camera rotation is hidden in that mode.
 
+## Continuous motion update
+
+Heroes now accept exact ground positions rather than snapping destinations to tile centers. Preparation commands animate instead of teleporting. Navigation searches the existing occupancy grid and removes intermediate waypoints with clear swept corridors; solid buildings retain grid placement. Destination and path clearance remain protected when constructing. Fractional destinations persist in version-1 checkpoints, while existing integer checkpoints remain readable.
+
+The Three.js actors are now subdivided, camera-facing textured meshes. A time-based pose layer deforms the original artwork for alternating strides, weight shifts, breathing, attack anticipation/recovery, hit recoil, jelly squash and flight. Idle/attack art blends briefly rather than switching instantly. This is procedural cutout animation, **not a new multi-frame walk cycle or a fully rigged character asset**. Canvas compatibility shares the pose timing, without mesh deformation.
+
+Projectiles travel between source and target, melee attacks use swept arcs, and camera rotation/zoom/pan ease toward their targets. The simulation runs fixed 1/60-second steps; pose timing follows battle speed. The tile seams and checkerboard contrast are reduced. No measured device FPS improvement is claimed.
+
+Five additional tests cover fractional destination arrival and saves, wall clearance and replanning, continuous poses, reduced motion and 30/120 Hz pose consistency. The cloud browser's WebGL limitation still applies to GPU visual validation.
+
 ## The adventure
 
 Command Arthur (knight), Lilu (ranger), Mira (mage) and Nora (acolyte) through twelve waves. Build palisades to reroute ground enemies, arrow towers for damage, and frost runes for slowing. Build, repair, upgrade and dismantle during combat. All three entrances must retain a route to the crystal, and construction cannot trap heroes or ground enemies.

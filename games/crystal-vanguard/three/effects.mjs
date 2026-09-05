@@ -12,8 +12,15 @@ export class EffectsView {
   create(effect) {
     const group=new THREE.Group(),f=this.factory,color=effect.color||'#b2e4d4';
     group.position.set(effect.x,.045,effect.y);
-    if(effect.type==='shot'||effect.type==='slash') {
-      this.beam(group,[0,effect.tower?1.5:.72,0],[effect.tx-effect.x,.5,effect.ty-effect.y],color,effect.type==='slash'?.045:.019);
+    if(effect.type==='shot') {
+      const from=new THREE.Vector3(0,effect.tower?1.5:.72,0),to=new THREE.Vector3(effect.tx-effect.x,.5,effect.ty-effect.y);
+      const projectile=new THREE.Group();
+      this.beam(projectile,[0,0,0],[0,0,-.27],color,.025);
+      const spark=new THREE.Mesh(f.geometry('projectile',()=>new THREE.OctahedronGeometry(.055)),f.material(color,true));projectile.add(spark);group.add(projectile);
+      group.userData={projectile,from,to};
+    } else if(effect.type==='slash') {
+      const arc=new THREE.Mesh(f.geometry('slash-arc',()=>new THREE.RingGeometry(.45,.56,20,1,0,Math.PI*1.3)),f.material(color,true));
+      arc.rotation.x=-Math.PI/2;arc.position.y=.65;group.add(arc);group.userData.arc=arc;
     } else if(effect.type==='rain') {
       for(let i=0;i<12;i++) {
         const x=Math.sin(i*31)*1.9,z=Math.cos(i*21)*1.9;
@@ -35,10 +42,13 @@ export class EffectsView {
       alive.add(effect);
       let item=this.items.get(effect);
       if(!item){item={group:this.create(effect),born:time,ttl:effect.ttl};this.items.set(effect,item);}
-      const age=time-item.born;
+      const age=time-item.born,progress=Math.min(1,age/Math.max(.01,item.ttl));
+      const {projectile,from,to,arc}=item.group.userData;
+      if(projectile){projectile.position.lerpVectors(from,to,progress);projectile.position.y+=Math.sin(progress*Math.PI)*.18;projectile.lookAt(item.group.localToWorld(to.clone()));}
+      if(arc){arc.rotation.z=-Math.PI*.6+progress*Math.PI*1.3;arc.scale.setScalar(.8+progress*.6);}
       item.group.visible=age<item.ttl;
       if(!['shot','slash','rain'].includes(effect.type))item.group.scale.setScalar(reduced?1:1+Math.min(age,1)*.5);
-      if(effect.type==='rain')item.group.position.y=reduced?.05:.05+Math.max(0,.5-age);
+      if(effect.type==='rain')item.group.position.y=reduced?.05:.05+Math.max(0,1-progress*1.8);
     }
     for(const [key,item] of this.items)if(!alive.has(key)){this.factory.remove(item.group);this.items.delete(key);}
     const fields=new Set(state.fields);

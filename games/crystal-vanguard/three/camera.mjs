@@ -36,6 +36,10 @@ export class BattlefieldCamera {
     this.raycaster.setFromCamera(this.ndc,this.camera);
     return this.raycaster;
   }
+  groundPoint(px,py) {
+    const p=this.ray(px,py).ray.intersectPlane(this.ground,this.point);
+    return p?{x:p.x,y:p.z}:{x:-1,y:-1};
+  }
   unproject(px,py) {
     const p=this.ray(px,py).ray.intersectPlane(this.ground,this.point);
     return p?{x:Math.round(p.x)||0,y:Math.round(p.z)||0}:{x:-1,y:-1};

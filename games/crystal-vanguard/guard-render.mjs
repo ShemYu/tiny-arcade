@@ -1,15 +1,16 @@
+import {ActorMotion,deformVertex} from './guard-motion.mjs?v=motion1';
 import * as THREE from './vendor/three/three.module.min.js';
 import {W,H,CORE,ENTRANCES,HEROES,BUILDINGS,WAVES,TEXT} from './guard-content.mjs';
-import {BattlefieldCamera} from './three/camera.mjs';
-import {ForestAssets} from './three/assets.mjs';
-import {ObjectFactory} from './three/objects.mjs?v=three2';
-import {EffectsView} from './three/effects.mjs';
-import {WorldLabels} from './three/labels.mjs';
+import {BattlefieldCamera} from './three/camera.mjs?v=motion1';
+import {ForestAssets} from './three/assets.mjs?v=motion1';
+import {ObjectFactory} from './three/objects.mjs?v=motion1';
+import {EffectsView} from './three/effects.mjs?v=motion1';
+import {WorldLabels} from './three/labels.mjs?v=motion1';
 
 export class Renderer {
   constructor(canvas,context) {
     this.canvas=canvas;this.backend='three';this.zoom=canvas.getBoundingClientRect().width<600?1.65:1;
-    this.pan={x:0,y:0};this.azimuth=Math.PI/4;this.hover=null;this.tool=null;this.selected='knight';this.lang='zh';
+    this.pan={x:0,y:0};this.displayPan={x:0,y:0};this.displayZoom=this.zoom;this.azimuth=Math.PI/4;this.displayAzimuth=this.azimuth;this.hover=null;this.tool=null;this.selected='knight';this.lang='zh';
     this.time=0;this.ready=false;this.lost=false;this.disposed=false;this.frames=[];this.env=[];
     this.reduced=matchMedia('(prefers-reduced-motion: reduce)').matches;
     this.gpu=new THREE.WebGLRenderer({canvas,context,antialias:true,alpha:true,powerPreference:'default'});
@@ -44,14 +45,15 @@ export class Renderer {
     this.dpr=Math.min(devicePixelRatio||1,this.width<600?1.5:2);
     this.gpu.setPixelRatio(this.dpr);this.gpu.setSize(this.width,this.height,false);this.camera();
   }
-  camera(){this.view.update(this.width||1,this.height||1,this.zoom,this.pan,this.azimuth);this.scale=this.view.scale;}
+  camera(){this.view.update(this.width||1,this.height||1,this.displayZoom??this.zoom,this.displayPan??this.pan,this.displayAzimuth??this.azimuth);this.scale=this.view.scale;}
   rotate(delta){this.azimuth+=delta;this.camera();}
   resetCamera(mobile=false){this.pan={x:0,y:0};this.azimuth=Math.PI/4;this.zoom=mobile&&this.width<600?1.65:1;this.camera();}
   project(x,y,z=0){this.camera();return this.view.project(x,y,z);}
+  groundPoint(x,y){this.camera();return this.view.groundPoint(x,y);}
   unproject(x,y){this.camera();return this.view.unproject(x,y);}
   pickActor(state,px,py) {
     this.camera();this.scene.updateMatrixWorld(true);
-    const targets=[...this.actors.values()].map(group=>group.userData.body).filter(body=>body.userData.alive);
+    const targets=[...this.actors.values()].flatMap(group=>[group.userData.body,group.userData.attackBody]).filter(body=>body?.userData.alive&&body.visible);
     for(const hit of this.view.ray(px,py).intersectObjects(targets,false)) {
       const body=hit.object,texture=body.material.map,uv=hit.uv;
       if(uv&&texture?.image) {
@@ -76,18 +78,26 @@ export class Renderer {
       const hero=type==='hero',key=`${type}:${actor.id}`;alive.add(key);
       const base=hero?HEROES.find(h=>h.id===actor.id):null;
       const height=(hero?69:actor.boss?124:actor.kind==='jelly'?34:actor.kind==='golem'?66:48)/48;
-      const index=actor.sprite+(hero&&actor.anim>0?1:0),texture=this.assets.actors[index];
+      const texture=this.assets.actors[actor.sprite];
       let group=this.actors.get(key);
       if(!group){group=this.factory.actor(texture,height,hero?base.color:'#c48c76',type,actor.id);this.actors.set(key,group);this.scene.add(group);}
-      const {body,bar,select,slow,shadow}=group.userData;
-      group.position.set(actor.x,0,actor.y);body.material.map=texture;body.userData.alive=actor.hp>0;
+      const {body,attackBody,bar,select,slow,shadow}=group.userData;
+      group.userData.motion??=new ActorMotion(actor);
+      const pose=group.userData.motion.update(actor,this.motionDt||0,this.reduced);
+      group.position.set(pose.x,0,pose.y);body.material.map=texture;body.userData.alive=actor.hp>0;
       const width=texture.image.width/texture.image.height*height;
-      body.scale.set(actor.face<0?-width:width,height,1);
-      const phase=hero?HEROES.indexOf(base):actor.id;
-      const bob=this.reduced?0:actor.moving?Math.abs(Math.sin(this.time*(hero?10:7)+phase))*.055:hero?Math.sin(this.time*2.3+phase)*.014:0;
-      body.position.y=(actor.flying?.45+(this.reduced?0:Math.sin(this.time*8)*.06):bob);
-      body.material.opacity=actor.hp>0?1:.3;body.material.rotation=actor.hp>0?0:-.23;
-      body.material.color.set(actor.hit>0?'#ffe6c6':actor.enraged?'#ffd2c4':'#ffffff');
+      body.scale.set(pose.face*width/pose.stretch,height*pose.stretch,1);
+      body.position.set(pose.thrust*pose.face*.12,pose.lift,0);
+      body.quaternion.copy(this.view.camera.quaternion);
+      body.rotateZ(actor.hp>0?pose.lean:-.35);
+      const positions=body.geometry.attributes.position,rest=body.userData.rest;
+      for(let i=0;i<positions.count;i++){const p=deformVertex(rest[i*3],rest[i*3+1],pose,actor.flying);positions.setXYZ(i,p.x,p.y,rest[i*3+2]);}
+      positions.needsUpdate=true;
+      const weight=hero?pose.attack:0,opacity=actor.hp>0?1:.3;
+      body.material.opacity=opacity*(1-weight);body.visible=weight<.995;
+      body.material.color.set(pose.hit>.05?'#ffe6d8':actor.enraged?'#ffd2c4':'#ffffff');
+      attackBody.visible=hero&&weight>.005;attackBody.userData.alive=actor.hp>0;
+      if(attackBody.visible){attackBody.material.map=this.assets.actors[actor.sprite+1];attackBody.material.opacity=opacity*weight;attackBody.position.copy(body.position);attackBody.quaternion.copy(body.quaternion);attackBody.translateZ(.005);attackBody.scale.copy(body.scale);}
       shadow.scale.setScalar(actor.boss?.6:.35);shadow.visible=actor.hp>0;
       bar.position.y=height/Math.cos(Math.PI/6)+.15+body.position.y;bar.visible=actor.hp>0;
       this.bar(bar,actor.hp,hero?game.stats(actor).hp:actor.maxHp);
@@ -143,7 +153,7 @@ export class Renderer {
   }
   updateCursor(game) {
     const h=this.hover,visible=h&&h.x>=0&&h.y>=0&&h.x<W&&h.y<H&&this.tool;
-    this.cursor.visible=!!visible;this.range.visible=false;
+    this.cursor.visible=!!visible&&this.tool!=='move';this.range.visible=false;
     if(!visible){if(this.ghost)this.ghost.visible=false;return;}
     const building=BUILDINGS[this.tool],construct=['wall','tower','frost'].includes(this.tool);
     const valid=!construct||!game.canBuild(this.tool,h.x,h.y);
@@ -165,7 +175,7 @@ export class Renderer {
   }
   draw(game,dt=0) {
     if(!this.ready||this.lost||this.disposed)return;
-    this.time+=Math.max(0,dt);this.camera();this.labels.begin();this.home.visible=false;
+    this.motionDt=Math.max(0,dt);this.time+=this.motionDt;const smoothing=this.reduced?1:1-Math.exp(-15*this.motionDt);this.displayZoom=(this.displayZoom??this.zoom)+(this.zoom-(this.displayZoom??this.zoom))*smoothing;this.displayPan??={...this.pan};this.displayPan.x+=(this.pan.x-this.displayPan.x)*smoothing;this.displayPan.y+=(this.pan.y-this.displayPan.y)*smoothing;this.displayAzimuth=this.reduced?this.azimuth:(this.displayAzimuth??this.azimuth)+(this.azimuth-(this.displayAzimuth??this.azimuth))*(1-Math.exp(-12*this.motionDt));this.camera();this.labels.begin();this.home.visible=false;
     this.updateActors(game);this.updateBuildings(game.state);this.updateRoutes(game);this.updateCursor(game);
     this.effects.update(game.state,this.time,this.reduced);
     const gem=this.crystal.userData.gem;

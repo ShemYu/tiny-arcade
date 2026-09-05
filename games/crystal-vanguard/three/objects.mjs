@@ -61,12 +61,17 @@ export class ObjectFactory {
     group.userData={fill,width};return group;
   }
   actor(texture,height,color,type,id) {
-    const group=new THREE.Group();const body=this.sprite(texture,height);body.userData={...body.userData,actorType:type,actorId:id};group.add(body);
+    const group=new THREE.Group();
+    const geometry=new THREE.PlaneGeometry(1,1,8,12);geometry.translate(0,.465,0);
+    const material=new THREE.MeshBasicMaterial({map:texture,alphaTest:.08,transparent:true,side:THREE.DoubleSide,toneMapped:false});
+    const body=new THREE.Mesh(geometry,material);body.scale.set(height*texture.image.width/texture.image.height,height,1);
+    body.userData={height,actorType:type,actorId:id,rest:new Float32Array(geometry.attributes.position.array)};group.add(body);
+    const attackBody=new THREE.Mesh(geometry,material.clone());attackBody.userData={actorType:type,actorId:id};attackBody.material.depthWrite=false;attackBody.visible=false;group.add(attackBody);
     const shadow=this.shadow(group,type==='hero'?.35:.3);
     const bar=this.healthBar(color,type==='hero'?.68:.62);group.add(bar);
     const select=this.ring(group,.49,'#eff6ca');select.visible=false;
     const slow=this.ring(group,.43,'#a3e1ec');slow.visible=false;
-    group.userData={body,shadow,bar,select,slow,ownedMaterials:[body.material]};return group;
+    group.userData={body,attackBody,shadow,bar,select,slow,ownedMaterials:[body.material,attackBody.material],ownedGeometries:[geometry]};return group;
   }
   building(kind,level=1) {
     const group=new THREE.Group();this.shadow(group,.48);
@@ -126,11 +131,11 @@ export class ObjectFactory {
     const group=new THREE.Group();
     this.box(group,[W,.55,H],[(W-1)/2,-.34,(H-1)/2],'#8c9a76');
     this.box(group,[W-.18,.25,H-.18],[(W-1)/2,-.72,(H-1)/2],'#798d6f');
-    const tiles=new THREE.InstancedMesh(this.geometry('tile',()=>new THREE.BoxGeometry(.985,.12,.985)),this.material('#ffffff'),W*H);
+    const tiles=new THREE.InstancedMesh(this.geometry('tile',()=>new THREE.BoxGeometry(1.002,.12,1.002)),this.material('#ffffff'),W*H);
     const matrix=new THREE.Matrix4(),color=new THREE.Color();
     for(let y=0;y<H;y++)for(let x=0;x<W;x++) {
       const n=(x*67+y*103)%7,road=y===5||x===7&&y<6,near=Math.abs(x-CORE.x)<=1&&Math.abs(y-CORE.y)<=1;
-      color.set(near?'#d9d6b6':road?['#d1cba7','#d8cfad','#d8d0b3'][n%3]:['#aebd8b','#b5c38e','#b7c496','#afbe8b','#b2bf8e','#b8c697','#b2c393'][n]);
+      color.set(near?'#d9d6b6':road?['#d1cba7','#d8cfad','#d8d0b3'][n%3]:['#b3c190','#b4c291','#b3c290','#b4c191','#b3c191','#b4c291','#b3c291'][n]);
       const i=y*W+x;tiles.setMatrixAt(i,matrix.makeTranslation(x,-.06,y));tiles.setColorAt(i,color);
     }
     tiles.instanceMatrix.needsUpdate=true;tiles.instanceColor.needsUpdate=true;group.add(tiles);
@@ -147,7 +152,7 @@ export class ObjectFactory {
   }
   remove(group) {
     group.removeFromParent();
-    group.traverse(o=>{if(o.userData.ownedMaterials)for(const m of o.userData.ownedMaterials)m.dispose();});
+    group.traverse(o=>{if(o.userData.ownedMaterials)for(const m of o.userData.ownedMaterials)m.dispose();if(o.userData.ownedGeometries)for(const g of o.userData.ownedGeometries)g.dispose();});
   }
   dispose() {
     for(const g of this.geometries.values())g.dispose();
