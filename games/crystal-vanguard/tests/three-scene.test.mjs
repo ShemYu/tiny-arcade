@@ -76,7 +76,7 @@ test('visible hero cutouts are selectable with Three.js rays across rotated view
   const r=Object.create(Renderer.prototype);
   Object.assign(r,{assets:a,factory:f,scene,view,actors:new Map(),time:0,selected:'knight',tool:'move',lang:'zh',scale:1,reduced:true,labels:{put(){}},home:new THREE.Group(),camera(){}});
   // Separate actors so the test checks ray/alpha selection rather than occlusion priority.
-  game.state.heroes.forEach((h,i)=>{h.x=2+i*3;h.y=5;h.home={x:h.x,y:h.y};});
+  game.state.heroes.forEach((h,i)=>{h.x=2+i*3;h.y=5;h.home={x:h.x,y:h.y};h.face=i%2?-1:1;});
   for(const angle of [Math.PI/4,Math.PI/2,Math.PI]) {
     view.update(1280,720,1,{x:0,y:0},angle);r.updateActors(game);scene.updateMatrixWorld(true);
     for(const h of game.state.heroes) {
@@ -95,4 +95,15 @@ test('pinned vendor release has its license and no network imports',async()=>{
   const pkg=JSON.parse(await readFile(new URL('package.json',path),'utf8'));assert.equal(pkg.version,'0.185.1');
   assert.match(await readFile(new URL('LICENSE',path),'utf8'),/MIT License/);
   for(const file of ['three.core.min.js','three.module.min.js'])assert.doesNotMatch(await readFile(new URL(file,path),'utf8'),/from\s*["']https?:/);
+});
+
+
+test('tower batching keeps opaque draw calls bounded across many structures',()=>{
+  const factory=new ObjectFactory({});let calls=0;
+  for(let i=0;i<30;i++) {
+    const tower=factory.building('tower',i%3+1);
+    tower.traverse(o=>{if(o.isMesh&&o.material.isMeshStandardMaterial)calls++;});
+  }
+  assert.equal(calls,60,'two opaque batches per tower, including its rotating turret');
+  factory.dispose();
 });

@@ -28,6 +28,25 @@ export class ObjectFactory {
     const mesh=new THREE.Mesh(this.geometry('disc',()=>new THREE.CircleGeometry(1,24)),this.materials.get(key));
     mesh.rotation.x=-Math.PI/2;mesh.scale.setScalar(radius);mesh.position.y=.012;parent.add(mesh);return mesh;
   }
+  bakeStatic(group,key) {
+    // One vertex-colored draw for a building's fixed opaque parts. Keep moving
+    // turrets, health bars and transparent shadows outside this batch.
+    const parts=group.children.filter(o=>o.isMesh&&o.material.isMeshStandardMaterial);
+    if(parts.length<2)return;
+    const geometry=this.geometry(`baked:${key}`,()=>{
+      const positions=[],normals=[],colors=[];
+      for(const mesh of parts) {
+        mesh.updateMatrix();const g=mesh.geometry.index?mesh.geometry.toNonIndexed():mesh.geometry.clone();g.applyMatrix4(mesh.matrix);
+        const p=g.getAttribute('position'),n=g.getAttribute('normal'),color=mesh.material.color;
+        for(let i=0;i<p.count;i++){positions.push(p.getX(i),p.getY(i),p.getZ(i));normals.push(n.getX(i),n.getY(i),n.getZ(i));colors.push(color.r,color.g,color.b);}
+        g.dispose();
+      }
+      const baked=new THREE.BufferGeometry();baked.setAttribute('position',new THREE.Float32BufferAttribute(positions,3));baked.setAttribute('normal',new THREE.Float32BufferAttribute(normals,3));baked.setAttribute('color',new THREE.Float32BufferAttribute(colors,3));return baked;
+    });
+    if(!this.materials.has('vertex-lit'))this.materials.set('vertex-lit',new THREE.MeshStandardMaterial({vertexColors:true,roughness:.88,metalness:.04}));
+    for(const part of parts)group.remove(part);
+    group.add(new THREE.Mesh(geometry,this.materials.get('vertex-lit')));
+  }
   sprite(texture,height) {
     const material=new THREE.SpriteMaterial({map:texture,alphaTest:.18,transparent:true,depthWrite:true,toneMapped:false});
     const sprite=new THREE.Sprite(material);sprite.center.set(.5,.035);
@@ -70,6 +89,7 @@ export class ObjectFactory {
       this.box(turret,[.08,.08,.66],[0,0,-.13],'#b39b6a');
       this.cylinder(turret,0,.07,.15,[0,0,-.49],'#d4d6b8',4).rotation.x=-Math.PI/2;
       group.userData.turret=turret;
+      this.bakeStatic(turret,'tower-turret');
       for(let i=1;i<level;i++)this.ring(group,.5+i*.035,'#dbc17a');
     } else {
       this.cylinder(group,.46,.5,.09,[0,.045,0],'#879f9b');
@@ -81,6 +101,7 @@ export class ObjectFactory {
         gem.rotation.z=.25*Math.sin(a);
       }
     }
+    this.bakeStatic(group,`${kind}:${level}`);
     const bar=this.healthBar('#dfc88b',.65);bar.position.y=kind==='tower'?1.9:1.03;bar.visible=false;group.add(bar);
     group.userData.bar=bar;group.userData.kind=kind;group.userData.level=level;return group;
   }

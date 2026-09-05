@@ -6,7 +6,7 @@ Recovered and completed from the unfinished **Crystal Guard** prototype, using i
 
 The main game now uses **Three.js 0.185.1 / WebGL 2**. The island, rocks, crystal, palisades, towers, frost runes, range indicators and combat effects are actual 3D scene objects. The original painted heroes, enemies and forest scenery are camera-facing textured cutouts, preserving the prototype’s art direction. No new character art replaces the recovered atlas.
 
-The orthographic camera supports pan, zoom and 45-degree rotation. Ground commands and alpha-aware actor selection use Three.js raycasting. HP bars live in the scene; labels, menus, loot and the HUD remain accessible DOM elements. Shared geometry and materials are cached; expired actor materials, route buffers and effects are released. Device pixel ratio is capped at 2 (1.5 on narrow screens). Context loss pauses combat, and restoration waits for the player to resume.
+The orthographic camera supports pan, zoom and 45-degree rotation. Ground commands and alpha-aware actor selection use Three.js raycasting. HP bars live in the scene; labels, menus, loot and the HUD remain accessible DOM elements. Fixed building parts are batched into vertex-colored geometry (two opaque draws per tower, including its moving turret). Shared geometry and materials are cached; expired actor materials, route buffers and effects are released. Device pixel ratio is capped at 2 (1.5 on narrow screens). Context loss pauses combat, and restoration waits for the player to resume.
 
 `guard-core.mjs` remains a renderer-independent deterministic grid simulation. Existing version-1 run checkpoints remain compatible. The game has no physical 3D collision response, so navigation uses its existing grid rules.
 
@@ -59,9 +59,9 @@ No build step or runtime dependencies are required. Serve through HTTP; ES modul
 ## Validation and remaining boundary
 
 - 12 gameplay tests pass, including five complete twelve-wave campaigns, path safety, combat effects, loot, checkpoint compatibility and terminal states.
-- Five scene tests cover all 165 tiles at desktop, portrait and landscape dimensions across five camera angles and four zoom levels; original texture crops; actor alpha picking; simulation immutability; finite combat transforms; and actor/effect resource cleanup.
+- Six scene tests cover all 165 tiles at desktop, portrait and landscape dimensions across five camera angles and four zoom levels; original texture crops; actor alpha picking; simulation immutability; finite combat transforms; actor/effect resource cleanup, and tower draw-call batching.
 - The compatible Canvas renderer is still exercised offline at 1280×720 and 390×550.
-- Live WebGL interaction and visual checks are performed after deployment. Physical touch hardware and Safari require separate device testing.
+- The 2026-09-05 deployment loads successfully in live Chrome, resumes the existing pre-refactor checkpoint and permits combat construction, skill use, pause/resume 2× speed, second-wave completion and three-choice rewards. This cloud browser returns no WebGL 2 context, so those live interaction and screenshot checks exercise the automatic Canvas fallback. **Actual WebGL rendering, context loss/restoration, physical touch hardware and Safari have not been device-tested.** The CPU scene/raycast tests do not replace GPU visual validation.
 
 Optional fallback renderer check, with `@napi-rs/canvas` available:
 

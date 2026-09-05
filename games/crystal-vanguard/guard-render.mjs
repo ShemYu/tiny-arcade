@@ -2,7 +2,7 @@ import * as THREE from './vendor/three/three.module.min.js';
 import {W,H,CORE,ENTRANCES,HEROES,BUILDINGS,WAVES,TEXT} from './guard-content.mjs';
 import {BattlefieldCamera} from './three/camera.mjs';
 import {ForestAssets} from './three/assets.mjs';
-import {ObjectFactory} from './three/objects.mjs';
+import {ObjectFactory} from './three/objects.mjs?v=three2';
 import {EffectsView} from './three/effects.mjs';
 import {WorldLabels} from './three/labels.mjs';
 
